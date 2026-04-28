@@ -1,12 +1,16 @@
 # 👽 Viddani VS Alieni
 
+![Viddani VS Alieni](assets/background_init.png)
+
 Progetto di **Ingegneria del Software** per la realizzazione di un videogioco chiamato **Viddani VS Alieni**: un **gioco di ruolo (RPG) a livelli**.
 
 ---
 
 ## 📖 Descrizione
 
-In *Viddani VS Alieni* il giocatore affronta un'invasione aliena attraversando livelli progressivi, con difficoltà crescente, nemici sempre più forti e obiettivi specifici da completare.
+Gli alieni, provenienti dal pianeta **Proxima Centauri b** (un mondo ostile e scarsamente abitabile), stanno tentando di invadere la Terra per trovare una nuova casa. Per questo motivo si scontrano con i *Viddani*, i fieri contadini pronti a difendere il loro territorio. L'obiettivo principale del gioco è sconfiggere gli invasori spaziali e impedire loro di conquistare il pianeta.
+
+In *Viddani VS Alieni* il giocatore affronta l'invasione attraversando livelli progressivi, con difficoltà crescente, nemici sempre più forti e obiettivi specifici da completare.
 
 Il progetto unisce:
 - 📊 Analisi dei requisiti
@@ -27,8 +31,11 @@ Il progetto unisce:
 
 ## ✨ Caratteristiche previste del gioco
 
-- **Progressione a livelli** con aumento graduale della difficoltà.
-- **Sistema di combattimento** contro diverse tipologie di alieni.
+- **Progressione a livelli**: ci saranno in totale **3 livelli**, con un aumento graduale della difficoltà e ambientazioni uniche:
+  - **Livello 1:** La Campagna (nei campi terrestri).
+  - **Livello 2:** La Navicella Aliena.
+  - **Livello 3:** Il Pianeta degli Alieni (Proxima Centauri b).
+- **Sistema di combattimento** contro diverse tipologie di alieni, culminante con un **boss finale per ogni livello**.
 - **4 personaggi giocabili** con abilità e stili di gioco differenti.
 - **Obiettivi di livello** (es. sopravvivenza, eliminazione boss, raccolta risorse).
 - **Interfaccia chiara** per menu, stato del personaggio e avanzamento.
@@ -39,27 +46,40 @@ Il progetto unisce:
 
 ## 🧑‍🌾 Personaggi giocabili
 
-Ogni personaggio ha estetica, arma e abilità dedicate. Le scelte del giocatore influenzano il modo in cui i personaggi interagiscono tra loro e con gli NPC.
+Ogni personaggio ha estetica, arma e abilità base dedicate. Inoltre, progredendo nel gioco e salendo di livello, i personaggi potranno sviluppare e sbloccare nuove **abilità speciali**. Le scelte del giocatore influenzano il modo in cui i personaggi interagiscono tra loro e con gli NPC.
 
 - 👴 **Il Nonno**  
   **Aspetto:** coppola, sedia a rotelle.  
   **Arma:** doppietta ("scupetta").  
-  **Abilità:** elevata **potenza con il fucile**.
+  **Abilità Base:** elevata **potenza con il fucile**.  
+  **Abilità Speciale (sbloccabile):** *Salto con la sedia a rotelle* (un salto molto potente che genera un'onda d'urto). PIRATA DELLA STRADA
 
 - 👦 **Il Giovane (Bambino)**  
   **Aspetto:** canotta bianca.  
   **Arma:** fionda.  
-  **Abilità:** alta **velocità**.
+  **Abilità Base:** alta **velocità**.  
+  **Abilità Speciale (sbloccabile):** *Pioggia di pietre* (lancia un sacchetto di pietre da tutte le parti).
 
 - 👨 **Il Papà**  
   **Aspetto:** camicia a quadri, look rustico.  
   **Arma:** zappa.  
-  **Abilità:** attacchi ravvicinati potenti con la **zappa**.
+  **Abilità Base:** attacchi ravvicinati potenti con la **zappa**.  
+  **Abilità Speciale (sbloccabile):** *Il lancio del viddano* (lancia la zappa tipo boomerang).
 
 - 👩 **La Mamma**  
   **Aspetto:** look da contadina, con cappello di paglia e bretelle.  
   **Arma:** ciabatta.  
-  **Abilità:** supporto, può **curare gli altri personaggi con il Voltaren**.
+  **Abilità Base:** supporto, può **curare gli altri personaggi con il Voltaren**.  
+  **Abilità Speciale (sbloccabile):** *Cura di gruppo* (cura tutti i giocatori contemporaneamente).
+
+---
+
+## 👾 I Nemici (Alieni)
+
+Gli antagonisti principali del gioco sono gli Alieni, suddivisi in **3 classi differenti**.
+**Regola d'ingaggio:** Quando il giocatore incontra un alieno sul suo cammino, **la battaglia inizia immediatamente**.
+Inoltre, la regola alla base della forza dei nemici è: **più sono numerosi, meno sono potenti**. Questo costringerà i giocatori ad adattare le loro strategie in base alla quantità e al tipo di alieni presenti.
+Al termine di ciascuno dei 3 livelli, è prevista una sfida decisiva contro un **boss finale**.
 
 ---
 
@@ -73,7 +93,8 @@ Ogni personaggio ha estetica, arma e abilità dedicate. Le scelte del giocatore 
 
 ## 🗣️ NPC, altruismo e ricompense
 
-Durante i livelli il giocatore incontra NPC con cui può interagire.
+Durante i livelli il giocatore incontra NPC con cui può interagire. I dialoghi con gli NPC sono guidati da un'**Intelligenza Artificiale** (utilizzando un modello open source eseguito in locale), per offrire conversazioni dinamiche, imprevedibili e caratterizzate da **divertenti scambi di battute in dialetto siciliano**.
+**Regola d'ingaggio:** A differenza degli alieni, quando si incontra un NPC **prima si dialoga**; solo al termine della conversazione, e unicamente se le scelte del giocatore o la trama lo richiedono, partirà un'eventuale battaglia.
 
 - Gli NPC possono regalare oggetti.
 - Alcuni NPC possono proporre missioni secondarie o richiedere oggetti specifici.
