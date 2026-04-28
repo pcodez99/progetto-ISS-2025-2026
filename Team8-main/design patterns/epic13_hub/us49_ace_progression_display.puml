@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 13 - US49: Ace Progression Display
+class HubHUDView {
+    + render_ace_progress(aces : Set[str])
+}
+class ProgressionState {
+    + aces : Set[str]
+    + aces_count() : int
+}
+enum AceType {
+    DENARI
+    BASTONI
+    SPADE
+    COPPE
+}
+HubHUDView --> ProgressionState : reads
+ProgressionState --> AceType : tracks
+@enduml

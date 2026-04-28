@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 23 - US92: Elite Guards Gatekeeper
+class EliteGuardsController {
+    + evaluate_player_inventory()
+    + resolve_arancine_branch()   ' Skip fight, heal party
+    + resolve_coins_branch()      ' Skip fight, spend currency
+    + resolve_dossier_branch()    ' Skip fight, set boss debuff
+    + resolve_fight_branch()      ' Start combat
+}
+class Inventory {
+    + has_arancine() : bool
+    + has_coins() : bool
+    + has_dossier() : bool
+}
+EliteGuardsController --> Inventory : checks
+@enduml

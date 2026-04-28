@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 29 - US117: Data-Driven Content (JSON/YAML)
+class ContentLoader {
+    + load_rooms(directory : str) : List<RoomData>
+    + load_npcs(directory : str) : List<NPCData>
+    + load_items(directory : str) : List<ItemData>
+}
+class ContentRegistry {
+    - _rooms : Dict[str, RoomData>
+    - _npcs : Dict[str, NPCData>
+    + register(content_id : str, content : Any)
+    + get(content_id : str) : Any
+}
+note right: Registry Pattern + Factory
+ContentLoader --> ContentRegistry : populates
+@enduml

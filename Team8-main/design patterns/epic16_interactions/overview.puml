@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 16 Overview: Interactions System
+package "Interactions" {
+    class NPCInteractionController
+    class EnemyInteractionController
+    class EnvironmentInteractionController
+    class RewardController
+}
+package "US" {
+    rectangle "US63: NPC Interactions"
+    rectangle "US64: Enemy Interactions"
+    rectangle "US65: Environment"
+    rectangle "US66: Rewards"
+}
+NPCInteractionController --> US63
+EnemyInteractionController --> US64
+EnvironmentInteractionController --> US65
+RewardController --> US66
+@enduml

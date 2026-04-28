@@ -1,0 +1,16 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 6 Overview: Game Loop Entry
+package "Game Loop" {
+    class GameController
+    class RoomManager
+    class StateMachine
+}
+package "US" {
+    rectangle "US20: New Game Entry"
+    rectangle "US21: Load Game Entry"
+}
+GameController --> US20
+GameController --> US21
+@enduml

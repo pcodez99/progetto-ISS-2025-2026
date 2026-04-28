@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+title Epic 28 - US115: Credits and Return to Menu
+class CreditsController {
+    + start_credits()
+    + update_scroll(dt : float)
+    + skip_to_menu()
+    + on_credits_complete()
+}
+class CreditsState {
+    + scroll_position : float
+    + scroll_speed : float
+    + update(dt : float)
+}
+class StateMachine {
+    + change_state(StateID.CREDITS)
+    + change_state(StateID.MAIN_MENU)
+}
+CreditsController --> CreditsState : manages
+CreditsController --> StateMachine : transitions
+@enduml

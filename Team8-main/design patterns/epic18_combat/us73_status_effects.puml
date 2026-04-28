@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+title Epic 18 - US73: Status Effects
+class StatusManager {
+    + apply_status(target : Actor, status : StatusEffect)
+    + remove_status(target : Actor, status_id : str)
+    + process_turn_start(actor : Actor)
+    + process_turn_end(actor : Actor)
+}
+class StatusEffect {
+    + status_id : str
+    + duration : int
+    + timing_hooks : List[TimingHook>
+}
+enum TimingHook {
+    TURN_START
+    TURN_END
+    ON_HIT
+}
+StatusManager --> StatusEffect : manages
+@enduml

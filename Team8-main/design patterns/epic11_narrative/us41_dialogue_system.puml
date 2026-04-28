@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 11 - US41: Dialogue System
+class DialogueState {
+    - _current_node : DialogueNode
+    + enter(prev_state : BaseState, dialogue_id : str)
+    + advance_text()
+    + select_choice(index : int)
+}
+class DialogueTree {
+    + nodes : Dict[str, DialogueNode]
+}
+class DialogueNode {
+    + speaker : str
+    + text : str
+    + choices : Optional[List[DialogueChoice]]
+}
+DialogueState --> DialogueTree : navigates
+DialogueTree --> DialogueNode : contains
+@enduml

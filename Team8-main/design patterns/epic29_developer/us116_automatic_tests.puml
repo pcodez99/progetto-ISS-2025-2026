@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 29 - US116: Automatic Tests
+class TestRunner {
+    + run_all_tests()
+    + generate_report() : TestReport
+}
+class DamageCalculatorTest {
+    + test_miss_calculation()
+    + test_crit_calculation()
+    + test_defense_scaling()
+}
+class MockRNG {
+    + seed : int
+    + set_next_value(value : float)
+}
+note right: Deterministic RNG
+TestRunner --> DamageCalculatorTest : runs
+DamageCalculatorTest --> MockRNG : uses
+@enduml

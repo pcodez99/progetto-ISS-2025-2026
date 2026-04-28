@@ -1,0 +1,20 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 15 Overview: Rooms System
+package "Rooms" {
+    class RoomController
+    class RoomManager
+    class InteractionController
+}
+package "US" {
+    rectangle "US58: Collisions & Exits"
+    rectangle "US59: Passage Confirmation"
+    rectangle "US60: Spawn Points"
+    rectangle "US61: Contextual Interactions"
+}
+RoomController --> US58
+RoomController --> US59
+RoomManager --> US60
+InteractionController --> US61
+@enduml

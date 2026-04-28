@@ -1,0 +1,23 @@
+@startuml
+!theme plain
+title Epic 29 - US123: Debug Overlay/Console
+class DebugOverlay {
+    + is_visible : bool
+    + toggle()
+    + render_debug_info()
+    + handle_debug_input(event : Event)
+}
+class DebugInfoRenderer {
+    + render_fps_counter()
+    + render_memory_usage()
+    + render_collision_boxes()
+    + render_trigger_zones()
+}
+class DebugState {
+    + show_collision_boxes : bool
+    + show_fps : bool
+    + god_mode : bool
+}
+DebugOverlay --> DebugInfoRenderer : uses
+DebugOverlay --> DebugState : reads
+@enduml

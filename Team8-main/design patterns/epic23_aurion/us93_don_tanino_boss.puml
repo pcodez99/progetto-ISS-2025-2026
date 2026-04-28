@@ -1,0 +1,39 @@
+@startuml
+!theme plain
+title Epic 23 - US93: Don Tanino Boss (Scopa)
+
+class DonTaninoBoss {
+    - loot_item : ItemString = "Ace"
+    + start_scopa_challenge()
+    + check_game_result(winner)
+    + surrender_loot()
+}
+
+class ScopaGame {
+    - deck : List<Card>
+    - table_cards : List<Card>
+    - player_points : int
+    - boss_points : int
+    + deal_hand()
+    + play_card_on_table(card)
+    + check_capture_or_scopa()
+    + calculate_final_score() : Winner
+}
+
+class Player {
+    + inventory : List<Item>
+    + select_card_from_hand()
+    + receive_item(item)
+}
+
+' Relazioni
+DonTaninoBoss ..> ScopaGame : initiates
+ScopaGame --> Player : interacts with
+DonTaninoBoss --> Player : gives Ace on Win
+
+note right of DonTaninoBoss::surrender_loot
+  Viene chiamato se il 
+  giocatore vince la partita
+end note
+
+@enduml

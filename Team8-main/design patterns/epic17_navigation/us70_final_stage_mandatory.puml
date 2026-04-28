@@ -1,0 +1,13 @@
+@startuml
+!theme plain
+title Epic 17 - US70: Final Mandatory Stage
+class FinalStageController {
+    + check_final_stage_access(region_id : str) : bool
+    + require_final_stage_cleared(exit : ExitData) : bool
+    + mark_final_stage_completed(region_id : str)
+}
+class ProgressionState {
+    + final_stages_cleared : Set[str]
+}
+FinalStageController --> ProgressionState : updates/checks
+@enduml

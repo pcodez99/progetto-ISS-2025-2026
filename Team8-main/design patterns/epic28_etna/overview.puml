@@ -1,0 +1,24 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 28 Overview: Etna Finale
+package "Etna" {
+    class EtnaGateController
+    class FinalBattleController
+    class FinaleChoiceController
+    class EpilogueController
+    class CreditsController
+}
+package "US" {
+    rectangle "US111: Etna Unlock (4 Aces)"
+    rectangle "US112: Invulnerable Boss"
+    rectangle "US113: Violence vs Understanding"
+    rectangle "US114: Narrative Consequences"
+    rectangle "US115: Credits/Return"
+}
+EtnaGateController --> US111
+FinalBattleController --> US112
+FinaleChoiceController --> US113
+EpilogueController --> US114
+CreditsController --> US115
+@enduml

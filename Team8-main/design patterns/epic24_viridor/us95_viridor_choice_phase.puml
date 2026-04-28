@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 24 - US95: Viridor Choice Phase
+class ViridorChoiceController {
+    + select_figs()
+    + select_holy_water()
+    + select_shears()
+}
+class ViridorChoiceEffect {
+    + FIGS_EFFECT = "riddle_solved_but_boss_harder"
+    + WATER_EFFECT = "easier_fight"
+    + SHEARS_EFFECT = "harder_fight_but_boss_easier"
+}
+ViridorChoiceController --> ViridorChoiceEffect : applies
+@enduml

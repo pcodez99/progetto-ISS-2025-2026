@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 26 - US107: Ace of Cups Reward
+class VinaliaVictoryController {
+    + grant_ace_coppe()
+    + mark_vinalia_completed()
+    + check_all_aces_collected() : bool
+}
+class ProgressionState {
+    + add_ace("coppe")
+    + has_all_aces() : bool
+}
+VinaliaVictoryController --> ProgressionState : updates
+@enduml

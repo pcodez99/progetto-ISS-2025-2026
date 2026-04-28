@@ -1,0 +1,13 @@
+@startuml
+!theme plain
+title Epic 15 - US60: Spawn Points
+class RoomManager {
+    + load_room(room_id : str, spawn_id : str)
+    + position_party_at_spawn(spawn_id : str)
+}
+class RoomData {
+    + spawns : Dict[str, Tuple[int, int]]
+    + get_spawn(spawn_id : str) : Tuple[int, int]
+}
+RoomManager --> RoomData : reads spawns
+@enduml

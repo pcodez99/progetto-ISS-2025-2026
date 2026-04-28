@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 3 - US11: Camera System
+class Camera {
+    - _x : int
+    - _y : int
+    - _mode : CameraMode
+    - _bounds : Optional[Rect]
+    + set_mode(mode : CameraMode)
+    + snap_to_center(world_pos : Tuple[int, int])
+    + apply(world_rect : Rect) : Rect
+}
+enum CameraMode {
+    FIXED
+    FOLLOW
+}
+note right: Strategy Pattern
+Camera --> CameraMode : uses
+@enduml

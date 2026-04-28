@@ -1,0 +1,13 @@
+@startuml
+!theme plain
+title Epic 15 - US58: Room Collisions and Exits
+class RoomController {
+    + resolve_movement(entity : Entity, dx : int, dy : int) : Tuple[int, int]
+    + check_exit_collision(entity_rect : Rect) : Optional[ExitData]
+}
+class CollisionResolver {
+    + resolve_rect_collision(mover : Rect, dx : int, dy : int, obstacles : List[Rect]) : Tuple[int, int]
+}
+note right: Strategy Pattern
+RoomController --> CollisionResolver : uses
+@enduml

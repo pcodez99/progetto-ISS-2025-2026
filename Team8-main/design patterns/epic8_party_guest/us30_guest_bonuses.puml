@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 8 - US30: Guest Passive Bonuses
+class Party {
+    + get_active_bonuses() : Set[str]
+}
+class GuestDataRegistry {
+    - _guest_data : Dict[str, GuestData]
+    + get_guest_bonuses(guest_id : str) : Set[str]
+}
+note right: Registry Pattern
+class CombatRules {
+    + apply_guest_bonuses(party : Party)
+}
+Party --> GuestDataRegistry : queries
+CombatRules --> Party : applies bonuses
+@enduml

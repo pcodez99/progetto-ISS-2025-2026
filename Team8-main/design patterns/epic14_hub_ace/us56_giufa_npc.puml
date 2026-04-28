@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 14 - US56: Giufà NPC (Contextual Guide)
+class NPCData {
+    + npc_id : str = "giufa_hub"
+    + script_id : str = "giufa_dialogue"
+}
+class GiufaDialogueScript {
+    + get_branch_for_state(flags : Flags, aces_count : int) : DialogueBranch
+}
+class ConditionEvaluator {
+    + evaluate_aces_count(n : int) : bool
+}
+GiufaDialogueScript --> ConditionEvaluator : checks
+@enduml

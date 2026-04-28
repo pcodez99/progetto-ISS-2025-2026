@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 18 - US75: Victory/Defeat and Rewards
+class CombatResolutionController {
+    + check_end_conditions(combat_model : CombatModel) : Outcome
+    + handle_victory()
+    + handle_defeat()
+    + grant_rewards(rewards : List[Reward>)
+}
+enum Outcome {
+    VICTORY
+    DEFEAT
+    ONGOING
+}
+CombatResolutionController --> Outcome : returns
+@enduml

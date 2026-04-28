@@ -1,0 +1,22 @@
+@startuml
+!theme plain
+title Epic 7 - US28: KO, Revive, Combat End
+class CombatRules {
+    + check_outcome(combat_model : CombatModel) : Optional[Outcome]
+    + apply_damage(actor : Actor, amount : int)
+    + revive_actor(actor : Actor, amount : int)
+}
+enum Outcome {
+    VICTORY
+    DEFEAT
+    ONGOING
+}
+class Actor {
+    + hp : int
+    + is_ko : bool
+    + apply_damage(amount : int)
+    + revive(amount : int)
+}
+CombatRules --> Actor : modifies health
+CombatRules --> Outcome : returns
+@enduml

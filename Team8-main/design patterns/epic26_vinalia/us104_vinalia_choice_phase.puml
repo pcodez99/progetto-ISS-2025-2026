@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 26 - US104: Vinalia Choice Phase
+class VinaliaChoiceController {
+    + select_wine()       ' No fight but HP penalty
+    + select_vinegar()    ' Forced fight, vinegar for boss
+    + select_marranzano() ' Skip fight + resistance buff
+}
+class VinaliaChoiceEffect {
+    + WINE_EFFECT = "hp_penalty_arrival"
+    + VINEGAR_EFFECT = "forced_fight_boss_item"
+    + MARRANZANO_EFFECT = "skip_fight_resistance_buff"
+}
+VinaliaChoiceController --> VinaliaChoiceEffect : applies
+@enduml

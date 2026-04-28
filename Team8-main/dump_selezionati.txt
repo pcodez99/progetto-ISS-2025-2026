@@ -1,0 +1,669 @@
+
+============================================================
+FILE: src/model/aurion/aurion_region.py
+============================================================
+
+"""
+Aurion Region Module - Handles logic for Epic 23 and 27.
+Fixed: Path-specific flags for permanent choice and Gatekeeper outcomes.
+"""
+from src.model.items.item_ids import ItemIds
+
+class AurionRegion:
+    def __init__(self, game):
+        self.game = game
+        self.completed_flag_key = "region_aurion_completed"
+        self.boss_weakened_flag = "aurion_boss_weakened"
+        
+        # Path-specific flags
+        self.PATH_ARANCINA = "aurion_path_arancina"
+        self.PATH_MONETE = "aurion_path_monete"
+        self.PATH_DOSSIER = "aurion_path_dossier"
+        self.STARTER_RECEIVED = "aurion_starter_received"
+
+    def has_made_choice(self) -> bool:
+        """Checks if an item has already been picked up."""
+        return self.game.get_flag(self.STARTER_RECEIVED)
+
+    def make_choice(self, selection_idx: int) -> str:
+        """
+        Logic for picking up the item. 
+        Once called, this seals the chosen path.
+        """
+        if self.has_made_choice():
+            return "Hai già scelto il tuo destino, non c'è altro per te qui."
+
+        item_id = None
+        path_flag = None
+        msg = ""
+
+        if selection_idx == 0:
+            item_id = ItemIds.ARANCINA_CALDA
+            path_flag = self.PATH_ARANCINA
+            msg = "Hai preso le Arancine Calde! Il profumo del ragù sancisce il tuo patto."
+        elif selection_idx == 1:
+            item_id = ItemIds.SACCO_MONETE
+            path_flag = self.PATH_MONETE
+            msg = "Hai preso il Sacco di Monete! L'oro pesa, ma la strada è segnata."
+        elif selection_idx == 2:
+            item_id = ItemIds.FASCICOLO_SEGRETO
+            path_flag = self.PATH_DOSSIER
+            msg = "Hai preso il Fascicolo Segreto! Conosci i segreti che non puoi dimenticare."
+        
+        if item_id:
+            self.game.add_global_item(item_id, 1)
+            self.game.set_flag(self.STARTER_RECEIVED, True)
+            self.game.set_flag(path_flag, True) # Permanent path lock
+            
+            player = self.game.gamestate.get_active_player()
+            if player:
+                player.inventory.add_item(item_id, "Oggetto Chiave Aurion")
+
+        return msg
+
+    def resolve_gatekeeper(self) -> dict:
+        """Resolves the encounter with the Elite Guards based on the item held."""
+        inventory = self.game.inventory_global
+        
+        # A: Arancine (Diplomacy/Heal)
+        if inventory.get(ItemIds.ARANCINA_CALDA, 0) > 0:
+            for p in self.game.gamestate.players:
+                p.hp = p.max_hp # Full heal as bonus
+            return {
+                "outcome": "skip", 
+                "msg": "Guardie: 'Mbare, ma sono calde! Passate pure, non abbiamo visto niente.'"
+            }
+        
+        # B: Monete (Bribe)
+        elif inventory.get(ItemIds.SACCO_MONETE, 0) > 0:
+            self.game.inventory_global[ItemIds.SACCO_MONETE] -= 1
+            return {
+                "outcome": "skip", 
+                "msg": "Le guardie accettano l'oro con un ghigno. 'La discrezione ha un prezzo. Avanti!'"
+            }
+        
+        # C: Fascicolo (Blackmail)
+        elif inventory.get(ItemIds.FASCICOLO_SEGRETO, 0) > 0:
+            self.game.set_flag(self.boss_weakened_flag, True)
+            return {
+                "outcome": "skip", 
+                "msg": "Guardie: 'Questo è il dossier di Don Tanino?! Se sa che l'abbiamo visto ci scanna! Scappiamo!'"
+            }
+        
+        # Default: No item (Fight)
+        else:
+            return {
+                "outcome": "fight", 
+                "encounter_id": "aurion_guards_fight", 
+                "msg": "Le guardie vi sbarrano il passo! 'Nessun regalo, nessuna bustarella? Allora assaggiate l'acciaio!'"
+            }
+
+    def on_boss_victory(self):
+        self.game.give_ace("denari") 
+        self.game.set_flag(self.completed_flag_key, True)
+        self.game.return_to_hub()
+
+============================================================
+FILE: src/model/content/aurion_builder.py
+============================================================
+
+"""
+Aurion Builder - Static definition of Aurion rooms for Epic 27 testing.
+US 108: Gated room structure.
+US 109: Interactive console.
+US 110: Checkpoints.
+"""
+import pygame
+from src.model.room_data import RoomData, TriggerZone, EntityDefinition, SpawnPoint
+from src.model.render_system import CameraMode
+
+class AurionBuilder:
+    @staticmethod
+    def build_aurion_rooms(content_registry):
+        """Popola il registry con le stanze di Aurion."""
+        
+        # 1. Aurion Entry
+        entry = RoomData("aurion_entry_01", name="Aurion Gates", width=800, height=600)
+        entry.spawns["from_hub"] = SpawnPoint("from_hub", 400, 550, "up")
+        entry.spawns["default"] = SpawnPoint("default", 400, 550, "up")
+        entry.is_checkpoint = False
+        
+        # Exit to Final Stage
+        entry.triggers.append(TriggerZone(
+            "to_final_stage", pygame.Rect(350, 0, 100, 50), 
+            "exit", target_room="aurion_final_stage", target_spawn="entry"
+        ))
+        
+        # Starter Pedestal (US 91)
+        entry.entities.append(EntityDefinition(
+            "starter_pedestal", "interactable", 400, 300, 
+            interaction_label="Pedestal", script_id="aurion_starter_pedestal"
+        ))
+        
+        content_registry.register("rooms", entry.to_dict_dummy()) # Mock for dynamic loading
+
+        # 2. Aurion Final Stage (US 108, 109, 110)
+        final = RoomData("aurion_final_stage", name="Proving Grounds", width=800, height=600)
+        final.spawns["entry"] = SpawnPoint("entry", 400, 550, "up")
+        final.spawns["from_gate"] = SpawnPoint("from_gate", 400, 550, "up")
+        final.is_checkpoint = True # US 110
+        
+        # Security Console (US 109)
+        final.entities.append(EntityDefinition(
+            "security_console", "interactable", 100, 100, 
+            interaction_label="Console", script_id="aurion_security_console"
+        ))
+        
+        # Exit to Boss (Gated US 108)
+        final.triggers.append(TriggerZone(
+            "to_boss", pygame.Rect(350, 0, 100, 50), 
+            "exit", target_room="aurion_boss_room", target_spawn="entry",
+            data={
+                "req_flag": "aurion_final_stage_cleared", # Gate Logic
+                "locked_msg": "Security Grid Active. Hack the console first."
+            }
+        ))
+        
+        content_registry.register("rooms", final.to_dict_dummy())
+
+        # 3. Boss Room
+        boss = RoomData("aurion_boss_room", name="Don Tanino's Office", width=800, height=600)
+        boss.spawns["entry"] = SpawnPoint("entry", 400, 500, "up")
+        
+        # Trigger Boss Fight (Auto on enter or interact)
+        # Per ora usiamo un NPC interagibile
+        boss.entities.append(EntityDefinition(
+            "don_tanino_npc", "npc", 400, 200,
+            interaction_label="Don Tanino",
+            actions=[{"label": "Challenge", "script_id": "start_boss_combat"}]
+        ))
+        
+        content_registry.register("rooms", boss.to_dict_dummy())
+
+# Helper per RoomData per evitare dipendenze da JSON serialization in questo mock
+def to_dict_dummy(self):
+    return {
+        "room_id": self.room_id,
+        "name": self.name,
+        "width": self.width,
+        "height": self.height,
+        "camera_mode": self.camera_mode.value,
+        "spawns": {k: {"x": v.x, "y": v.y} for k, v in self.spawns.items()},
+        "entities": [{"entity_id": e.entity_id, "x": e.x, "y": e.y, "script_id": e.script_id, "properties": {"label": e.interaction_label}} for e in self.entities],
+        "triggers": [{"rect": [t.rect.x, t.rect.y, t.rect.w, t.rect.h], "trigger_type": t.trigger_type, "target_room": t.target_room, "target_spawn": t.target_spawn, "data": t.data, "requires_confirm": t.requires_confirm, "prompt_text": t.prompt_text} for t in self.triggers],
+        "is_checkpoint": self.is_checkpoint
+    }
+RoomData.to_dict_dummy = to_dict_dummy
+
+============================================================
+FILE: src/model/content/rooms_loader.py
+============================================================
+
+from src.model.content.loader_base import LoaderBase
+from src.model.content.validators import validate_room
+
+class RoomsLoader(LoaderBase):
+    def __init__(self):
+        super().__init__(validate_room)
+
+
+============================================================
+FILE: src/model/content/world_builder.py
+============================================================
+
+"""
+World Builder - Constructs the entire game world.
+FULL VERSION: Fixed Hub triggers and Scripted Gates for Aurion permanent choice.
+"""
+import pygame
+from src.model.room_data import RoomData, TriggerZone, EntityDefinition, SpawnPoint, Collider
+from src.model.render_system import CameraMode
+
+class WorldBuilder:
+    @staticmethod
+    def build_all(content_registry):
+        # Layout Constants
+        SCREEN_W = 800
+        SCREEN_H = 600
+        SPAWN_BOTTOM = (400, 530)
+        SPAWN_TOP = (400, 80)
+
+        # =========================================================================
+        # 1. HUB CENTRALE
+        # =========================================================================
+        hub = RoomData("hub", name="Ombelico della Sicilia", width=SCREEN_W, height=SCREEN_H, 
+                       camera_mode=CameraMode.FIXED, background_id="hub")
+        
+        hub.spawns["default"] = SpawnPoint("default", 400, 300)
+        hub.spawns["from_aurion"] = SpawnPoint("from_aurion", 400, 80)
+        hub.spawns["from_ferrum"] = SpawnPoint("from_ferrum", 400, 520)
+        hub.spawns["from_vinalia"] = SpawnPoint("from_vinalia", 80, 300)
+        hub.spawns["from_viridor"] = SpawnPoint("from_viridor", 720, 300)
+
+        # Navigation Triggers (Exit type)
+        hub.triggers.append(TriggerZone("to_aurion", pygame.Rect(350, 0, 100, 40), "exit", 
+                                        target_room="aurion_entry", target_spawn="bottom",
+                                        requires_confirm=True, prompt_text="Entrare ad Aurion?"))
+        
+        hub.triggers.append(TriggerZone("to_ferrum", pygame.Rect(350, 560, 100, 40), "exit", 
+                                        target_room="ferrum_entry", target_spawn="bottom",
+                                        requires_confirm=True, prompt_text="Entrare a Ferrum?"))
+
+        hub.entities.append(EntityDefinition("giufa", "npc", 300, 250, interaction_label="Giufà", script_id="giufa_hub_talk"))
+        content_registry.register("rooms", { "id": hub.room_id, "obj": hub })
+
+
+        # =========================================================================
+        # 2. AURION (ZONA DENARI)
+        # =========================================================================
+        # Main Entry Hall
+        aur_1 = RoomData("aurion_entry", name="Aurion: Atrio del Destino", width=SCREEN_W, height=SCREEN_H)
+        aur_1.spawns["bottom"] = SpawnPoint("bottom", *SPAWN_BOTTOM)
+        aur_1.spawns["top_left"] = SpawnPoint("top_left", 150, 100)
+        aur_1.spawns["top_center"] = SpawnPoint("top_center", 400, 100)
+        aur_1.spawns["top_right"] = SpawnPoint("top_right", 650, 100)
+
+        # SCRIPTED GATES (Logic handled in ScriptsRegistry)
+        aur_1.triggers.append(TriggerZone("door_l", pygame.Rect(100, 0, 100, 40), "script", script_id="enter_door_arancina"))
+        aur_1.triggers.append(TriggerZone("door_c", pygame.Rect(350, 0, 100, 40), "script", script_id="enter_door_monete"))
+        aur_1.triggers.append(TriggerZone("door_r", pygame.Rect(600, 0, 100, 40), "script", script_id="enter_door_dossier"))
+        
+        aur_1.triggers.append(TriggerZone("back_hub", pygame.Rect(300, 560, 200, 40), "exit", target_room="hub", target_spawn="from_aurion"))
+        content_registry.register("rooms", { "id": aur_1.room_id, "obj": aur_1 })
+
+        # Vaults (Where items are picked up)
+        vault_configs = [
+            ("aurion_vault_arancina", "Caveau Cucine", "pickup_arancina", "top_left"),
+            ("aurion_vault_monete", "Caveau Tesoro", "pickup_monete", "top_center"),
+            ("aurion_vault_dossier", "Caveau Archivi", "pickup_dossier", "top_right")
+        ]
+        
+        for rid, rname, rscript, bsp in vault_configs:
+            v = RoomData(rid, name=rname, width=SCREEN_W, height=SCREEN_H)
+            v.spawns["bottom"] = SpawnPoint("bottom", *SPAWN_BOTTOM)
+            # Item Entity (Pickable once)
+            v.entities.append(EntityDefinition("item", "interactable", 400, 300, 
+                                               interaction_label="Prendi", script_id=rscript,
+                                               once_flag="aurion_starter_received"))
+            
+            # Forward to Gatekeeper, backward to Entry
+            v.triggers.append(TriggerZone("f", pygame.Rect(300, 0, 200, 40), "exit", target_room="aurion_gatekeeper", target_spawn="bottom"))
+            v.triggers.append(TriggerZone("b", pygame.Rect(300, 560, 200, 40), "exit", target_room="aurion_entry", target_spawn=bsp))
+            content_registry.register("rooms", { "id": v.room_id, "obj": v })
+
+        # Gatekeeper Hall
+        aur_2 = RoomData("aurion_gatekeeper", name="Aurion: Dogana", width=SCREEN_W, height=SCREEN_H)
+        aur_2.spawns["bottom"] = SpawnPoint("bottom", *SPAWN_BOTTOM)
+        aur_2.entities.append(EntityDefinition("guards", "npc", 400, 200, interaction_label="Guardie", script_id="aurion_gate"))
+        content_registry.register("rooms", { "id": aur_2.room_id, "obj": aur_2 })
+
+        # Boss Room
+        aur_3 = RoomData("aurion_boss_room", name="Aurion: Ufficio Boss", width=SCREEN_W, height=SCREEN_H)
+        aur_3.spawns["bottom"] = SpawnPoint("bottom", *SPAWN_BOTTOM)
+        aur_3.entities.append(EntityDefinition("boss", "enemy", 400, 150, interaction_label="Don Tanino", script_id="start_boss_combat"))
+        content_registry.register("rooms", { "id": aur_3.room_id, "obj": aur_3 })
+
+        # =========================================================================
+        # 3. PLACEHOLDERS (OTHER REGIONS)
+        # =========================================================================
+        for rid, rname, hsp in [("viridor_entry", "Viridor", "from_viridor"), 
+                                 ("ferrum_entry", "Ferrum", "from_ferrum"), 
+                                 ("vinalia_entry", "Vinalia", "from_vinalia")]:
+            room = RoomData(rid, name=rname, width=SCREEN_W, height=SCREEN_H)
+            room.spawns["bottom"] = SpawnPoint("bottom", *SPAWN_BOTTOM)
+            room.triggers.append(TriggerZone("back", pygame.Rect(300, 560, 200, 40), "exit", target_room="hub", target_spawn=hsp))
+            content_registry.register("rooms", { "id": room.room_id, "obj": room })
+
+============================================================
+FILE: src/model/content/hub_builder.py
+============================================================
+
+"""
+Hub Builder - Implementazione Epic 14
+Hub Centrale con uscite interattive, Carretto e NPC Giufà.
+"""
+import pygame
+from src.model.room_data import RoomData, TriggerZone, EntityDefinition, Collider, SpawnPoint
+from src.model.render_system import CameraMode
+
+class HubBuilder:
+    @staticmethod
+    def create_hub() -> RoomData:
+        room = RoomData(
+            room_id="hub",
+            name="Hub Centrale",
+            width=800,
+            height=600,
+            camera_mode=CameraMode.FIXED,
+            background_color=(50, 50, 60)
+        )
+
+        # --- US 50: Spawn Points ---
+        room.spawns["default"] = SpawnPoint("default", 400, 300, "down")
+        room.spawns["from_aurion"] = SpawnPoint("from_aurion", 400, 100, "down") # Nord (spostato un po' giù per non spawnare nel trigger)
+        room.spawns["from_ferrum"] = SpawnPoint("from_ferrum", 400, 500, "up")    # Sud
+        room.spawns["from_vinalia"] = SpawnPoint("from_vinalia", 100, 300, "right") # Ovest
+        room.spawns["from_viridor"] = SpawnPoint("from_viridor", 700, 300, "left") # Est (Viridor/Etna)
+
+        # --- US 50: Colliders (Muri) ---
+        room.colliders = [
+            Collider("wall_top_L", pygame.Rect(0, 0, 350, 20)),
+            Collider("wall_top_R", pygame.Rect(450, 0, 350, 20)),
+            Collider("wall_bottom_L", pygame.Rect(0, 580, 350, 20)),
+            Collider("wall_bottom_R", pygame.Rect(450, 580, 350, 20)),
+            Collider("wall_left_U", pygame.Rect(0, 0, 20, 250)),
+            Collider("wall_left_D", pygame.Rect(0, 350, 20, 250)),
+            Collider("wall_right_U", pygame.Rect(780, 0, 20, 250)),
+            Collider("wall_right_D", pygame.Rect(780, 350, 20, 250)),
+        ]
+
+        # --- US 52: Interactive Exits ---
+        # MODIFICA PER ALPHA: Trigger "exit" automatici su collisione (on_enter)
+        # Invece di richiedere 'E', chiedono conferma appena ci cammini sopra.
+        
+        # NORD: Aurion
+        room.triggers.append(TriggerZone(
+            id="gate_aurion", rect=pygame.Rect(350, 0, 100, 50),
+            trigger_type="exit", target_room="aurion_entry_01", target_spawn="from_hub",
+            requires_confirm=True, prompt_text="Viaggiare verso Aurion?"
+        ))
+
+        # SUD: Ferrum
+        room.triggers.append(TriggerZone(
+            id="gate_ferrum", rect=pygame.Rect(350, 550, 100, 50),
+            trigger_type="exit", target_room="ferrum_entry_01", target_spawn="from_hub",
+            requires_confirm=True, prompt_text="Viaggiare verso Ferrum?"
+        ))
+
+        # OVEST: Vinalia
+        room.triggers.append(TriggerZone(
+            id="gate_vinalia", rect=pygame.Rect(0, 250, 50, 100),
+            trigger_type="exit", target_room="vinalia_entry_01", target_spawn="from_hub",
+            requires_confirm=True, prompt_text="Viaggiare verso Vinalia?"
+        ))
+
+        # EST: Etna/Viridor (US 53 LOCKED)
+        # Questo rimane uno script perché ha una logica condizionale (Assi richiesti)
+        room.triggers.append(TriggerZone(
+            id="gate_etna", rect=pygame.Rect(750, 250, 50, 100),
+            trigger_type="script", script_id="interact_etna_gate",
+            requires_confirm=False, # Script manuale (devi premere E)
+            data={"label": "Cancello dell'Etna (Premi E)"}
+        ))
+
+        # --- US 56: NPC Giufà ---
+        room.entities.append(EntityDefinition(
+            entity_id="npc_giufa",
+            entity_type="npc",
+            x=300, y=250,
+            interaction_label="Parla con Giufà",
+            script_id="giufa_hub_talk" # Script dinamico
+        ))
+
+        # --- US 55: Carretto Siciliano ---
+        room.entities.append(EntityDefinition(
+            entity_id="obj_carretto",
+            entity_type="prop",
+            x=400, y=200,
+            properties={"name": "Carretto", "is_carretto": True}
+        ))
+
+        return room
+
+============================================================
+FILE: src/model/room_data.py
+============================================================
+
+"""
+Room Data - Unified schema for room loading and runtime behavior
+Epic 1-2 (US2, US3) + Epic 3 (US11) + Epic 15 (US 58, 60, 61)
+Epic 27: Checkpoint support (US 110)
+"""
+
+import json
+import logging
+import math
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any, Tuple
+import pygame
+from src.model.render_system import CameraMode, CameraBounds
+
+logger = logging.getLogger(__name__)
+
+# ============== DEFINITIONS ==============
+
+@dataclass
+class SpawnPoint:
+    """Definition of a spawn point (unified)"""
+    spawn_id: str
+    x: int
+    y: int
+    facing: str = "down"
+
+@dataclass
+class Collider:
+    """Collider for blocking movement (Epic 3/15)"""
+    id: str
+    rect: pygame.Rect
+
+    def contains(self, x: int, y: int) -> bool:
+        return self.rect.collidepoint(x, y)
+
+@dataclass
+class TriggerZone:
+    """Runtime trigger zone for events/transitions (Epic 3/15)"""
+    id: str
+    rect: pygame.Rect
+    trigger_type: str # "exit", "script"
+    target_room: Optional[str] = None
+    target_spawn: Optional[str] = None
+    script_id: Optional[str] = None
+    requires_confirm: bool = False
+    prompt_text: Optional[str] = None
+    data: Dict[str, Any] = field(default_factory=dict)
+
+    def get_center(self) -> Tuple[int, int]:
+        return self.rect.center
+
+@dataclass
+class EntityDefinition:
+    """Definition of an entity (NPC, Item, Prop)"""
+    entity_id: str
+    entity_type: str  # "npc", "enemy", "interactable", "item", "prop"
+    x: int
+    y: int
+    width: int = 32
+    height: int = 32
+    properties: dict = field(default_factory=dict)
+    
+    # Simple interaction (US 61)
+    script_id: Optional[str] = None
+    interaction_label: Optional[str] = None
+    
+    # Advanced interaction (US 63)
+    # List of {"label": "Talk", "script_id": "..."}
+    actions: List[Dict[str, str]] = field(default_factory=list)
+    
+    # Persistence (US 65)
+    # If set, entity only spawns if flag is FALSE
+    once_flag: Optional[str] = None
+
+    def get_rect(self) -> pygame.Rect:
+        return pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def get_center(self) -> Tuple[int, int]:
+        return (self.x + self.width // 2, self.y + self.height // 2)
+@dataclass
+class RoomData:
+    """Unified room data schema."""
+    room_id: str
+    name: str = ""
+    width: int = 800
+    height: int = 600
+    background_id: Optional[str] = None
+    tilemap_id: Optional[str] = None
+    background_color: Tuple[int, int, int] = (40, 40, 40)
+    camera_mode: CameraMode = CameraMode.FIXED
+    camera_fixed_pos: Tuple[int, int] = (0, 0)
+    camera_bounds: Optional[CameraBounds] = None
+    
+    spawns: Dict[str, SpawnPoint] = field(default_factory=dict)
+    default_spawn_id: str = "default"
+    entities: List[EntityDefinition] = field(default_factory=list)
+    colliders: List[Collider] = field(default_factory=list)
+    triggers: List[TriggerZone] = field(default_factory=list)
+
+    # Epic 27: Checkpoint System (US 110)
+    is_checkpoint: bool = False
+
+    # Legacy Schema Holders (kept for backward compatibility with older tests)
+    exits: List[Any] = field(default_factory=list)
+    triggers_schema: List[Any] = field(default_factory=list)
+    collisions: List[Tuple[int, int, int, int]] = field(default_factory=list)
+
+    def get_spawn_point(self, spawn_id: Optional[str] = None) -> SpawnPoint:
+        if spawn_id is None:
+            spawn_id = self.default_spawn_id
+        if spawn_id in self.spawns:
+            return self.spawns[spawn_id]
+        if self.default_spawn_id in self.spawns:
+            return self.spawns[self.default_spawn_id]
+        return SpawnPoint("fallback", self.width // 2, int(self.height * 0.9))
+
+    def get_spawn_position(self, spawn_id: str = None) -> tuple[int, int]:
+        sp = self.get_spawn_point(spawn_id)
+        return (sp.x, sp.y)
+
+    def check_collision(self, rect: pygame.Rect) -> bool:
+        for collider in self.colliders:
+            if rect.colliderect(collider.rect):
+                return True
+        return False
+
+    def check_triggers(self, rect: pygame.Rect) -> List[TriggerZone]:
+        return [t for t in self.triggers if rect.colliderect(t.rect)]
+
+    def get_closest_interactable(self, px: int, py: int, max_range: float) -> Optional[EntityDefinition]:
+        nearest = None
+        min_dist = float('inf')
+        for entity in self.entities:
+            if not entity.script_id and not entity.interaction_label:
+                continue
+            cx, cy = entity.get_center()
+            dist = math.sqrt((px - cx)**2 + (py - cy)**2)
+            if dist <= max_range and dist < min_dist:
+                min_dist = dist
+                nearest = entity
+        return nearest
+
+    def get_collider_rects(self) -> List[pygame.Rect]:
+        return [c.rect for c in self.colliders]
+
+    def get_trigger_rects(self) -> List[pygame.Rect]:
+        return [t.rect for t in self.triggers]
+
+    # ============== FACTORY & LOAD METHODS ==============
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'RoomData':
+        """Load RoomData from a dictionary."""
+        # Fix 1: Check key existence BEFORE access to avoid KeyError
+        if 'room_id' not in data:
+            raise ValueError("Missing required field: room_id")
+
+        room = cls(
+            room_id=data['room_id'],
+            name=data.get('name', data['room_id']),
+            width=data.get('width', 800),
+            height=data.get('height', 600),
+            background_id=data.get('background_id'),
+            camera_mode=CameraMode(data.get('camera_mode', 0)) if isinstance(data.get('camera_mode'), int) else CameraMode.FIXED,
+            is_checkpoint=data.get('is_checkpoint', False) # US 110
+        )
+
+        # Spawns parsing
+        for sid, sdata in data.get('spawns', {}).items():
+            if isinstance(sdata, list):
+                room.spawns[sid] = SpawnPoint(sid, sdata[0], sdata[1])
+            elif isinstance(sdata, dict):
+                 room.spawns[sid] = SpawnPoint(sid, sdata.get('x'), sdata.get('y'))
+
+        # Entities parsing
+        for edata in data.get('entities', []):
+            room.entities.append(EntityDefinition(
+                entity_id=edata['entity_id'],
+                entity_type=edata.get('entity_type', 'prop'),
+                x=edata.get('x', 0),
+                y=edata.get('y', 0),
+                properties=edata.get('properties', {}),
+                script_id=edata.get('script_id') or edata.get('properties', {}).get('interaction_script'),
+                interaction_label=edata.get('properties', {}).get('label')
+            ))
+
+        # Runtime Collisions construction
+        collisions_raw = data.get('collisions', [])
+        # Fix 2: Populate legacy collisions list for TestRoomDataSchema
+        room.collisions = [tuple(c) for c in collisions_raw]
+        
+        for i, c in enumerate(collisions_raw):
+            room.colliders.append(Collider(f"col_{i}", pygame.Rect(*c)))
+        
+        # Runtime Triggers
+        for t in data.get('triggers', []):
+             if 'rect' in t:
+                 room.triggers.append(TriggerZone(
+                     id=t.get('trigger_id', 'trig'),
+                     rect=pygame.Rect(*t['rect']),
+                     trigger_type=t.get('trigger_type', 'script'),
+                     script_id=t.get('script_id'),
+                     requires_confirm=t.get('requires_confirm', False),
+                     prompt_text=t.get('prompt_text', "Interact?"),
+                     # US 108: data for gate logic
+                     data=t.get('data', {}) 
+                 ))
+        
+        # Exits as Triggers
+        for ex in data.get('exits', []):
+             room.triggers.append(TriggerZone(
+                 id=ex.get('exit_id', 'exit'),
+                 rect=pygame.Rect(*ex.get('rect', [0,0,32,32])),
+                 trigger_type='exit',
+                 target_room=ex.get('dest_room'),
+                 target_spawn=ex.get('dest_spawn'),
+                 requires_confirm=ex.get('requires_confirm', False),
+                 prompt_text=ex.get('prompt_text', "Go to next area?")
+             ))
+        
+        # Populate legacy exits list for tests
+        room.exits = data.get('exits', [])
+
+        return room
+
+    # ============== HELPER FACTORY METHODS ==============
+    
+    @classmethod
+    def create_hub(cls) -> 'RoomData':
+        """Factory method for testing/default hub."""
+        r = cls(
+            room_id="hub",
+            width=800,
+            height=600,
+            camera_mode=CameraMode.FIXED,
+            is_checkpoint=True # Hub is always safe
+        )
+        # Fix: Add test trigger for TestRoomDataCamera
+        r.triggers.append(TriggerZone("test_trig", pygame.Rect(350, 0, 100, 50), "script"))
+        return r
+
+    @classmethod
+    def create_large_room(cls) -> 'RoomData':
+        """Factory method for testing large rooms with camera follow."""
+        room = cls(
+            room_id="large_room",
+            width=1600,
+            height=1200,
+            camera_mode=CameraMode.FOLLOW
+        )
+        room.camera_bounds = CameraBounds(0, 0, 1600, 1200)
+        room.spawns["default"] = SpawnPoint("default", 500, 400)
+        return room

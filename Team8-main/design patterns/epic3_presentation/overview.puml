@@ -1,0 +1,18 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 3 Overview: Presentation Foundation
+package "Presentation" {
+    class Renderer
+    class Camera
+    class AnimationComponent
+}
+package "US" {
+    rectangle "US10: Render Pipeline"
+    rectangle "US11: Camera System"
+    rectangle "US12: Animation"
+}
+Renderer --> US10
+Camera --> US11
+AnimationComponent --> US12
+@enduml

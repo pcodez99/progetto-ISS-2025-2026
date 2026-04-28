@@ -1,0 +1,38 @@
+@startuml
+!theme plain
+title Epic 25 - US102: Knight Peppino Boss (Briscola)
+
+class KnightPeppinoBoss {
+    - loot_item : ItemString = "Ace"
+    + start_briscola_challenge()
+    + check_game_result(winner)
+    + surrender_loot()
+}
+
+class BriscolaGame {
+    - deck : List<Card>
+    - player_score : int
+    - boss_score : int
+    + deal_cards()
+    + play_round() : Winner
+    + get_final_winner() : Winner
+}
+
+class Player {
+    + inventory : List<Item>
+    + play_card()
+    + receive_item(item)
+}
+
+' Relazioni
+KnightPeppinoBoss ..> BriscolaGame : initiates
+BriscolaGame --> Player : interacts with
+KnightPeppinoBoss --> Player : gives Ace on Win
+
+note right of KnightPeppinoBoss::surrender_loot
+  Viene chiamato solo se
+  BriscolaGame.get_final_winner()
+  è il Giocatore.
+end note
+
+@enduml

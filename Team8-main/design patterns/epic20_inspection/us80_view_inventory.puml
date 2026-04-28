@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 20 - US80: View Inventory
+class GameController {
+    + show_inventory(player_index : int)
+    + get_player_inventory(player_index : int) : InventoryData
+}
+class Inventory {
+    + max_capacity : int
+    + number_of_items : int
+    + to_view_format() : List[ItemView>
+}
+note right: Facade Pattern
+GameController --> Inventory : requests
+@enduml

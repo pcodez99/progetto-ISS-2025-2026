@@ -1,0 +1,12 @@
+@startuml
+!theme plain
+title Epic 25 - US103: Ace of Swords Reward
+class FerrumVictoryController {
+    + grant_ace_spade()
+    + mark_ferrum_completed()
+}
+class ProgressionState {
+    + add_ace("spade")
+}
+FerrumVictoryController --> ProgressionState : updates
+@enduml

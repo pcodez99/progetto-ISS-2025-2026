@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 16 - US64: Enemy Interactions (Fight/Avoid)
+class EnemyInteractionController {
+    + interact_with_enemy(enemy : Enemy)
+    + start_combat()
+    + leave_encounter()
+}
+class Enemy {
+    + encounter_id : str
+    + can_talk : bool
+}
+class CombatState {
+    + enter(encounter_id : str)
+}
+EnemyInteractionController --> CombatState : transitions to
+@enduml

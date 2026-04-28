@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 9 - US36: Standardized Prompts
+class PromptManager {
+    + show_confirm(message : str, on_yes : Callable, on_no : Callable)
+    + show_info(message : str, timeout : Optional[float])
+    + show_choice(title : str, options : List[str], on_select : Callable)
+}
+note right: Factory Pattern + Command Pattern
+class PromptState {
+    + enter(prev_state : BaseState, prompt_config : PromptConfig)
+}
+PromptManager --> PromptState : pushes
+@enduml

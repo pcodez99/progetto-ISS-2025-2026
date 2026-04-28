@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 9 - US33: Combat HUD
+class CombatHUDView {
+    + render_active_actor_banner(actor : Actor, owner : Optional[OwnerId])
+    + render_turn_order_preview(queue : List[str])
+    + render_action_menu(menu_state : MenuState)
+    + render_action_log(log_entries : List[LogEntry])
+}
+class CombatLogModel {
+    - _entries : deque[LogEntry]
+    + add(entry : LogEntry)
+    + tail(n : int) : List[LogEntry]
+}
+CombatHUDView --> CombatLogModel : reads
+@enduml

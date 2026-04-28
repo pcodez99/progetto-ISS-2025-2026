@@ -1,0 +1,23 @@
+@startuml
+!theme plain
+title Epic 2 - US6: Input Manager with Action Mapping
+class InputManager {
+    - _keys_down : Set[int]
+    - _action_map : Dict[Action, Set[int]]
+    + begin_frame()
+    + process_event(event : Event)
+    + is_down(action : Action) : bool
+    + was_just_pressed(action : Action) : bool
+    + was_just_released(action : Action) : bool
+}
+note right: Observer Pattern
+enum Action {
+    MOVE_UP
+    MOVE_DOWN
+    CONFIRM
+    CANCEL
+    PAUSE
+    INTERACT
+}
+InputManager --> Action : maps to
+@enduml

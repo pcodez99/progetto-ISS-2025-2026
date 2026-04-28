@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 17 Overview: Navigation & Options
+package "Navigation" {
+    class NavigationController
+    class NPCMenuController
+    class EnvironmentMenuController
+    class FinalStageController
+}
+package "US" {
+    rectangle "US67: Room Navigation"
+    rectangle "US68: NPC Options"
+    rectangle "US69: Environment Options"
+    rectangle "US70: Final Stage"
+}
+NavigationController --> US67
+NPCMenuController --> US68
+EnvironmentMenuController --> US69
+FinalStageController --> US70
+@enduml

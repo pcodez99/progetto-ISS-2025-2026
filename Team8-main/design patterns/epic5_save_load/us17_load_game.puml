@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 5 - US17: Load Game
+class SaveManager {
+    + load_from_slot(slot_index : int) : LoadResult
+    + validate_save(data : dict) : ValidationResult
+}
+class LoadResult {
+    + success : bool
+    + game_model : Optional[GameModel]
+    + target_room_id : str
+    + target_spawn_id : str
+}
+class StateMachine {
+    + change_state(state_id : StateID, room_id : str, spawn_id : str)
+}
+SaveManager --> LoadResult : returns
+SaveManager --> StateMachine : transitions after load
+@enduml

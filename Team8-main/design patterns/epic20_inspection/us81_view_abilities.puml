@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 20 - US81: View Abilities
+class GameController {
+    + show_abilities(player_index : int)
+    + get_player_abilities(player_index : int) : List[AbilityView>
+}
+class Ability {
+    + name : str
+    + description : str
+    + power : int
+    + to_view_format() : AbilityView
+}
+GameController --> Ability : requests
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 24 - US96: Minor Sphinx Gatekeeper
+class SphinxGatekeeperController {
+    + evaluate_viridor_choice()
+    + resolve_figs_branch()
+    + resolve_water_branch()
+    + resolve_shears_branch()
+}
+class SphinxEncounter {
+    + difficulty : str
+    + has_water_debuff : bool
+}
+SphinxGatekeeperController --> SphinxEncounter : configures
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 1 - US2: Room Loading & Persistence
+class RoomManager {
+    - _current_room : Room
+    - _persistent_state : PersistentWorldState
+    + load_room(room_id : str, spawn_id : str)
+    + unload_room()
+    + apply_persistent_state(room_data : RoomData) : RoomData
+}
+note right: Facade Pattern
+class PersistentWorldState {
+    + removed_entities : Set[str]
+    + remove_entity(room_id : str, entity_id : str)
+    + is_entity_removed(room_id : str, entity_id : str) : bool
+}
+note right: Memento Pattern
+RoomManager --> PersistentWorldState : uses
+@enduml

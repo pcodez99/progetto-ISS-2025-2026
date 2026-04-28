@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 28 - US111: Etna Path Unlock (4 Aces)
+class EtnaGateController {
+    + check_etna_access() : bool
+    + get_aces_count() : int
+    + show_locked_message()
+    + unlock_etna_gate()
+}
+class ConditionEvaluator {
+    + evaluate_aces_at_least(4) : bool
+}
+class ProgressionState {
+    + aces_count() : int
+    + has_all_aces() : bool
+}
+EtnaGateController --> ConditionEvaluator : checks
+ConditionEvaluator --> ProgressionState : queries
+@enduml

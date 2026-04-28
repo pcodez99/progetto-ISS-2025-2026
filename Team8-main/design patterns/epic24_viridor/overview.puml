@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 24 Overview: Viridor Region (Bastoni)
+package "Viridor" {
+    class ViridorChoiceController
+    class SphinxGatekeeperController
+    class GrandpaCiccioBoss
+    class ViridorVictoryController
+}
+package "US" {
+    rectangle "US95: Choice Phase (Figs/Water/Shears)"
+    rectangle "US96: Minor Sphinx Gatekeeper"
+    rectangle "US97: Grandpa Ciccio Boss"
+    rectangle "US98: Ace of Clubs"
+}
+ViridorChoiceController --> US95
+SphinxGatekeeperController --> US96
+GrandpaCiccioBoss --> US97
+ViridorVictoryController --> US98
+@enduml

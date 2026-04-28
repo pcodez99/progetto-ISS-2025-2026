@@ -1,0 +1,24 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 9 Overview: UI/UX Foundation
+package "UI" {
+    class ExplorationHUDView
+    class CombatHUDView
+    class PauseState
+    class GameLogModel
+    class PromptManager
+}
+package "US" {
+    rectangle "US32: Exploration HUD"
+    rectangle "US33: Combat HUD"
+    rectangle "US34: Pause Menu"
+    rectangle "US35: Event Log"
+    rectangle "US36: Prompts"
+}
+ExplorationHUDView --> US32
+CombatHUDView --> US33
+PauseState --> US34
+GameLogModel --> US35
+PromptManager --> US36
+@enduml

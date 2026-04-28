@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 10 - US37: Audio Manager (Pygame mixer)
+class AudioManager {
+    + play_bgm(track_id : str, fade_ms : int, loop : bool)
+    + stop_bgm(fade_ms : int)
+    + play_sfx(sfx_id : str, volume_scale : float)
+    + set_volumes(settings : AudioSettings)
+}
+note right: Singleton Pattern + Facade
+class AudioAssetLoader {
+    - _sound_cache : Dict[str, Sound]
+    + get_sound(sound_id : str) : Optional[Sound]
+}
+note right: Cache Pattern + Flyweight
+AudioManager --> AudioAssetLoader : loads from
+@enduml

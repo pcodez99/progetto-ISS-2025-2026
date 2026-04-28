@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 7 - US25: Combat Turn Manager (Initiative)
+class CombatTurnManager {
+    - _round_number : int
+    - _turn_queue : deque[str]
+    + start_combat(actors : List[Actor])
+    + start_round(actors : List[Actor])
+    + advance_turn(actors : List[Actor])
+    + get_active_actor_id() : str
+}
+class InitiativeCalculator {
+    + calculate_order(actors : List[Actor]) : List[str]
+}
+note right: Strategy Pattern
+CombatTurnManager --> InitiativeCalculator : uses
+@enduml

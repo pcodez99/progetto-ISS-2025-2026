@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 15 - US59: Passage Confirmation
+class ExitController {
+    + on_exit_triggered(exit : ExitData)
+    + request_confirmation(exit : ExitData)
+    + confirm_transition()
+    + cancel_transition()
+}
+class PromptManager {
+    + show_confirm(message : str, on_yes : Callable, on_no : Callable)
+}
+ExitController --> PromptManager : shows
+@enduml

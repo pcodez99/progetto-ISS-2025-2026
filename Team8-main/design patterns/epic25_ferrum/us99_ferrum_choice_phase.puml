@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 25 - US99: Ferrum Choice Phase
+class FerrumChoiceController {
+    + select_oil()
+    + select_shield()
+    + select_orlando_head()
+}
+class FerrumChoiceEffect {
+    + OIL_EFFECT = "skip_fight_with_tradeoff"
+    + SHIELD_EFFECT = "advantageous_fight"
+    + ORLANDO_EFFECT = "recruit_puppet"
+}
+FerrumChoiceController --> FerrumChoiceEffect : determines
+@enduml

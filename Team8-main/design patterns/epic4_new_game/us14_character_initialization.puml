@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 4 - US14: Character Initialization
+class CharacterBuilder {
+    + set_name(name : str)
+    + set_stats(hp : int, atk : int, defense : int)
+    + make_inventory(capacity : int)
+    + set_base_abilities(abilities : List[Ability])
+    + build() : Character
+}
+note right: Builder Pattern
+class Character {
+    + name : str
+    + hp : int
+    + max_hp : int
+    + inventory : Inventory
+    + abilities : List[Ability]
+}
+CharacterBuilder --> Character : constructs
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 14 - US50: Central Hub Room
+class HubRoomData {
+    + room_id : str = "hub_01"
+    + carretto_position : Tuple[int, int]
+    + etna_gate_position : Tuple[int, int]
+    + region_exits : Dict[str, ExitData]
+}
+class WorldBuilder {
+    + build_hub_room() : RoomData
+}
+note right: Builder Pattern
+WorldBuilder --> HubRoomData : constructs
+@enduml

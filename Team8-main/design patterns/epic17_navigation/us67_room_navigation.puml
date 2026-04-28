@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 17 - US67: Room Navigation Options
+class NavigationController {
+    + present_room_options(current_room : Room)
+    + handle_exit_selection(exit : ExitData)
+    + execute_room_transition(dest_room_id : str, spawn_id : str)
+}
+class ExitData {
+    + display_name : str
+    + dest_room_id : str
+    + condition : Condition
+}
+NavigationController --> ExitData : uses
+@enduml

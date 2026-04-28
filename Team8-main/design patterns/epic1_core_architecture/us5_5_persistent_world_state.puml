@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 1 - US5.5: Persistent World State
+class PersistentWorldState {
+    + removed_entities : Set[str]
+    + entity_vars : Dict[str, Dict[str, JSONValue]]
+    + remove_entity(room_id : str, entity_id : str)
+    + is_entity_removed(room_id : str, entity_id : str) : bool
+    + set_entity_var(room_id : str, entity_id : str, key : str, value : JSONValue)
+}
+note right: Memento Pattern + Flyweight
+class GameSerializer {
+    + serialize_world_state(world_state : PersistentWorldState) : dict
+    + deserialize_world_state(data : dict) : PersistentWorldState
+}
+PersistentWorldState --> GameSerializer : serialized by
+@enduml

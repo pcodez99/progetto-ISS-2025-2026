@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 2 - US7: Input Contexts
+class InputManager {
+    - _current_context : InputContext
+    + set_context(context : InputContext)
+    + is_action_allowed(action : Action) : bool
+    + flush_on_context_change()
+}
+enum InputContext {
+    MAIN_MENU
+    EXPLORATION
+    COMBAT
+    DIALOGUE
+    CUTSCENE
+    PAUSE
+}
+note right: State Pattern
+InputManager --> InputContext : switches between
+@enduml

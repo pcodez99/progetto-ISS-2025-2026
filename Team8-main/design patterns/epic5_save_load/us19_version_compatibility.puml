@@ -1,0 +1,18 @@
+@startuml
+!theme plain
+title Epic 5 - US19: Save Version Compatibility
+class SaveManager {
+    + CURRENT_SCHEMA_VERSION : int = 2
+    + load_with_migration(data : dict) : GameModel
+    - _apply_migrations(data : dict, from_version : int)
+}
+class MigrationPipeline {
+    - _migrations : Dict[int, Callable]
+    + migrate(data : dict, from_version : int, to_version : int) : dict
+}
+note right: Chain of Responsibility
+class MigrationV1ToV2 {
+    + migrate(data : dict) : dict
+}
+MigrationPipeline --> MigrationV1ToV2 : chains
+@enduml

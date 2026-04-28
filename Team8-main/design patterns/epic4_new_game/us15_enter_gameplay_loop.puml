@@ -1,0 +1,18 @@
+@startuml
+!theme plain
+title Epic 4 - US15: Enter Gameplay Loop
+class GameController {
+    + enter_gameplay_loop()
+    + transition_to_hub()
+}
+class GameLoop {
+    + start()
+    + run_iteration()
+}
+note right: Game Loop Pattern
+class HubState {
+    + enter()
+}
+GameController --> GameLoop : starts
+GameController --> HubState : transitions to
+@enduml

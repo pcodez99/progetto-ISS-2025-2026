@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 16 - US66: Interaction Rewards (Flags/Items/Guest)
+class RewardController {
+    + grant_reward(reward : Reward)
+    + apply_boss_modifier(modifier_id : str)
+}
+class ScriptActionExecutor {
+    + execute_set_flag(flag : str, value : bool)
+    + execute_give_item(item_id : str, qty : int)
+    + execute_recruit_guest(guest_id : str)
+}
+class ProgressionState {
+    + flags : Dict[str, bool]
+    + guest_id : Optional[str]
+    + boss_modifiers : Set[str]
+}
+RewardController --> ScriptActionExecutor : uses
+ScriptActionExecutor --> ProgressionState : modifies
+@enduml

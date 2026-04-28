@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 15 - US61: Contextual Interactions (E to interact)
+class InteractionController {
+    + check_interactables_in_range() : List[Interactable]
+    + get_nearest_interactable() : Optional[Interactable]
+    + trigger_interaction(interactable : Interactable)
+}
+class Interactable {
+    + entity_id : str
+    + interaction_rect : Rect
+    + script_id : str
+}
+InteractionController --> Interactable : manages
+@enduml

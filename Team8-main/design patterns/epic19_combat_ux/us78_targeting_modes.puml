@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 19 - US78: Standardized Targeting Modes
+class TargetResolver {
+    + resolve(mode : TargetingMode, actor : Actor) : List[Actor]
+    + resolve_self(actor : Actor)
+    + resolve_all_enemies(combat_model : CombatModel)
+    + resolve_random_enemy(combat_model : CombatModel)
+}
+enum TargetingMode {
+    SELF
+    SINGLE_ALLY
+    SINGLE_ENEMY
+    ALL_ENEMIES
+    ALL_ALLIES
+    RANDOM_ENEMY
+    AOE
+}
+TargetResolver --> TargetingMode : uses
+@enduml

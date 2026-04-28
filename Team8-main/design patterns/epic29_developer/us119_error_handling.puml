@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 29 - US119: Error Handling and Fallback
+class ErrorHandler {
+    + handle_exception(e : Exception, context : str)
+    + show_error_screen(message : str)
+    + attempt_recovery(context : str) : bool
+}
+class AssetFallbackManager {
+    + get_placeholder_image() : Surface
+    + get_placeholder_sound() : Sound
+    + log_missing_asset(asset_id : str)
+}
+note right: Graceful degradation
+ErrorHandler --> AssetFallbackManager : uses
+@enduml

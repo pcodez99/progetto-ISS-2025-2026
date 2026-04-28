@@ -1,0 +1,24 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 25 Overview: Ferrum Region (Spade)
+package "Ferrum" {
+    class FerrumChoiceController
+    class ScrapGolemController
+    class PuppetRecruitmentController
+    class KnightPeppinoBoss
+    class FerrumVictoryController
+}
+package "US" {
+    rectangle "US99: Choice Phase (Oil/Shield/Orlando)"
+    rectangle "US100: Scrap Golem Gatekeeper"
+    rectangle "US101: Puppet Recruitment"
+    rectangle "US102: Knight Peppino Boss"
+    rectangle "US103: Ace of Swords"
+}
+FerrumChoiceController --> US99
+ScrapGolemController --> US100
+PuppetRecruitmentController --> US101
+KnightPeppinoBoss --> US102
+FerrumVictoryController --> US103
+@enduml

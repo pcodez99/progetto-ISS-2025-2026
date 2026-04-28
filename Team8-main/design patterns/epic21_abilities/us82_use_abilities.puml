@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 21 - US82: Use Abilities in Combat
+class AbilityController {
+    + select_ability(ability : Ability)
+    + select_targets(targets : List[Actor>)
+    + confirm_ability_use()
+    + execute_ability(ability_command : AbilityCommand)
+}
+class CombatRules {
+    + can_use_ability(actor : Actor, ability : Ability) : bool
+}
+AbilityController --> CombatRules : validates
+@enduml

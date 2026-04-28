@@ -1,0 +1,18 @@
+@startuml
+!theme plain
+title Epic 4 Overview: New Game
+package "New Game" {
+    class GameController
+    class PartyFactory
+    class StateMachine
+}
+package "US" {
+    rectangle "US13: Start New Game"
+    rectangle "US14: Character Init"
+    rectangle "US15: Enter Gameplay"
+}
+GameController --> US13
+PartyFactory --> US14
+StateMachine --> US15
+note right: IMPLEMENTED IN SPRINT
+@enduml

@@ -1,0 +1,39 @@
+@startuml
+!theme plain
+title Epic 24 - US97: Grandpa Ciccio Boss (Cucù)
+
+class GrandpaCiccioBoss {
+    - loot_item : ItemString = "Ace"
+    + start_cucu_challenge()
+    + check_game_result(winner)
+    + surrender_loot()
+}
+
+class CucuGame {
+    - deck : List<Card>
+    - player_card : Card
+    - boss_card : Card
+    + deal_cards()
+    + player_attempts_swap() : bool
+    + boss_turn_logic()
+    + compare_cards() : Winner
+    + get_final_winner() : Winner
+}
+
+class Player {
+    + inventory : List<Item>
+    + decide_keep_or_swap()
+    + receive_item(item)
+}
+
+' Relazioni
+GrandpaCiccioBoss ..> CucuGame : acts as Dealer
+CucuGame --> Player : interacts with
+GrandpaCiccioBoss --> Player : gives Ace on Win
+
+note right of GrandpaCiccioBoss::surrender_loot
+  Viene chiamato se il giocatore
+  vince la partita a Cucù
+end note
+
+@enduml

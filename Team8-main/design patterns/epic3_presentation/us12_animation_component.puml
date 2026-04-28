@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 3 - US12: Animation Component
+class AnimationComponent {
+    - _current_state : str
+    - _locked : bool
+    + set_state(name : str, force : bool)
+    + play_one_shot(name : str, return_state : str)
+    + update(dt : float)
+    + is_ko_locked() : bool
+}
+class AnimationClip {
+    + frames : List[Surface]
+    + frame_duration : float
+    + loop : bool
+}
+note right: State Pattern
+AnimationComponent --> AnimationClip : plays
+@enduml

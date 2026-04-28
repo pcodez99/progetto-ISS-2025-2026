@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 7 - US26: Turn UI Indicators
+class CombatHUDView {
+    + render_active_actor_banner(actor : Actor, owner : Optional[OwnerId])
+    + render_turn_order_preview(queue : List[str])
+    + render_action_menu(actions : List[ActionState])
+}
+class CombatRules {
+    + get_available_actions(actor : Actor) : List[ActionCommand]
+    + is_action_enabled(action : ActionType, actor : Actor) : bool
+}
+CombatHUDView --> CombatRules : queries
+@enduml

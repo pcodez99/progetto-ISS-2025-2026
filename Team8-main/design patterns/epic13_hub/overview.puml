@@ -1,0 +1,16 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 13 Overview: Hub Implementation
+package "Hub" {
+    class RoomManager
+    class RegionRegistry
+    class AceProgressWidget
+}
+package "US" {
+    rectangle "US48: Hub Travel"
+    rectangle "US49: Ace Progression"
+}
+RoomManager --> US48
+AceProgressWidget --> US49
+@enduml

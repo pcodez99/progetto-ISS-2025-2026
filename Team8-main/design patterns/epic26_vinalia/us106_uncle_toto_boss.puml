@@ -1,0 +1,39 @@
+@startuml
+!theme plain
+title Epic 26 - US106: Uncle Totò Boss (Sette e Mezzo)
+
+class UncleTotoBoss {
+    - loot_item : ItemString = "Ace"
+    + start_sette_e_mezzo_challenge()
+    + check_game_result(winner)
+    + surrender_loot()
+}
+
+class SetteEMezzoGame {
+    - deck : List<Card>
+    - player_score : float
+    - boss_score : float
+    + deal_initial_card()
+    + player_hit() : float
+    + player_stand()
+    + boss_play_turn()
+    + get_final_winner() : Winner
+}
+
+class Player {
+    + inventory : List<Item>
+    + decide_hit_or_stand()
+    + receive_item(item)
+}
+
+' Relazioni
+UncleTotoBoss ..> SetteEMezzoGame : acts as Dealer
+SetteEMezzoGame --> Player : interacts with
+UncleTotoBoss --> Player : gives Ace on Win
+
+note right of UncleTotoBoss::surrender_loot
+  Viene chiamato se il giocatore
+  vince contro il Banco (Totò)
+end note
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 21 - US84: Ability Animations/Feedback
+class AbilityFeedbackController {
+    + trigger_ability_effects(ability : Ability)
+    + play_ability_animation(ability_id : str)
+    + spawn_ability_vfx(vfx_id : str)
+    + play_ability_sfx(sfx_id : str)
+}
+class VFXManager {
+    + spawn_ability_vfx(vfx_id : str, pos : Tuple[int, int])
+}
+AbilityFeedbackController --> VFXManager : spawns
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+!theme plain
+title Epic 16 - US65: Environment Interactions (Pick up/Activate)
+class EnvironmentInteractionController {
+    + interact_with_object(obj : InteractableObject)
+    + execute_pickup(item_id : str)
+    + execute_activation(object_id : str)
+}
+class InteractableObject {
+    + object_id : str
+    + is_one_time : bool
+    + interaction_script_id : str
+}
+class PersistentWorldState {
+    + remove_entity(room_id : str, entity_id : str)
+}
+EnvironmentInteractionController --> PersistentWorldState : updates
+@enduml

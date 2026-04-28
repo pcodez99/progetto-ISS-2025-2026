@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 11 - US40: Initial Cutscene (Prologue)
+class CutsceneState {
+    - _runner : ActionRunner
+    + enter(prev_state : BaseState, cutscene_id : str)
+    + handle_input(action : Action)
+    + on_skip()
+}
+class GameScript {
+    + script_id : str
+    + actions : List[ScriptAction]
+}
+CutsceneState --> GameScript : loads
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+!theme plain
+title Epic 11 - US44: Final Cutscene & Ending
+class FinaleController {
+    + check_finale_trigger() : bool
+}
+class ProgressionState {
+    + set_ending(ending : str)
+}
+FinaleController --> ProgressionState : sets ending
+@enduml

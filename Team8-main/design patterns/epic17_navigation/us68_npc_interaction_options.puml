@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+title Epic 17 - US68: NPC Interaction Options
+class NPCMenuController {
+    + open_npc_menu(npc : NPC)
+    + handle_menu_navigation(action : Action)
+    + execute_selected_action()
+}
+class NPCAction {
+    + action_type : NPCActionType
+    + display_text : str
+    + script_id : str
+}
+enum NPCActionType {
+    TALK
+    EXAMINE
+    TRADE
+    QUEST
+}
+NPCMenuController --> NPCAction : executes
+@enduml

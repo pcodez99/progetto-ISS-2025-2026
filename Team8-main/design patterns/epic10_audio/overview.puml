@@ -1,0 +1,18 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 10 Overview: Audio Management
+package "Audio" {
+    class AudioManager
+    class AudioSettings
+    class FeedbackManager
+}
+package "US" {
+    rectangle "US37: Audio Manager"
+    rectangle "US38: Volume Controls"
+    rectangle "US39: Combat Feedback"
+}
+AudioManager --> US37
+AudioSettings --> US38
+FeedbackManager --> US39
+@enduml

@@ -1,0 +1,23 @@
+@startuml
+!theme plain
+title Epic 21 - US83: Define Abilities (Cost/Type/Target)
+class AbilityData {
+    + ability_id : str
+    + cost_type : CostType
+    + cost_amount : int
+    + cooldown : int
+    + effect_type : EffectType
+    + targeting_mode : TargetingMode
+}
+enum CostType {
+    MP
+    HP
+    ENERGY
+}
+class AbilityRegistry {
+    - _abilities : Dict[str, AbilityData>
+    + register(ability_data : AbilityData)
+}
+note right: Registry Pattern
+AbilityRegistry --> AbilityData : stores
+@enduml

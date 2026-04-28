@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 19 - US77: Consistent Turn UI Flow
+class CombatUIFlowController {
+    + current_step : UIStep
+    + start_action_selection()
+    + start_target_selection(action : ActionType)
+    + start_confirmation(action : ActionCommand)
+    + handle_cancel()
+}
+enum UIStep {
+    ACTION_SELECT
+    TARGET_SELECT
+    CONFIRM
+}
+CombatUIFlowController --> UIStep : manages
+@enduml

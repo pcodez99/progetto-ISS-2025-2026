@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 21 - US85: Balance 2 Protagonists
+class CharacterClass {
+    + class_id : str
+    + role : Role
+    + starting_abilities : List[str>
+}
+enum Role {
+    DAMAGE
+    SUPPORT
+    CONTROL
+    TANK
+}
+class BalanceValidator {
+    + validate_ability_balance(ability : AbilityData) : BalanceReport
+}
+CharacterClass --> Role : defines
+@enduml

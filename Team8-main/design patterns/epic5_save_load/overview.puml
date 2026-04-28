@@ -1,0 +1,20 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 5 Overview: Save/Load System
+package "Save System" {
+    class SaveManager
+    class GameSerializer
+    class MigrationPipeline
+}
+package "US" {
+    rectangle "US16: Save Game"
+    rectangle "US17: Load Game"
+    rectangle "US18: Serialization"
+    rectangle "US19: Versioning"
+}
+SaveManager --> US16
+SaveManager --> US17
+GameSerializer --> US18
+MigrationPipeline --> US19
+@enduml

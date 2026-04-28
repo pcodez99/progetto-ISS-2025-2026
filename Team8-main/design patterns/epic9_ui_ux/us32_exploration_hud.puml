@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 9 - US32: Exploration HUD
+class ExplorationHUDView {
+    + render(screen : Surface, hud_data : ExplorationHUDData)
+    + render_active_character_banner(active_owner : OwnerId, active_name : str)
+    + render_party_hp(party_hp_list : List[HPInfo])
+    + render_zone_label(zone_name : str)
+    + render_interact_prompt(text : str)
+}
+class ExplorationHUDBuilder {
+    + from_game_model(game_model : GameModel) : ExplorationHUDData
+}
+note right: Builder Pattern
+ExplorationHUDView --> ExplorationHUDBuilder : uses
+@enduml

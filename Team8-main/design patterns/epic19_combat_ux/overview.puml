@@ -1,0 +1,18 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 19 Overview: Combat UX
+package "Combat UX" {
+    class CombatUIFlowController
+    class TargetResolver
+    class ActionResolver
+}
+package "US" {
+    rectangle "US77: Turn UI Flow"
+    rectangle "US78: Targeting Modes"
+    rectangle "US79: Action Pipeline"
+}
+CombatUIFlowController --> US77
+TargetResolver --> US78
+ActionResolver --> US79
+@enduml

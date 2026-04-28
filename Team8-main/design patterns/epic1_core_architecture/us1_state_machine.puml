@@ -1,0 +1,25 @@
+@startuml
+!theme plain
+title Epic 1 - US1: State Machine System
+class StateMachine {
+    - _state_stack : List<BaseState>
+    + change_state(id : StateID, **kwargs)
+    + push_state(id : StateID, **kwargs)
+    + pop_state()
+}
+note right: State Pattern
+abstract class BaseState {
+    + state_id : StateID
+    + input_context : InputContext
+    + enter(prev_state, **kwargs)
+    + exit(next_state)
+    + handle_event(event)
+    + update(dt)
+    + render(surface)
+}
+StateMachine --> BaseState : manages
+BaseState <|-- MainMenuState
+BaseState <|-- HubState
+BaseState <|-- CombatState
+BaseState <|-- PauseState
+@enduml

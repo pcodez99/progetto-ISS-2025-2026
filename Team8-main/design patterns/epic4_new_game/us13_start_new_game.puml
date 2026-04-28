@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 4 - US13: Start New Game
+class MainMenu {
+    + on_singleplayer_selected()
+    + on_multiplayer_selected()
+}
+class GameController {
+    + start_new_game(num_players : int)
+}
+class Game {
+    + start_new_game(num_players : int)
+}
+note right: Facade Pattern
+MainMenu --> GameController : requests
+GameController --> Game : initializes
+@enduml

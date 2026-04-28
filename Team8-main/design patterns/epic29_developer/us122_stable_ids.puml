@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 29 - US122: Stable IDs for Content
+class ContentIDManager {
+    + generate_stable_id(content_type : str, name : str) : str
+    + register_id(id : str, content_ref : Any)
+    + rename_display_name(id : str, new_name : str)
+}
+class ContentReference {
+    + id : str
+    + display_name : str
+    + content_type : str
+}
+class SaveFile {
+    + references : Dict[str, str>
+}
+ContentIDManager --> ContentReference : manages
+SaveFile --> ContentIDManager : validates
+@enduml

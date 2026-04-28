@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 21 Overview: Abilities System
+package "Abilities" {
+    class AbilityController
+    class AbilityRegistry
+    class AbilityFeedbackController
+    class BalanceValidator
+}
+package "US" {
+    rectangle "US82: Use Abilities"
+    rectangle "US83: Define Abilities"
+    rectangle "US84: Ability Feedback"
+    rectangle "US85: Balance Abilities"
+}
+AbilityController --> US82
+AbilityRegistry --> US83
+AbilityFeedbackController --> US84
+BalanceValidator --> US85
+@enduml

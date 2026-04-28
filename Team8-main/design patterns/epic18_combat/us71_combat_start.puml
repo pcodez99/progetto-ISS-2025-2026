@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 18 - US71: Combat Start
+class CombatState {
+    + enter(prev_state : BaseState, encounter_id : str)
+    + initialize_combat(encounter_data : EncounterData)
+}
+class EncounterData {
+    + encounter_id : str
+    + enemy_templates : List[EnemyTemplate]
+    + bgm_id : str
+}
+class CombatModel {
+    + enemies : List[EnemyActor]
+    + party : List[PartyActor]
+}
+CombatState --> EncounterData : loads
+CombatState --> CombatModel : initializes
+@enduml

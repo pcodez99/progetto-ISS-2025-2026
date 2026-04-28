@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 18 - US74: Combat Actions Selection
+class CombatMenuController {
+    + show_root_menu()
+    + select_attack()
+    + select_ability()
+    + select_item()
+    + select_defend()
+    + select_pass()
+}
+enum ActionType {
+    ATTACK
+    ABILITY
+    ITEM
+    DEFEND
+    PASS
+}
+CombatMenuController --> ActionType : handles
+@enduml

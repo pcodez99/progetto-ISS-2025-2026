@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 25 - US101: Puppet Recruitment
+class RecruitGuestAction {
+    + guest_id : str = "puppet"
+    + execute(ctx : ScriptContext)
+}
+class GuestManager {
+    + add_guest_to_party(party : Party, guest_id : str)
+}
+class Party {
+    - _guest_id : Optional[str]
+    + recruit_guest(guest_id : str)
+}
+RecruitGuestAction --> GuestManager : uses
+GuestManager --> Party : modifies
+@enduml

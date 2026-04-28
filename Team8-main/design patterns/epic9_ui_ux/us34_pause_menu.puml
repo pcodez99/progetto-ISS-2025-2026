@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 9 - US34: Pause Menu
+class PauseState {
+    + enter(prev_state : BaseState)
+    + exit(next_state : BaseState)
+    + handle_input(action : Action)
+}
+note right: State Pattern (overlay)
+class StateMachine {
+    + push_state(state_id : StateID)
+    + pop_state()
+}
+PauseState --> StateMachine : pops on resume
+@enduml

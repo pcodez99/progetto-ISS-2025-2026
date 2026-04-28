@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 23 - US91: Aurion Choice Phase (A/B/C)
+class AurionChoiceController {
+    + present_choice_menu()
+    + select_option_a()  ' Arancine
+    + select_option_b()  ' Coins
+    + select_option_c()  ' Dossier
+    + grant_chosen_item()
+}
+class AurionRegion {
+    + choice_made : bool
+    + chosen_item : Optional[str]
+}
+AurionChoiceController --> AurionRegion : updates
+@enduml

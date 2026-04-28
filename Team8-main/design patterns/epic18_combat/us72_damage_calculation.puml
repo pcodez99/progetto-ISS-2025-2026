@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 18 - US72: Damage Calculation
+class DamageCalculator {
+    + compute(attacker : Actor, defender : Actor, move : Move) : DamageResult
+    + check_miss(attacker : Actor, defender : Actor) : bool
+    + check_crit(attacker : Actor) : bool
+}
+class RNGService {
+    + seed : int
+    + random() : float
+}
+note right: Deterministic RNG for tests
+DamageCalculator --> RNGService : rolls
+@enduml

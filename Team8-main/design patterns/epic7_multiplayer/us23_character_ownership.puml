@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 7 - US23: Character Ownership (P1-P2)
+class Character {
+    - _owner_id : OwnerId
+    - _char_id : str
+    + owner_id : OwnerId {get}
+    + char_id : str {get}
+}
+enum OwnerId {
+    P1
+    P2
+}
+note right: Immutable assignment
+class Party {
+    + get_character_by_owner(owner : OwnerId) : Character
+}
+Character --> OwnerId : assigned to
+Party --> Character : manages
+@enduml

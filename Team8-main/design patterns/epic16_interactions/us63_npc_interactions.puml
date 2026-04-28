@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 16 - US63: NPC Interactions (Talk/Examine)
+class NPCInteractionController {
+    + interact_with_npc(npc : NPC)
+    + show_interaction_menu(actions : List[MenuAction>)
+    + execute_action(action : MenuAction)
+}
+class NPC {
+    + actions : List[MenuActionData]
+    + dialogue_script_id : str
+}
+class MenuActionData {
+    + action_id : str
+    + display_text : str
+    + script_id : str
+}
+NPCInteractionController --> NPC : interacts
+NPC --> MenuActionData : defines
+@enduml

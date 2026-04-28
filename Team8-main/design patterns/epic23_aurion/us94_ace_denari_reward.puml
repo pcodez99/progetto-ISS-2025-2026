@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 23 - US94: Ace of Coins Reward
+class VictoryController {
+    + on_don_tanino_defeated()
+    + grant_ace_denari()
+    + mark_aurion_completed()
+}
+class ProgressionState {
+    + add_ace("denari")
+    + set_region_completed("aurion")
+}
+VictoryController --> ProgressionState : updates
+@enduml

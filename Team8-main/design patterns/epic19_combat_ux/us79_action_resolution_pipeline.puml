@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 19 - US79: Deterministic Action Resolution Pipeline
+class ActionResolver {
+    + resolve(command : ActionCommand) : ResolutionResult
+    - _pay_cost(command)
+    - _check_hit(command) : bool
+    - _apply_damage(command)
+    - _apply_statuses(command)
+    - _check_ko(command)
+}
+note right: Pipeline Pattern
+class ResolutionResult {
+    + success : bool
+    + damage_dealt : int
+    + statuses_applied : List[StatusEffect>
+}
+ActionResolver --> ResolutionResult : produces
+@enduml

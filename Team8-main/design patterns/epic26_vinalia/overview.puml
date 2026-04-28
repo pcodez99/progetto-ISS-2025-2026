@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 26 Overview: Vinalia Region (Coppe)
+package "Vinalia" {
+    class VinaliaChoiceController
+    class VinaliaGatekeeperController
+    class UncleTotoBoss
+    class VinaliaVictoryController
+}
+package "US" {
+    rectangle "US104: Choice Phase (Wine/Vinegar/Marranzano)"
+    rectangle "US105: Gatekeeper Branches"
+    rectangle "US106: Uncle Totò Boss"
+    rectangle "US107: Ace of Cups"
+}
+VinaliaChoiceController --> US104
+VinaliaGatekeeperController --> US105
+UncleTotoBoss --> US106
+VinaliaVictoryController --> US107
+@enduml

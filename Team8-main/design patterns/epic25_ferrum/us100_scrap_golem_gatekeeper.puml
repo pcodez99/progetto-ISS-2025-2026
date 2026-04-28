@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 25 - US100: Scrap Golem Gatekeeper (3 Ways)
+class ScrapGolemController {
+    + evaluate_inventory()
+    + resolve_oil_branch()      ' Skip fight with tradeoff
+    + resolve_shield_branch()   ' Advantageous fight
+    + resolve_orlando_branch()  ' Skip fight + recruit puppet
+}
+class Party {
+    + guest_id : Optional[str]
+    + recruit_guest(guest_id : str)
+}
+ScrapGolemController --> Party : modifies (on Orlando)
+@enduml

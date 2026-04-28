@@ -1,0 +1,33 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 29 Overview: Developer Tools
+package "Developer" {
+    class TestRunner
+    class ContentLoader
+    class SettingsManager
+    class ErrorHandler
+    class DebugConsole
+    class SchemaValidator
+    class ContentIDManager
+    class DebugOverlay
+}
+package "US" {
+    rectangle "US116: Automatic Tests"
+    rectangle "US117: Data-Driven Content"
+    rectangle "US118: Settings Menu"
+    rectangle "US119: Error Handling"
+    rectangle "US120: Debug Tools"
+    rectangle "US121: JSON Schemas"
+    rectangle "US122: Stable IDs"
+    rectangle "US123: Debug Overlay"
+}
+TestRunner --> US116
+ContentLoader --> US117
+SettingsManager --> US118
+ErrorHandler --> US119
+DebugConsole --> US120
+SchemaValidator --> US121
+ContentIDManager --> US122
+DebugOverlay --> US123
+@enduml

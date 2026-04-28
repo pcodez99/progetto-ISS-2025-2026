@@ -1,0 +1,25 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 1 Overview: Core Architecture
+package "Core" {
+    class StateMachine
+    class RoomManager
+    class ActionRunner
+    class FlagManager
+}
+package "US" {
+    rectangle "US1: State Machine"
+    rectangle "US2: Room Loading"
+    rectangle "US3: Room Schema"
+    rectangle "US4: Scripts"
+    rectangle "US5: Flags"
+    rectangle "US5.5: Persistence"
+}
+StateMachine --> US1
+RoomManager --> US2
+RoomManager --> US3
+ActionRunner --> US4
+FlagManager --> US5
+FlagManager --> US5_5
+@endumldot -V

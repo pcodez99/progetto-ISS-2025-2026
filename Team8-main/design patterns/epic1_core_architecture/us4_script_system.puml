@@ -1,0 +1,23 @@
+@startuml
+!theme plain
+title Epic 1 - US4: Script & Action System
+class ActionRunner {
+    - _current_script : GameScript
+    - _action_index : int
+    + start_script(script : GameScript, ctx : ScriptContext)
+    + update(dt : float)
+    + is_done() : bool
+}
+note right: Command Pattern + Interpreter
+abstract class ScriptAction {
+    + action_type : ActionType
+    + blocking : bool
+    + start(ctx : ScriptContext)
+    + update(ctx : ScriptContext, dt : float) : bool
+}
+ScriptAction <|-- ActionShowDialogue
+ScriptAction <|-- ActionSetFlag
+ScriptAction <|-- ActionChangeRoom
+ScriptAction <|-- ActionStartCombat
+ActionRunner --> ScriptAction : executes
+@enduml

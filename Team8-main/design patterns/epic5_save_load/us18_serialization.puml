@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+title Epic 5 - US18: GameState Serialization
+class GameSerializer {
+    + to_dict(game_model : GameModel) : dict
+    + from_dict(data : dict) : GameModel
+}
+class SaveFileDTO {
+    + schema_version : int
+    + meta : MetaDTO
+    + data : GameDataDTO
+}
+class GameDataDTO {
+    + world : WorldDTO
+    + party : PartyDTO
+    + progression : ProgressionDTO
+}
+note right: DTO Pattern
+GameSerializer --> SaveFileDTO : creates/reads
+SaveFileDTO --> GameDataDTO : contains
+@enduml

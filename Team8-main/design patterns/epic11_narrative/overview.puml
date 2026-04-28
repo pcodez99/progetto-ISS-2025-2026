@@ -1,0 +1,23 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 11 Overview: Narrative System
+package "Narrative" {
+    class CutsceneState
+    class DialogueState
+    class ActionRunner
+    class ProgressionState
+}
+package "US" {
+    rectangle "US40: Prologue Cutscene"
+    rectangle "US41: Dialogue System"
+    rectangle "US42: Skip/Fast-Forward"
+    rectangle "US43: Region Cutscenes"
+    rectangle "US44: Finale/Endings"
+}
+CutsceneState --> US40
+DialogueState --> US41
+CutsceneState --> US42
+ActionRunner --> US43
+ProgressionState --> US44
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 13 - US48: Hub Travel to Regions
+class RoomManager {
+    + load_room(room_id : str, spawn_id : str)
+}
+class ExitData {
+    + dest_room_id : str
+    + dest_spawn_id : str
+}
+class RegionRegistry {
+    + AURION = "aurion_entry_01"
+    + VIRIDOR = "viridor_entry_01"
+    + FERRUM = "ferrum_entry_01"
+    + VINALIA = "vinalia_entry_01"
+}
+RoomManager --> ExitData : uses
+ExitData --> RegionRegistry : references
+@enduml

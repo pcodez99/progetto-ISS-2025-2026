@@ -1,0 +1,25 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 7 Overview: Multiplayer Turn-Based
+package "Multiplayer" {
+    class PartyFactory
+    class ExplorationTurnManager
+    class CombatTurnManager
+    class HandoffManager
+}
+package "US" {
+    rectangle "US22: Player Count"
+    rectangle "US23: Ownership"
+    rectangle "US24: Exploration Turn"
+    rectangle "US25: Combat Turn"
+    rectangle "US26: Turn UI"
+    rectangle "US27: Hotseat Handoff"
+    rectangle "US28: KO/Revive/End"
+}
+PartyFactory --> US22
+PartyFactory --> US23
+ExplorationTurnManager --> US24
+CombatTurnManager --> US25
+HandoffManager --> US27
+@enduml

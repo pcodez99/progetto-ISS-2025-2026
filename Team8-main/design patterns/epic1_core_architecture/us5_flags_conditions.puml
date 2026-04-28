@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 1 - US5: Flags & Condition Evaluation
+class FlagManager {
+    - _flags : Dict[str, Union[bool, str, int]]
+    + set_flag(name : str, value : Any)
+    + has_flag(name : str) : bool
+    + get_flag(name : str) : Any
+}
+note right: Repository Pattern
+class ConditionEvaluator {
+    + evaluate(condition : Condition) : bool
+    + evaluate_flag(name : str) : bool
+    + evaluate_has_item(item_id : str) : bool
+    + evaluate_aces_count(n : int) : bool
+}
+note right: Strategy Pattern + Interpreter
+FlagManager --> ConditionEvaluator : queries
+@enduml

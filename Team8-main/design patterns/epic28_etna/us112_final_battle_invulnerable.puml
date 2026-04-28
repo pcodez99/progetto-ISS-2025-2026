@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 28 - US112: Final Battle Invulnerable
+class EternalInnkeeperBoss {
+    + is_invulnerable : bool = True
+    + regeneration_rate : float
+    + on_damage_taken(amount : int) : int
+    + play_invulnerable_animation()
+}
+class FinalBattleController {
+    + setup_invulnerable_boss()
+    + handle_player_attack()
+    + enable_choice_after_n_turns(n : int)
+}
+FinalBattleController --> EternalInnkeeperBoss : manages
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 18 Overview: Combat Core
+package "Combat" {
+    class CombatState
+    class DamageCalculator
+    class StatusManager
+    class CombatMenuController
+    class CombatResolutionController
+    class EnemyAI
+}
+package "US" {
+    rectangle "US71: Combat Start"
+    rectangle "US72: Damage Calculation"
+    rectangle "US73: Status Effects"
+    rectangle "US74: Combat Actions"
+    rectangle "US75: Victory/Defeat"
+    rectangle "US76: Enemy AI"
+}
+CombatState --> US71
+DamageCalculator --> US72
+StatusManager --> US73
+CombatMenuController --> US74
+CombatResolutionController --> US75
+EnemyAI --> US76
+@enduml

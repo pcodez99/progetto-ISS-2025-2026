@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 7 - US24: Exploration Turn Manager
+class ExplorationTurnManager {
+    + next_turn(party : Party, turn_state : ExplorationTurnState)
+    + get_active_character(party : Party, turn_state : ExplorationTurnState) : Character
+    + is_handoff_pending(turn_state : ExplorationTurnState) : bool
+}
+class ExplorationTurnState {
+    + active_party_index : int
+    + awaiting_handoff_confirm : bool
+}
+note right: State Machine Pattern
+ExplorationTurnManager --> ExplorationTurnState : manages
+@enduml

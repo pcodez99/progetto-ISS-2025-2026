@@ -1,0 +1,12 @@
+@startuml
+!theme plain
+title Epic 24 - US98: Ace of Clubs Reward
+class ViridorVictoryController {
+    + grant_ace_bastoni()
+    + mark_viridor_completed()
+}
+class ProgressionState {
+    + add_ace("bastoni")
+}
+ViridorVictoryController --> ProgressionState : updates
+@enduml

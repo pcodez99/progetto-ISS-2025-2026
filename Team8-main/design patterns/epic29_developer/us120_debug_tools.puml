@@ -1,0 +1,23 @@
+@startuml
+!theme plain
+title Epic 29 - US120: Debug Tools (Teleport, Give Item, Win Fight)
+class DebugConsole {
+    + is_enabled : bool
+    + process_command(command : str) : str
+    + execute_debug_command(cmd : DebugCommand)
+}
+class DebugCommandExecutor {
+    + teleport(room_id : str, spawn_id : str)
+    + give_item(item_id : str, quantity : int)
+    + set_flag(flag : str, value : bool)
+    + win_current_combat()
+}
+enum DebugCommandType {
+    TELEPORT
+    GIVE_ITEM
+    SET_FLAG
+    WIN_COMBAT
+    HEAL_PARTY
+}
+DebugConsole --> DebugCommandExecutor : executes
+@enduml

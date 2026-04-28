@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 29 - US121: JSON Schemas/Validators
+class SchemaValidator {
+    + validate_room_schema(data : dict) : ValidationResult
+    + validate_npc_schema(data : dict) : ValidationResult
+    + validate_item_schema(data : dict) : ValidationResult
+}
+class ValidationResult {
+    + is_valid : bool
+    + errors : List<ValidationError>
+}
+class ValidationError {
+    + file_path : str
+    + field : str
+    + message : str
+}
+SchemaValidator --> ValidationResult : returns
+ValidationResult --> ValidationError : contains
+@enduml

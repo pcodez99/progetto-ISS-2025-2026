@@ -1,0 +1,20 @@
+@startuml
+!theme plain
+title Epic 18 - US76: Enemy AI
+abstract class EnemyAI {
+    + choose_action(enemy : EnemyActor, combat_model : CombatModel) : ActionCommand
+}
+class BasicEnemyAI {
+    + attack_weakest_target()
+}
+class BossPatternAI {
+    - _pattern : List[BossMove>
+    + follow_pattern()
+}
+class TacticalAI {
+    + prioritize_buffs()
+}
+EnemyAI <|-- BasicEnemyAI
+EnemyAI <|-- BossPatternAI
+EnemyAI <|-- TacticalAI
+@enduml

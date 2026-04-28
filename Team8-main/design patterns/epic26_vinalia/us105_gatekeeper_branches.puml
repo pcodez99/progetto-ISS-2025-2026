@@ -1,0 +1,14 @@
+@startuml
+!theme plain
+title Epic 26 - US105: Gatekeeper Risk/Reward Branches
+class VinaliaGatekeeperController {
+    + apply_wine_penalty()      ' Party starts hurt
+    + start_vinegar_fight()     ' Forced fight, keep vinegar
+    + apply_marranzano_buff()   ' Resistance buff flag
+}
+class Party {
+    + apply_hp_penalty(percentage : float)
+    + apply_resistance_buff(amount : int)
+}
+VinaliaGatekeeperController --> Party : applies effects
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 20 Overview: Character Inspection
+package "Inspection" {
+    class GameController
+    class Inventory
+    class Abilities
+}
+package "US" {
+    rectangle "US80: View Inventory"
+    rectangle "US81: View Abilities"
+}
+GameController --> US80
+GameController --> US81
+note right: IMPLEMENTED IN SPRINT
+@enduml

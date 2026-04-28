@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 6 - US21: Enter Main GameLoop (Load Game)
+class SaveManager {
+    + load_from_slot(slot_index : int) : LoadResult
+}
+class GameController {
+    + on_load_game_selected(slot_index : int)
+}
+class StateMachine {
+    + change_state(state_id : StateID, room_id : str, spawn_id : str)
+}
+GameController --> SaveManager : loads
+GameController --> StateMachine : transitions
+@enduml

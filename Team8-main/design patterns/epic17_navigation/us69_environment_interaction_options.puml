@@ -1,0 +1,21 @@
+@startuml
+!theme plain
+title Epic 17 - US69: Environment Interaction Options
+class EnvironmentMenuController {
+    + show_interaction_options(obj : InteractableObject)
+    + handle_pickup()
+    + handle_examine()
+    + handle_activate()
+}
+class ObjectAction {
+    + action_type : ObjectActionType
+    + script_id : str
+}
+enum ObjectActionType {
+    PICKUP
+    EXAMINE
+    ACTIVATE
+    USE_ITEM
+}
+EnvironmentMenuController --> ObjectAction : executes
+@enduml

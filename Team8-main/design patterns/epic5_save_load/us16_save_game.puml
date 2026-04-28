@@ -1,0 +1,19 @@
+@startuml
+!theme plain
+title Epic 5 - US16: Save Game (Multiple Slots)
+class SaveManager {
+    - _save_dir : str
+    - _max_slots : int
+    + list_slots() : List[SlotInfo]
+    + save_to_slot(slot_index : int, game_model : GameModel) : SaveResult
+    + is_save_allowed(current_state : BaseState) : bool
+    - _atomic_write(slot_path : str, data : dict)
+}
+note right: Repository Pattern + Atomic Operation
+class SlotInfo {
+    + slot_index : int
+    + status : SlotStatus
+    + meta : SaveMeta
+}
+SaveManager --> SlotInfo : returns
+@enduml

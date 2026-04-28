@@ -1,0 +1,23 @@
+@startuml
+!theme plain
+title Epic 9 - US35: Textual Events Log
+class GameLogModel {
+    - _entries : deque[LogEntry]
+    - _max_entries : int
+    + add(entry : LogEntry)
+    + tail(n : int) : List[LogEntry]
+}
+note right: Bounded Queue
+class LogEntry {
+    + text : str
+    + kind : LogKind
+    + turn_index : Optional[int]
+}
+enum LogKind {
+    DAMAGE
+    HEAL
+    STATUS
+    SYSTEM
+}
+GameLogModel --> LogEntry : stores
+@enduml

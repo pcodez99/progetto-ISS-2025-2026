@@ -1,0 +1,24 @@
+@startuml
+!theme plain
+title Epic 1 - US3: Room Data Schema (JSON)
+class RoomData {
+    + room_id : str
+    + background_id : str
+    + collisions : List[RectData]
+    + exits : List[ExitData]
+    + spawns : Dict[str, Tuple[int, int]]
+    + entities : List[EntityData]
+    + triggers : List[TriggerData]
+}
+class RoomLoader {
+    + load_from_json(path : str) : RoomData
+    + load_from_dict(data : dict) : RoomData
+}
+note right: Factory Pattern
+class RoomSchemaValidator {
+    + validate(data : dict) : ValidationResult
+}
+note right: Strategy Pattern
+RoomLoader --> RoomData : creates
+RoomLoader --> RoomSchemaValidator : uses
+@enduml

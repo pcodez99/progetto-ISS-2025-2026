@@ -1,0 +1,26 @@
+@startuml
+!theme plain
+title Epic 3 - US10: Unified Render Pipeline
+class Renderer {
+    - _commands : List[RenderCommand]
+    + begin_frame(screen : Surface)
+    + submit(cmd : RenderCommand)
+    + flush(camera : Camera)
+}
+note right: Command Pattern
+class RenderCommand {
+    + layer : int
+    + sort_key : tuple
+    + space : SpaceType
+    + draw_callable : Callable
+}
+enum Layer {
+    BACKGROUND = 0
+    ACTORS = 100
+    VFX = 200
+    UI = 1000
+    DEBUG = 2000
+}
+Renderer --> RenderCommand : accumulates
+RenderCommand --> Layer : uses
+@enduml

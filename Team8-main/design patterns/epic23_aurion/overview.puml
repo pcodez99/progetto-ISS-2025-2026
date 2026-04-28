@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 23 Overview: Aurion Region (Denari)
+package "Aurion" {
+    class AurionChoiceController
+    class EliteGuardsController
+    class DonTaninoBoss
+    class VictoryController
+}
+package "US" {
+    rectangle "US91: Choice Phase (A/B/C)"
+    rectangle "US92: Elite Guards Gatekeeper"
+    rectangle "US93: Don Tanino Boss"
+    rectangle "US94: Ace of Coins"
+}
+AurionChoiceController --> US91
+EliteGuardsController --> US92
+DonTaninoBoss --> US93
+VictoryController --> US94
+@enduml

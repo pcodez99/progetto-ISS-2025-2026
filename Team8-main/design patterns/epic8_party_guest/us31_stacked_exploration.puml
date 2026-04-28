@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 8 - US31: STACKED Exploration Mode
+class ExplorationState {
+    + party_world_pos : Tuple[int, int]
+    + active_party_index : int
+}
+class Party {
+    + get_active_member(index : int) : Character
+}
+class RoomView {
+    + render_active_character(character : Character, pos : Tuple[int, int])
+}
+ExplorationState --> Party : manages
+RoomView --> ExplorationState : reads position
+@enduml

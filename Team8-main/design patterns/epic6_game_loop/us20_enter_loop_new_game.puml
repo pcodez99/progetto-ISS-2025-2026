@@ -1,0 +1,16 @@
+@startuml
+!theme plain
+title Epic 6 - US20: Enter Main GameLoop (New Game)
+class GameController {
+    + on_new_game_complete(num_players : int)
+    - _transition_to_hub()
+}
+class HubState {
+    + enter(prev_state, room_id : str, spawn_id : str)
+}
+class RoomManager {
+    + load_room(room_id : str, spawn_id : str)
+}
+GameController --> HubState : transitions to
+GameController --> RoomManager : loads room
+@enduml

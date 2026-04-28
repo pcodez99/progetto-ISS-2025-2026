@@ -1,0 +1,17 @@
+@startuml
+!theme plain
+title Epic 7 - US27: Hotseat Handoff
+class HandoffManager {
+    + request_handoff(from_owner : OwnerId, to_owner : OwnerId)
+    + confirm_handoff()
+    + is_awaiting_confirm() : bool
+    + block_actions_except_confirm() : bool
+}
+class HandoffModel {
+    + awaiting_confirm : bool
+    + owner_id : OwnerId
+    + message : str
+}
+note right: State Pattern
+HandoffManager --> HandoffModel : manages
+@enduml

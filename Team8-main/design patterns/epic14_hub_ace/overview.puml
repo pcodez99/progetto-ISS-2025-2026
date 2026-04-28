@@ -1,0 +1,27 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 14 Overview: Hub with Ace Progression
+package "Hub Ace" {
+    class HubRoomData
+    class ProgressionState
+    class EtnaGateController
+    class CarrettoRenderer
+    class GiufaDialogueScript
+}
+package "US" {
+    rectangle "US50: Hub Room"
+    rectangle "US51: Ace Display"
+    rectangle "US52: Region Choice"
+    rectangle "US53: Etna Gate"
+    rectangle "US54: Auto Return"
+    rectangle "US55: Carretto Visuals"
+    rectangle "US56: Giufà NPC"
+    rectangle "US57: Return Flow"
+}
+HubRoomData --> US50
+ProgressionState --> US51
+EtnaGateController --> US53
+CarrettoRenderer --> US55
+GiufaDialogueScript --> US56
+@enduml

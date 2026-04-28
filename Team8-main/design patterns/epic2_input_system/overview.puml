@@ -1,0 +1,15 @@
+@startuml
+allowmixing
+!theme plain
+title Epic 2 Overview: Input System
+package "Input" {
+    class InputManager
+    class InputContext
+}
+package "US" {
+    rectangle "US6: Action Mapping"
+    rectangle "US7: Input Contexts"
+}
+InputManager --> US6
+InputContext --> US7
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+!theme plain
+title Epic 14 - US54: Auto Return to Hub After Ace
+class VictoryController {
+    + grant_ace_and_return(ace_id : str)
+}
+class ActionRunner {
+    + execute_return_to_hub_script()
+}
+class RoomManager {
+    + change_room(room_id : str, spawn_id : str)
+}
+VictoryController --> ActionRunner : runs
+ActionRunner --> RoomManager : returns to hub
+@enduml
