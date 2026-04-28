@@ -1,116 +1,174 @@
-# Viddani VS Alieni
+# 👽 Viddani VS Alieni
 
 Progetto di **Ingegneria del Software** per la realizzazione di un videogioco chiamato **Viddani VS Alieni**: un **gioco di ruolo (RPG) a livelli**.
 
-## Descrizione
+---
 
-In *Viddani VS Alieni* il giocatore affronta un'invasione aliena attraversando livelli progressivi, con difficolta' crescente, nemici sempre piu' forti e obiettivi specifici da completare.
+## 📖 Descrizione
+
+In *Viddani VS Alieni* il giocatore affronta un'invasione aliena attraversando livelli progressivi, con difficoltà crescente, nemici sempre più forti e obiettivi specifici da completare.
 
 Il progetto unisce:
-- analisi dei requisiti;
-- progettazione software;
-- implementazione del gioco;
-- verifica e validazione.
+- 📊 Analisi dei requisiti
+- 🏗️ Progettazione software
+- 💻 Implementazione del gioco
+- ✅ Verifica e validazione
 
-## Obiettivi del progetto
+---
+
+## 🎯 Obiettivi del progetto
 
 - Progettare un'architettura chiara, modulare e manutenibile.
 - Sviluppare meccaniche RPG a livelli (progressione, sfide, ricompense).
 - Applicare buone pratiche di sviluppo collaborativo (Git, issue tracking, review).
 - Documentare in modo completo le scelte progettuali e implementative.
 
-## Caratteristiche previste del gioco
+---
 
-- **Progressione a livelli** con aumento graduale della difficolta'.
+## ✨ Caratteristiche previste del gioco
+
+- **Progressione a livelli** con aumento graduale della difficoltà.
 - **Sistema di combattimento** contro diverse tipologie di alieni.
-- **4 personaggi giocabili** con abilita' e stili di gioco differenti.
+- **4 personaggi giocabili** con abilità e stili di gioco differenti.
 - **Obiettivi di livello** (es. sopravvivenza, eliminazione boss, raccolta risorse).
 - **Interfaccia chiara** per menu, stato del personaggio e avanzamento.
 - **Interazioni con NPC** basate su esperienza, altruismo e scelte morali.
-- **Modalita' cooperativa locale a turni** per massimo 2 giocatori.
+- **Modalità cooperativa locale a turni** per massimo 2 giocatori.
 
-## Personaggi giocabili
+---
 
-Ogni personaggio ha estetica, arma e abilita' dedicate. Le scelte del giocatore influenzano il modo in cui i personaggi interagiscono tra loro e con gli NPC.
+## 🧑‍🌾 Personaggi giocabili
 
-- **Il Nonno**  
-  Aspetto: coppola, sedia a rotelle.  
-  Arma: doppietta ("scupetta").  
-  Abilita': elevata **potenza con il fucile**.
+Ogni personaggio ha estetica, arma e abilità dedicate. Le scelte del giocatore influenzano il modo in cui i personaggi interagiscono tra loro e con gli NPC.
 
-- **Il Giovane (Bambino)**  
-  Aspetto: canotta bianca.  
-  Arma: fionda.  
-  Abilita': alta **velocita'**.
+- 👴 **Il Nonno**  
+  **Aspetto:** coppola, sedia a rotelle.  
+  **Arma:** doppietta ("scupetta").  
+  **Abilità:** elevata **potenza con il fucile**.
 
-- **Il Papa'**  
-  Aspetto: camicia a quadri, look rustico.  
-  Arma: zappa.  
-  Abilita': attacchi ravvicinati potenti con la **zappa**.
+- 👦 **Il Giovane (Bambino)**  
+  **Aspetto:** canotta bianca.  
+  **Arma:** fionda.  
+  **Abilità:** alta **velocità**.
 
-- **La Mamma**  
-  Aspetto: molto da contadina, con cappello di paglia e bretelle.  
-  Arma: ciabatta.  
-  Abilita': supporto, puo' **curare gli altri personaggi con la Voltaren**.
+- 👨 **Il Papà**  
+  **Aspetto:** camicia a quadri, look rustico.  
+  **Arma:** zappa.  
+  **Abilità:** attacchi ravvicinati potenti con la **zappa**.
 
-## Modalita' di gioco
+- 👩 **La Mamma**  
+  **Aspetto:** look da contadina, con cappello di paglia e bretelle.  
+  **Arma:** ciabatta.  
+  **Abilità:** supporto, può **curare gli altri personaggi con il Voltaren**.
+
+---
+
+## 🎮 Modalità di gioco
 
 - Massimo **2 giocatori**.
 - Turni alternati tra i giocatori.
-- Possibilita' di scegliere personaggi e strategie diverse a ogni livello.
+- Possibilità di scegliere personaggi e strategie diverse a ogni livello.
 
-## NPC, altruismo e ricompense
+---
 
-Durante i livelli il giocatore incontra NPC con cui puo' interagire.
+## 🗣️ NPC, altruismo e ricompense
+
+Durante i livelli il giocatore incontra NPC con cui può interagire.
 
 - Gli NPC possono regalare oggetti.
-- Alcuni NPC possono proporre livelli o missioni aggiuntive.
-- Il giocatore puo' anche scegliere di **rubare** gli oggetti, con possibili conseguenze sulla barra.
+- Alcuni NPC possono proporre missioni secondarie o richiedere oggetti specifici.
+- Il giocatore può anche scegliere di **rubare** gli oggetti, con possibili conseguenze sulla barra del carattere.
 
-## Barra Carattere: altruismo vs egoismo
+### ❤️ Barra Carattere: Altruismo vs Egoismo
 
 Il gioco include una barra `Carattere` con due poli opposti:
 - **Altruismo** da un lato.
 - **Egoismo** dall'altro lato.
 
-Regola principale:
+**Regola principale:**
 - Se la barra `Carattere` scende **sotto i 100 punti**, diventa **rossa**.
 - Lo stato rosso indica che i personaggi stanno diventando **egoisti**.
 - Le scelte dei giocatori (aiutare, cooperare, rubare, ecc.) influenzano direttamente il valore della barra.
 
-## Oggetti trovabili
+---
 
-Il sistema oggetti includera' consumabili, potenziamenti, equipaggiamenti e ricompense rare legate all'esplorazione e alle interazioni con NPC.
-La lista completa degli oggetti verra' definita nelle prossime milestone di progettazione.
+## 🎒 Oggetti trovabili
 
-## Stack tecnologico (work in progress)
+Il sistema oggetti includerà consumabili, potenziamenti, equipaggiamenti e ricompense rare legate all'esplorazione e alle interazioni con NPC.
+La lista completa degli oggetti verrà definita nelle prossime milestone di progettazione.
 
-- Linguaggio: **Java**
-- Framework di gioco: **libGDX**
-- Build tool: **Gradle**
+---
 
-## Struttura del repository
+## 🛠️ Stack tecnologico (work in progress)
 
-- `core/` - logica di gioco condivisa
-- `lwjgl3/` - launcher desktop e configurazione runtime
-- `assets/` - risorse grafiche, audio e file di gioco
+- **Linguaggio:** Java ☕
+- **Framework di gioco:** libGDX 🎮
+- **Build tool:** Gradle 🐘
 
-## Come avviare il progetto
+---
 
-Prerequisiti:
-- JDK installato
-- Gradle (oppure wrapper incluso nel progetto)
+## 📁 Struttura del repository
 
-Esecuzione (desktop):
-1. Clonare il repository.
-2. Aprire il progetto in un IDE Java (es. IntelliJ IDEA).
-3. Eseguire il launcher desktop (`lwjgl3`).
+- `core/` - Logica di gioco condivisa.
+- `lwjgl3/` - Launcher desktop e configurazione runtime.
+- `assets/` - Risorse grafiche, audio e file di gioco.
 
-## Stato del progetto
+---
 
-Il progetto e' in sviluppo. Le funzionalita' verranno introdotte in modo incrementale per milestone.
+## 🚀 Come avviare il progetto
 
-## Roadmap iniziale
+### Prerequisiti
+- **Java Development Kit (JDK)** installato (versione 17 o superiore consigliata).
+- **Git** installato nel sistema.
+
+### Esecuzione da Terminale (Desktop)
+1. **Clona il repository**:
+   ```bash
+   git clone https://github.com/pcodez99/progetto-ISS-2025-2026.git
+   ```
+2. **Spostati nella directory del progetto**:
+   ```bash
+   cd progetto-ISS-2025-2026
+   ```
+3. **Avvia il gioco tramite Gradle Wrapper**:
+   - Su Linux/macOS:
+     ```bash
+     ./gradlew lwjgl3:run
+     ```
+   - Su Windows:
+     ```cmd
+     gradlew.bat lwjgl3:run
+     ```
+
+### Esecuzione tramite IDE (es. IntelliJ IDEA)
+1. Apri IntelliJ IDEA.
+2. Seleziona **File > Open** e scegli la cartella del progetto.
+3. Attendi il caricamento e la sincronizzazione di Gradle.
+4. Esegui il launcher desktop avviando la classe `Lwjgl3Launcher` presente nel modulo `lwjgl3`.
+
+---
+
+## 🤝 Come contribuire al progetto
+
+Siamo felici di accettare contributi! Per contribuire al progetto, segui questi passaggi:
+
+1. **Esegui un fork** del repository.
+2. **Crea un branch** per la tua feature o bugfix (`git checkout -b feature/nuova-feature`).
+3. **Effettua i tuoi commit** descrivendo chiaramente i cambiamenti (`git commit -m 'Aggiunta nuova funzionalità'`).
+4. **Fai il push** del branch sul tuo fork (`git push origin feature/nuova-feature`).
+5. **Apri una Pull Request** descrivendo nel dettaglio le modifiche apportate.
+
+Assicurati che il codice rispetti le linee guida del progetto e passi tutti i test locali prima di aprire una Pull Request.
+
+---
+
+## 📈 Stato del progetto
+
+Il progetto è in sviluppo. Le funzionalità verranno introdotte in modo incrementale per milestone.
+
+---
+
+## 🗺️ Roadmap iniziale
 
 - [ ] Definizione requisiti funzionali e non funzionali
 - [ ] Progettazione architettura e diagrammi principali
@@ -118,6 +176,8 @@ Il progetto e' in sviluppo. Le funzionalita' verranno introdotte in modo increme
 - [ ] Introduzione sistema livelli e progressione RPG
 - [ ] Testing, bilanciamento e rifinitura
 
-## Team e contesto
+---
 
-Questo repository e' sviluppato nell'ambito di un corso/progetto universitario di **Ingegneria del Software**.
+## 🎓 Team e contesto
+
+Questo repository è sviluppato nell'ambito di un corso/progetto universitario di **Ingegneria del Software**.
