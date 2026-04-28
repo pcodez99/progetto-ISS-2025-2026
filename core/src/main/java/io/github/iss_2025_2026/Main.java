@@ -6,6 +6,8 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -19,6 +21,8 @@ public class Main extends Game {
     Music music;
 
     SpriteBatch spriteBatch;
+    BitmapFont titleFont;
+    GlyphLayout titleLayout;
     FitViewport viewport;
 
     @Override
@@ -31,6 +35,9 @@ public class Main extends Game {
         music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
 
         spriteBatch = new SpriteBatch();
+        titleFont = new BitmapFont();
+        titleFont.getData().setScale(2f);
+        titleLayout = new GlyphLayout(titleFont, "Viddani VS Alieni");
         viewport = new FitViewport(8, 5);
     }
 
@@ -66,8 +73,22 @@ public class Main extends Game {
     
         // rearrange these two lines
         spriteBatch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight); // draw the background
+        float titleX = (worldWidth - titleLayout.width) / 2f;
+        float titleY = worldHeight - 0.5f;
+        titleFont.draw(spriteBatch, titleLayout, titleX, titleY);
         spriteBatch.draw(bucketTexture, 0, 0, 1, 1); // draw the bucket
     
         spriteBatch.end();
+    }
+
+    @Override
+    public void dispose() {
+        backgroundTexture.dispose();
+        bucketTexture.dispose();
+        dropTexture.dispose();
+        dropSound.dispose();
+        music.dispose();
+        spriteBatch.dispose();
+        titleFont.dispose();
     }
 }
