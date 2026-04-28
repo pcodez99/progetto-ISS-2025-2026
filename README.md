@@ -49,6 +49,7 @@ Ogni personaggio ha estetica, arma e abilita' dedicate. Le scelte del giocatore 
   Abilita': attacchi ravvicinati potenti con la **zappa**.
 
 - **La Mamma**  
+  Aspetto: molto da contadina, con cappello di paglia e bretelle.  
   Arma: ciabatta.  
   Abilita': supporto, puo' **curare gli altri personaggi con la Voltaren**.
 
@@ -63,9 +64,19 @@ Ogni personaggio ha estetica, arma e abilita' dedicate. Le scelte del giocatore 
 Durante i livelli il giocatore incontra NPC con cui puo' interagire.
 
 - Gli NPC possono regalare oggetti.
-- La **rarita' degli oggetti** ricevuti e' direttamente proporzionale alla barra di **esperienza/altruismo**.
 - Alcuni NPC possono proporre livelli o missioni aggiuntive.
-- Il giocatore puo' anche scegliere di **rubare** gli oggetti, con possibili conseguenze su reputazione, relazioni e progressione.
+- Il giocatore puo' anche scegliere di **rubare** gli oggetti, con possibili conseguenze sulla barra.
+
+## Barra Carattere: altruismo vs egoismo
+
+Il gioco include una barra `Carattere` con due poli opposti:
+- **Altruismo** da un lato.
+- **Egoismo** dall'altro lato.
+
+Regola principale:
+- Se la barra `Carattere` scende **sotto i 100 punti**, diventa **rossa**.
+- Lo stato rosso indica che i personaggi stanno diventando **egoisti**.
+- Le scelte dei giocatori (aiutare, cooperare, rubare, ecc.) influenzano direttamente il valore della barra.
 
 ## Oggetti trovabili
 
