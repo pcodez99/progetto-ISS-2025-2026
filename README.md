@@ -51,26 +51,26 @@ Ogni personaggio ha estetica, arma e abilità base dedicate. Inoltre, progredend
 - 👴 **Il Nonno**  
   **Aspetto:** coppola, sedia a rotelle.  
   **Arma:** doppietta ("scupetta").  
-  **Abilità Base:** elevata **potenza con il fucile**.  
-  **Abilità Speciale (sbloccabile):** *Salto con la sedia a rotelle* (un salto molto potente che genera un'onda d'urto). PIRATA DELLA STRADA
+  **Attacco Base:** spara con il fucile.  
+  **Abilità Speciale (sviluppabile):** *Salto con la carrozzina* (un salto molto potente che genera un'onda d'urto).
 
 - 👦 **Il Giovane (Bambino)**  
   **Aspetto:** canotta bianca.  
   **Arma:** fionda.  
-  **Abilità Base:** alta **velocità**.  
-  **Abilità Speciale (sbloccabile):** *Pioggia di pietre* (lancia un sacchetto di pietre da tutte le parti).
+  **Attacco Base:** spara con la fionda.  
+  **Abilità Speciale (sviluppabile):** *Pioggia di pietre* (lancia dei sassi nell'area nemica).
 
 - 👨 **Il Papà**  
   **Aspetto:** camicia a quadri, look rustico.  
   **Arma:** zappa.  
-  **Abilità Base:** attacchi ravvicinati potenti con la **zappa**.  
-  **Abilità Speciale (sbloccabile):** *Il lancio del viddano* (lancia la zappa tipo boomerang).
+  **Attacco Base:** attacchi ravvicinati con la zappa.  
+  **Abilità Speciale (sviluppabile):** *Il lancio del viddano* (lancia la zappa come un boomerang) .
 
 - 👩 **La Mamma**  
   **Aspetto:** look da contadina, con cappello di paglia e bretelle.  
   **Arma:** ciabatta.  
-  **Abilità Base:** supporto, può **curare gli altri personaggi con il Voltaren**.  
-  **Abilità Speciale (sbloccabile):** *Cura di gruppo* (cura tutti i giocatori contemporaneamente).
+  **Attacco Base:** attacchi a distanza con la ciabatta.  
+  **Abilità Speciale (sviluppabile):** *Cura di gruppo* (cura tutti i giocatori contemporaneamente).
 
 ---
 
@@ -102,13 +102,13 @@ Durante i livelli il giocatore incontra NPC con cui può interagire. I dialoghi 
 
 ### ❤️ Barra Carattere: Altruismo vs Egoismo
 
-Il gioco include una barra `Carattere` con due poli opposti:
-- **Altruismo** da un lato.
-- **Egoismo** dall'altro lato.
+Il gioco include una barra `Carattere` che cambia colore in base al livello, indicando rispettivamente:
+- **Altruismo**, se tende ad essere piena.
+- **Egoismo**, se tende ad essere vuota.
 
 **Regola principale:**
-- Se la barra `Carattere` scende **sotto i 100 punti**, diventa **rossa**.
-- Lo stato rosso indica che i personaggi stanno diventando **egoisti**.
+- Se la barra `Carattere` scende **sotto i 50 punti**, diventa **rossa**. Più il livello è basso, più il colore vira da un *rosso bordeaux* verso un *rosso acceso*.
+- Se la barra `Carattere` scende **sale sopra i 50 punti**, diventa **blu**. Più il livello è alto, più il colore vira da un **blu scuro** verso un **celeste chiaro**
 - Le scelte dei giocatori (aiutare, cooperare, rubare, ecc.) influenzano direttamente il valore della barra.
 
 ---
