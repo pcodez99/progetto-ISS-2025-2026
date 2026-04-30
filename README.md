@@ -108,7 +108,7 @@ Il gioco include una barra `Carattere` che cambia colore in base al livello, ind
 
 **Regola principale:**
 - Se la barra `Carattere` scende **sotto i 50 punti**, diventa **rossa**. Più il livello è basso, più il colore vira da un *rosso bordeaux* verso un *rosso acceso*.
-- Se la barra `Carattere` scende **sale sopra i 50 punti**, diventa **blu**. Più il livello è alto, più il colore vira da un **blu scuro** verso un **celeste chiaro**
+- Se la barra `Carattere` sale **sopra i 50 punti**, diventa **blu**. Più il livello è alto, più il colore vira da un **blu scuro** verso un **celeste chiaro**
 - Le scelte dei giocatori (aiutare, cooperare, rubare, ecc.) influenzano direttamente il valore della barra.
 
 ---
