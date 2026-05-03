@@ -67,3 +67,9 @@ subprojects {
 }
 
 eclipse.project.name = 'ISS 2025' + '-parent'
+
+project(":core"){
+  test{
+    useJUnitPlatform()
+  }
+}
