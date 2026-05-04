@@ -130,7 +130,10 @@ La lista completa degli oggetti verrà definita nelle prossime milestone di prog
 
 ## 📁 Struttura del repository
 
-- `core/` - Logica di gioco condivisa.
+- `core/` - Logica di gioco condivisa, organizzata secondo il pattern MVC:
+    - `model/`: Dati del gioco e logica di business.
+    - `view/`: Interfaccia utente, grafica e rendering.
+    - `controller/`: Gestione dell'input e comunicazione tra View e Model
 - `lwjgl3/` - Launcher desktop e configurazione runtime.
 - `assets/` - Risorse grafiche, audio e file di gioco.
 
