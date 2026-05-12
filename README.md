@@ -194,8 +194,8 @@ Il progetto è in sviluppo. Le funzionalità verranno introdotte in modo increme
 
 ## 🗺️ Roadmap iniziale
 
-- [ ] Definizione requisiti funzionali e non funzionali
-- [ ] Progettazione architettura e diagrammi principali
+- [x] Definizione requisiti funzionali e non funzionali
+- [x] Progettazione architettura e diagrammi principali
 - [ ] Implementazione prototipo giocabile
 - [ ] Introduzione sistema livelli e progressione RPG
 - [ ] Testing, bilanciamento e rifinitura
