@@ -128,6 +128,14 @@ La lista completa degli oggetti verrà definita nelle prossime milestone di prog
 
 ---
 
+## 🛠️ Pipeline CI/CD
+
+Il progetto utilizza **GitHub Actions** per l'automazione:
+- **Build & Test**: Ogni push o Pull Request verso `main` attiva una build automatica e l'esecuzione dei test.
+- **Release**: Al caricamento di un nuovo tag (es. `v1.0.0`), viene creata automaticamente una Release su GitHub con i file JAR pronti all'uso.
+
+---
+
 ## 📁 Struttura del repository
 
 - `core/` - Logica di gioco condivisa, organizzata secondo il pattern MVC:
@@ -144,6 +152,7 @@ La lista completa degli oggetti verrà definita nelle prossime milestone di prog
 ### Prerequisiti
 - **Java Development Kit (JDK)** installato (versione 17 o superiore consigliata).
 - **Git** installato nel sistema.
+- **Node.js e npm** (per la gestione dei Git Hooks con Husky).
 
 ### Esecuzione da Terminale (Desktop)
 1. **Clona il repository**:
@@ -154,7 +163,11 @@ La lista completa degli oggetti verrà definita nelle prossime milestone di prog
    ```bash
    cd progetto-ISS-2025-2026
    ```
-3. **Avvia il gioco tramite Gradle Wrapper**:
+3. **Installa le dipendenze npm** (necessario per attivare Husky):
+   ```bash
+   npm install
+   ```
+4. **Avvia il gioco tramite Gradle Wrapper**:
    - Su Linux/macOS:
      ```bash
      ./gradlew lwjgl3:run
@@ -196,6 +209,7 @@ Il progetto è in sviluppo. Le funzionalità verranno introdotte in modo increme
 
 - [x] Definizione requisiti funzionali e non funzionali
 - [x] Progettazione architettura e diagrammi principali
+- [x] Setup Pipeline CI/CD (GitHub Actions)
 - [ ] Implementazione prototipo giocabile
 - [ ] Introduzione sistema livelli e progressione RPG
 - [ ] Testing, bilanciamento e rifinitura
