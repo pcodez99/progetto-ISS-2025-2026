@@ -14,8 +14,8 @@ public class Main extends Game {
     @Override
     public void create() {
         // Initialize MVC components
-        GameModel model = new GameModel();
-        GameController controller = new GameController(model);
+        // GameModel model = new GameModel();
+        // GameController controller = new GameController(model);
 
         // Set the initial screen (the View)
         setScreen(new MainMenuScreen());
