@@ -12,8 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import io.github.iss_2025_2026.model.MainMenuModel;
 
+import io.github.iss_2025_2026.controller.GameController;
+import io.github.iss_2025_2026.model.GameModel;
+import io.github.iss_2025_2026.model.MainMenuModel;
 
 public class MainMenuScreen implements Screen {
 
@@ -23,7 +25,7 @@ public class MainMenuScreen implements Screen {
     private SpriteBatch batch;
     private MainMenuModel model;
 
-    public MainMenuScreen() {
+    public MainMenuScreen(GameModel model, GameController controller) {
         this.batch = new SpriteBatch();
         this.model = new MainMenuModel();
 
@@ -76,12 +78,30 @@ public class MainMenuScreen implements Screen {
     }
 
     // Metodi obbligatori dell'interfaccia Screen
-    @Override public void show() { Gdx.input.setInputProcessor(stage); }
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() {
+    @Override
+    public void show() {
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
+
+    @Override
+    public void dispose() {
         stage.dispose();
         skin.dispose();
         backgroundTexture.dispose();
