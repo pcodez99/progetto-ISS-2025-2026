@@ -17,6 +17,6 @@ public class Main extends Game {
         GameController controller = new GameController(model);
 
         // Set the initial screen (the View)
-        setScreen(new MainMenuScreen(model, controller));
+        setScreen(new MainMenuScreen(this, model, controller));
     }
 }

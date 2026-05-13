@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.MainMenuModel;
@@ -24,8 +25,14 @@ public class MainMenuScreen implements Screen {
     private Texture backgroundTexture;
     private SpriteBatch batch;
     private MainMenuModel model;
+    private final Main game;
+    private final GameModel gameModel;
+    private final GameController controller;
 
-    public MainMenuScreen(GameModel model, GameController controller) {
+    public MainMenuScreen(Main game, GameModel gameModel, GameController controller) {
+        this.game       = game;
+        this.gameModel  = gameModel;
+        this.controller = controller;
         this.batch = new SpriteBatch();
         this.model = new MainMenuModel();
 
@@ -54,6 +61,9 @@ public class MainMenuScreen implements Screen {
                         Gdx.app.exit();
                     } else if (action == MainMenuModel.MenuAction.NEW_GAME) {
                         System.out.println("Inizio Partita!");
+                    } else if (action == MainMenuModel.MenuAction.SETTINGS) {
+                        game.setScreen(new SettingsScreen(game, gameModel, controller));
+                        dispose();
                     }
                 }
             });
