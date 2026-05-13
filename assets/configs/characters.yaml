@@ -1,0 +1,29 @@
+characters:
+  - id: "nonno"
+    name: "Nonno"
+    maxHp: 120
+    baseDamage: 15
+    maxHpGrowth: 15
+    damageGrowth: 3
+    abilityId: "WHEELCHAIR_JUMP"
+  - id: "papa"
+    name: "Papà"
+    maxHp: 150
+    baseDamage: 20
+    maxHpGrowth: 10
+    damageGrowth: 5
+    abilityId: "VIDDANO_THROW"
+  - id: "mamma"
+    name: "Mamma"
+    maxHp: 110
+    baseDamage: 12
+    maxHpGrowth: 12
+    damageGrowth: 4
+    abilityId: "GROUP_HEAL"
+  - id: "bambino"
+    name: "Bambino"
+    maxHp: 80
+    baseDamage: 10
+    maxHpGrowth: 10
+    damageGrowth: 6
+    abilityId: "STONE_RAIN"

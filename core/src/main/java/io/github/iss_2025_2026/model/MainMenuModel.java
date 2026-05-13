@@ -1,9 +1,9 @@
 package io.github.iss_2025_2026.model;
 
 
-/** Model per il menu principale**/
+/** Model for the main menu **/
 public class MainMenuModel {
-    //Definiamo le azioni possibili del menu principale
+    // Define the possible actions for the main menu
     public enum MenuAction{
         NEW_GAME,
         LOAD_GAME,

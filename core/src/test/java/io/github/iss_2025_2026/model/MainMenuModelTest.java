@@ -1,20 +1,22 @@
 package io.github.iss_2025_2026.model;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class MainMenuModelTest {
     @Test
-    public void testInitialStatus(){
+    public void testInitialStatus() {
         MainMenuModel model = new MainMenuModel();
-        assertNotNull(model,"Il modello dovrebbe essere istanziato");
+        assertNotNull(model, "The model should be instantiated");
     }
-    //Test per verificare se il modello espone correttamente le 4 azioni fondamentali richieste
+
+    // Test to verify if the model correctly exposes the 4 fundamental actions required
     @Test
-    public void testMenuActionsPresence(){
-        MainMenuModel model= new MainMenuModel();
-        //Otteniamo la lista delle azioni disponibili
+    public void testMenuActionsPresence() {
+        MainMenuModel model = new MainMenuModel();
+        // Get the list of available actions
         MainMenuModel.MenuAction[] actions = model.getAvailableActions();
-        // verifichiamo che ci siano le 4 azioni della US
-        assertEquals(4,actions.length,"Il menu deve avere esattamente 4 opzioni principali");
+        // Verify that there are the 4 actions
+        assertEquals(4, actions.length, "The menu must have exactly 4 main options");
     }
 }
