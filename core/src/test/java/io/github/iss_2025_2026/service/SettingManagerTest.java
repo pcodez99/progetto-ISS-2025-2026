@@ -1,12 +1,10 @@
 package io.github.iss_2025_2026.service;
 
 import io.github.iss_2025_2026.model.GameSettings;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,7 +46,8 @@ class SettingsManagerTest {
 
     @Test
     void testLoadNonExistentFileReturnsDefault() {
-        // Se il file non esiste, deve tornare un oggetto con valori di default, non crashare
+        // Se il file non esiste, deve tornare un oggetto con valori di default, non
+        // crashare
         GameSettings settings = settingsManager.load("file_fantasma.json");
         assertNotNull(settings);
         assertEquals(0.5f, settings.getMasterVolume(), "Dovrebbe avere il volume di default (0.5)");
