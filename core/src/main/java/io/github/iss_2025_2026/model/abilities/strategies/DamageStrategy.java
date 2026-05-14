@@ -5,6 +5,11 @@ import io.github.iss_2025_2026.model.abilities.AbilityContext;
 import io.github.iss_2025_2026.model.abilities.AbilityConfiguration;
 import io.github.iss_2025_2026.model.Character;
 
+/**
+ * implementa l'interfaccia AbilityStrategy,contiene le formule matematiche per
+ * calcolare i danni basandosi sulle statistiche e sul livello del personaggio
+ */
+
 public class DamageStrategy implements AbilityStrategy {
 
     @Override

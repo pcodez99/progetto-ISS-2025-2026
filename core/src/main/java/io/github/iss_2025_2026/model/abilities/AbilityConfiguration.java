@@ -1,5 +1,10 @@
 package io.github.iss_2025_2026.model.abilities;
 
+/**
+ * Il contenitore dei dati statici che vengono caricate dal file .yaml
+ * contiene i dati per far si che la strategia esegua i calcoli corretti per danni o cura
+ */
+
 public class AbilityConfiguration {
     private String id;
     private String name;

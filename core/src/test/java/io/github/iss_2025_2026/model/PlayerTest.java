@@ -20,7 +20,6 @@ class PlayerTest {
 
         @Override
         public void levelUp() {
-            levelIncrease(); // Metodo minimo per non lasciare vuoto lo scheletro
         }
     }
 

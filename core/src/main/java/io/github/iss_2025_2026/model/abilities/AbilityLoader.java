@@ -5,6 +5,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * "ponte" tra dati esterni e codice, utilizza la libreria Jackson per leggere i file .yaml
+ * e trasformarli in oggetti Java; utilizza il "Data-Driven" per modificare i valori
+ * senza dover ricompilare il codice
+ */
+
 public class AbilityLoader {
 
     private final ObjectMapper mapper;
