@@ -1,4 +1,6 @@
 package io.github.iss_2025_2026.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.*;
 
 /**
@@ -6,13 +8,21 @@ import java.util.*;
  * Implementa incapsulamento e protezione dati
  */
 public class Backpack {
-    private final List<Collectible> collectibles;
-    private final int maxCapacity;
+    private List<Collectible> collectibles;
+    private int maxCapacity;
     //Costruttore
     public Backpack(int maxCapacity){
         this.collectibles =new ArrayList<>();
         this.maxCapacity =Math.max(1, maxCapacity);
     }
+    //Costruttore vuoto richiesto da Jackson
+    public Backpack(){
+        this.collectibles=new ArrayList<>();
+        this.maxCapacity=10; //valore di default
+    }
+
+
+
 
     /** Metodi per gestire lo zaino
      * aggiungere collezionabili
@@ -35,10 +45,18 @@ public class Backpack {
     public List<Collectible> getCollectibles(){
         return Collections.unmodifiableList(collectibles);
     }
+    public void setCollectibles(List<Collectible> collectibles){
+        this.collectibles=collectibles;
+    }
 
     public int getMaxCapacity() {
         return maxCapacity;
     }
+    public void setMaxCapacity(int maxCapacity){
+        this.maxCapacity=maxCapacity;
+    }
+    //faccio ignorare da Json èer evitare di sporcarlo con dati inutili
+    @JsonIgnore
     public int getCollectiblesNumber(){
         return collectibles.size();
     }
