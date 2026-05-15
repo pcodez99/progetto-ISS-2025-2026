@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * distributore delle logiche,serve per separare le strategie e il loro utilizzo;
+ * distributore delle logiche, serve per separare le strategie e il loro utilizzo;
  * utilizza un registro(Map) statico di utte le possibili strategie(prendendole da YAML)
  */
 public class AbilityFactory{
