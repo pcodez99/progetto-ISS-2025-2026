@@ -175,3 +175,5 @@ yarn-error.log*
 
 ## Logs:
 *.log
+
+/bundles
