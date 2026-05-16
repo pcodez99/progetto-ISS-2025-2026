@@ -4,4 +4,3 @@ strategy: "HEAL"
 cooldown: 4
 aoe: true
 baseHealing: 20
-healingForLevel: 5

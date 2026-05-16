@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.view.SettingsScreen;
+import io.github.iss_2025_2026.view.NewGameConfigScreen;
 import io.github.iss_2025_2026.model.MainMenuModel;
 
 /**
@@ -30,8 +31,8 @@ public class MainMenuController {
     public void handleMenuAction(MainMenuModel.MenuAction action) {
         switch (action) {
             case NEW_GAME:
-                System.out.println("Avvio nuova partita...");
-                // In futuro qui si cambierà schermata verso il gioco vero e proprio
+                System.out.println("Avvio nuova configurazione partita...");
+                game.setScreen(new NewGameConfigScreen(game, model, controller));
                 break;
             case LOAD_GAME:
                 System.out.println("Caricamento partita...");

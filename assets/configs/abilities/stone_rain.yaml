@@ -4,4 +4,3 @@ strategy: "DAMAGE"
 cooldown: 5
 aoe: true
 baseDamage: 15
-damageForLevel: 3

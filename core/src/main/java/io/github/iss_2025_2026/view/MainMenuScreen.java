@@ -47,6 +47,12 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
+        // Responsive background
+        com.badlogic.gdx.scenes.scene2d.ui.Image background = new com.badlogic.gdx.scenes.scene2d.ui.Image(backgroundTexture);
+        background.setFillParent(true);
+        background.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
+        stage.addActor(background);
+
         Table table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
@@ -68,13 +74,8 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        // Pulisce lo schermo prima di ogni frame
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        batch.begin();
-        batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.end();
 
         stage.act(delta);
         stage.draw();

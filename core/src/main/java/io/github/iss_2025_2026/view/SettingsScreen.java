@@ -80,6 +80,12 @@ public class SettingsScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
+        // Responsive background
+        Image backgroundActor = new Image(backgroundTexture);
+        backgroundActor.setFillParent(true);
+        backgroundActor.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
+        stage.addActor(backgroundActor);
+
         // Contenitore principale con scroll
         Table root = new Table();
         root.setFillParent(true);
@@ -199,10 +205,6 @@ public class SettingsScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        batch.begin();
-        batch.draw(backgroundTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.end();
 
         stage.act(delta);
         stage.draw();

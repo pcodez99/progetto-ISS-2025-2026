@@ -105,4 +105,10 @@ public class CharacterFactory {
         return new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, 1);
     }
 
+    /**
+     * @return All loaded character configurations
+     */
+    public Map<String, Map<String, Object>> getCharacterData() {
+        return characterData;
+    }
 }

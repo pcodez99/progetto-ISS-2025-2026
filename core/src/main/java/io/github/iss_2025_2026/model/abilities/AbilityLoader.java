@@ -11,6 +11,7 @@ public class AbilityLoader {
 
     public AbilityLoader() {
         this.mapper = new ObjectMapper(new YAMLFactory());
+        this.mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public AbilityConfiguration loadAbility(InputStream inputStream) {
