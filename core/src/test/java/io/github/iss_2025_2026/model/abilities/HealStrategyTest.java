@@ -11,13 +11,11 @@ public class HealStrategyTest {
     @Test
     public void testHealDoesNotExceedMaxHp() {
         // 1. Preparazione (Arrange)
-        Character bersaglio = new Player("Alleato", 100, 0, null) {
-        }; // Max HP 100
+        Character bersaglio = new Player("Alleato", 100, 0, null); // Max HP 100
         bersaglio.takeDamage(10); // Lo portiamo a 90 HP
 
         AbilityConfiguration configCura = new AbilityConfiguration();
         configCura.setBaseHealing(50); // Cura enorme che supererebbe il massimo
-        configCura.setHealingForLevel(0);
 
         AbilityContext context = new AbilityContext(bersaglio, java.util.Arrays.asList(bersaglio));
         HealStrategy cura = new HealStrategy();

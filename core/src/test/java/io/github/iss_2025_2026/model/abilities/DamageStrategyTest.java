@@ -14,17 +14,14 @@ public class DamageStrategyTest {
     @Test
     public void testDamageCalculation() {
         // 1. ARRANGE (Preparazione)
-        // Creiamo il caster e il target come "manichini" (classi anonime)
-        Character caster = new Player("Mago", 100, 0, null) {};
-        Character target = new Player("Orco", 100, 0, null) {}; // L'orco parte con 100 HP
+        Character caster = new Player("Mago", 100, 0, null);
+        Character target = new Player("Orco", 100, 0, null); // L'orco parte con 100 HP
 
         AbilityConfiguration configDanno = new AbilityConfiguration();
         configDanno.setBaseDamage(30);
-        configDanno.setDamageForLevel(5);
-        // Nota: se il Player appena creato parte dal livello 1 di default,
-        // il danno totale atteso è 30 + (5 * 1) = 35.
+        // Scaling logic: baseDamage + caster.getLevel()
+        // Level default is 1, so damage = 30 + 1 = 31
 
-        // Ricorda di usare Arrays.asList per la compatibilità con Java 8!
         AbilityContext context = new AbilityContext(caster, Arrays.asList(target));
         DamageStrategy attacco = new DamageStrategy();
 
@@ -32,19 +29,18 @@ public class DamageStrategyTest {
         attacco.execute(context, configDanno);
 
         // 3. ASSERT (Verifica)
-        // 100 HP iniziali - 35 danni = 65 HP rimanenti
-        assertEquals(65, target.getHp(), "Il bersaglio dovrebbe aver subito 35 danni (30 base + 5 di scaling)");
+        // 100 HP iniziali - 31 danni = 69 HP rimanenti
+        assertEquals(69, target.getHp(), "Il bersaglio dovrebbe aver subito 31 danni (30 base + 1 di scaling del livello 1)");
     }
 
     @Test
     public void testDamageDoesNotDropHpBelowZero() {
         // 1. ARRANGE (Preparazione)
-        Character caster = new Player("Cavaliere", 100, 0, null) {};
-        Character target = new Player("Goblin debole", 20, 0, null) {}; // Parte solo con 20 HP
+        Character caster = new Player("Cavaliere", 100, 0, null);
+        Character target = new Player("Goblin debole", 20, 0, null); // Parte solo con 20 HP
 
         AbilityConfiguration configDannoLetale = new AbilityConfiguration();
         configDannoLetale.setBaseDamage(1000); // Danno esagerato
-        configDannoLetale.setDamageForLevel(0);
 
         AbilityContext context = new AbilityContext(caster, Arrays.asList(target));
         DamageStrategy attacco = new DamageStrategy();

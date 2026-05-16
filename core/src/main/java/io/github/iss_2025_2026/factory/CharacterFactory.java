@@ -6,14 +6,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.iss_2025_2026.model.*;
 import io.github.iss_2025_2026.model.abilities.*;
 
-
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Factory class for creating playable characters from YAML configuration using Jackson.
+ * Factory class for creating playable characters from YAML configuration using
+ * Jackson.
  */
 public class CharacterFactory {
     private Map<String, Map<String, Object>> characterData;
@@ -29,8 +29,8 @@ public class CharacterFactory {
 
     private void registerAbilities() {
         AbilityLoader loader = new AbilityLoader();
-        String[] abilities = {"group_heal", "viddano_throw", "stone_rain", "wheelchair_jump"};
-        
+        String[] abilities = { "group_heal", "viddano_throw", "stone_rain", "wheelchair_jump" };
+
         for (String abilityFileName : abilities) {
             String path = "configs/abilities/" + abilityFileName + ".yaml";
             if (!Gdx.files.internal(path).exists()) {
@@ -50,7 +50,6 @@ public class CharacterFactory {
             }
         }
     }
-
 
     @SuppressWarnings("unchecked")
     private void loadConfigs() {
@@ -78,9 +77,9 @@ public class CharacterFactory {
         }
     }
 
-
     /**
      * Creates a new Player instance based on the provided character ID
+     * 
      * @param id The character identifier (e.g., "nonno", "papa")
      * @return A configured Player instance
      */
@@ -99,10 +98,11 @@ public class CharacterFactory {
 
         SpecialAbility ability = abilityRegistry.get(abilityId);
         if (ability == null && abilityId != null) {
-            Gdx.app.error("CharacterFactory", "WARNING: Ability '" + abilityId + "' not found for character '" + id + "'. Player will have NO special ability!");
+            Gdx.app.error("CharacterFactory", "WARNING: Ability '" + abilityId + "' not found for character '" + id
+                    + "'. Player will have NO special ability!");
         }
 
-        return new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth);
+        return new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, 1);
     }
 
 }

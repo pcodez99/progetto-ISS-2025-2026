@@ -6,7 +6,8 @@ import io.github.iss_2025_2026.model.abilities.AbilityConfiguration;
 import io.github.iss_2025_2026.model.Character;
 
 /**
- * Implementa l'interfaccia AbilityStrategy e contiene le formule matematiche per
+ * Implementa l'interfaccia AbilityStrategy e contiene le formule matematiche
+ * per
  * calcolare la cura basandosi su statistiche e livello del personaggio
  */
 
@@ -17,7 +18,7 @@ public class HealStrategy implements AbilityStrategy {
         Character caster = context.getCaster();
 
         // Healing scaling formula
-        int totalHeal = config.getBaseHealing() + (config.getHealingForLevel() * caster.getLevel());
+        int totalHeal = config.getBaseHealing() + caster.getLevel();
 
         System.out.println(caster.getName() + " uses " + config.getName() + "!");
 

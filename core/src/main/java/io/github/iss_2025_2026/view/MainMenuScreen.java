@@ -26,17 +26,10 @@ public class MainMenuScreen implements Screen {
     private Texture backgroundTexture;
     private SpriteBatch batch;
 
-    private final Main game;
-    private final GameModel model;
-    private final GameController controller;
-
     private final MainMenuModel menuModel;
     private final MainMenuController menuController;
 
     public MainMenuScreen(Main game, GameModel model, GameController controller) {
-        this.game = game;
-        this.model = model;
-        this.controller = controller;
         this.batch = new SpriteBatch();
 
         // Menu-specific MVC components

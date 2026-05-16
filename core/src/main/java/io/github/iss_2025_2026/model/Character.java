@@ -9,14 +9,17 @@ public abstract class Character {
     protected int level = 1;
 
     /** Constructor with safety checks for hp (min 1) and baseDamage (min 1) */
-    public Character(String name, int maxHp, int baseDamage) {
+    public Character(String name, int maxHp, int baseDamage, int level) {
         this.name = name;
         this.maxHp = Math.max(1, maxHp);
         this.hp = this.maxHp;
         this.baseDamage = Math.max(1, baseDamage);
+        this.level = level;
     }
 
-    /** Safe method to receive damage (prevents HP from dropping below zero)
+    /**
+     * Safe method to receive damage (prevents HP from dropping below zero)
+     * 
      * @param amount The amount of damage to take
      */
     public void takeDamage(int amount) {
@@ -28,7 +31,9 @@ public abstract class Character {
         }
     }
 
-    /** Method to heal the character
+    /**
+     * Method to heal the character
+     * 
      * @param amount The amount of HP to restore
      */
     public void heal(int amount) {

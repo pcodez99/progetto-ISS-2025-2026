@@ -5,12 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class PlayerTest {
 
-    private static class PlayerImpl extends Player {
-        public PlayerImpl(String name, int maxHp, int baseDamage, SpecialAbility ability, int maxHpGrowth, int damageGrowth) {
-            super(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth);
-        }
-    }
-
     private static class MockAbility implements SpecialAbility {
         public boolean used = false;
         @Override
@@ -25,7 +19,7 @@ public class PlayerTest {
 
     @Test
     public void testPlayerInitialization() {
-        Player p = new PlayerImpl("Hero", 100, 10, null, 10, 2);
+        Player p = new Player("Hero", 100, 10, null, 10, 2, 1);
         assertEquals(1, p.getLevel());
         assertEquals(0, p.getKarma());
         assertNotNull(p.getBackpack());
@@ -33,7 +27,7 @@ public class PlayerTest {
 
     @Test
     public void testModifyKarma() {
-        Player p = new PlayerImpl("Hero", 100, 10, null, 10, 2);
+        Player p = new Player("Hero", 100, 10, null, 10, 2, 1);
         p.modifyKarma(20);
         assertEquals(20, p.getKarma());
         p.modifyKarma(40);
@@ -44,7 +38,7 @@ public class PlayerTest {
 
     @Test
     public void testLevelUp() {
-        Player p = new PlayerImpl("Hero", 100, 10, null, 10, 5);
+        Player p = new Player("Hero", 100, 10, null, 10, 5, 1);
         p.takeDamage(50);
         p.levelUp();
         assertEquals(2, p.getLevel());
@@ -56,7 +50,7 @@ public class PlayerTest {
     @Test
     public void testUseSpecialAbility() {
         MockAbility ability = new MockAbility();
-        Player p = new PlayerImpl("Hero", 100, 10, ability, 10, 2);
+        Player p = new Player("Hero", 100, 10, ability, 10, 2, 1);
         p.useSpecialAbility(null);
         assertTrue(ability.used);
     }

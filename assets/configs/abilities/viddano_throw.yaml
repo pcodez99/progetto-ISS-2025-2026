@@ -2,6 +2,6 @@ id: "VIDDANO_THROW"
 name: "Lancio del Viddano"
 strategy: "DAMAGE"
 cooldown: 2
-aoe: false
+aoe: true
 baseDamage: 25
 damageForLevel: 6
