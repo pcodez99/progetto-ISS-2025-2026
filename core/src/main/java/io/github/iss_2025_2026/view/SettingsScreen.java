@@ -2,6 +2,7 @@ package io.github.iss_2025_2026.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -66,7 +67,7 @@ public class SettingsScreen implements Screen {
 
         this.batch = new SpriteBatch();
         this.skin  = new Skin(Gdx.files.internal("ui/uiskin.json"));
-        this.backgroundTexture = new Texture(Gdx.files.internal("background_init.png"));
+        this.backgroundTexture = new Texture(Gdx.files.internal("settings_background.png"));
 
         buildUI();
     }
@@ -92,9 +93,16 @@ public class SettingsScreen implements Screen {
         // ---- Sezione Volume ----------------------------------------
         root.add(new Label("--- Volume ---", skin)).colspan(2).padBottom(10).row();
 
+        // Definizione stile personalizzato neon per le slider
+        Slider.SliderStyle neonStyle = new Slider.SliderStyle();
+        neonStyle.background = skin.newDrawable("progress-bar-square", new Color(0.1f, 0.4f, 0.5f, 1f)); // Ciano scuro
+        neonStyle.knob = skin.newDrawable("slider-knob", new Color(0f, 0.8f, 1f, 1f));       // Ciano acceso
+        neonStyle.knobOver = skin.newDrawable("slider-knob", new Color(0.3f, 0.9f, 1f, 1f));   // Ciano ancora più acceso
+        neonStyle.knobDown = skin.newDrawable("slider-knob", new Color(0f, 0.6f, 0.8f, 1f));   // Ciano premuto
+
         // Slider Master Volume
         root.add(new Label("Volume Generale:", skin)).left().padRight(10);
-        final Slider masterSlider = new Slider(0f, 1f, 0.01f, false, skin);
+        final Slider masterSlider = new Slider(0f, 1f, 0.01f, false, neonStyle);
         masterSlider.setValue(settingsModel.getMasterVolume());
         masterSlider.addListener(new ChangeListener() {
             @Override
@@ -107,7 +115,7 @@ public class SettingsScreen implements Screen {
 
         // Slider SFX Volume
         root.add(new Label("Volume Effetti (SFX):", skin)).left().padRight(10);
-        final Slider sfxSlider = new Slider(0f, 1f, 0.01f, false, skin);
+        final Slider sfxSlider = new Slider(0f, 1f, 0.01f, false, neonStyle);
         sfxSlider.setValue(settingsModel.getSfxVolume());
         sfxSlider.addListener(new ChangeListener() {
             @Override
