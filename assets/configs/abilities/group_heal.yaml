@@ -1,0 +1,7 @@
+id: "GROUP_HEAL"
+name: "Cura di Gruppo"
+strategy: "HEAL"
+cooldown: 4
+aoe: true
+baseHealing: 20
+healingForLevel: 5

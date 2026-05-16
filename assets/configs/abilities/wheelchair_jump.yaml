@@ -1,0 +1,7 @@
+id: "WHEELCHAIR_JUMP"
+name: "Salto in Carrozzina"
+strategy: "DAMAGE"
+cooldown: 3
+aoe: false
+baseDamage: 30
+damageForLevel: 8

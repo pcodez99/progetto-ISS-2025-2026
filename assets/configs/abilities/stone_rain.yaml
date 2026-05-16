@@ -1,0 +1,7 @@
+id: "STONE_RAIN"
+name: "Pioggia di Pietre"
+strategy: "DAMAGE"
+cooldown: 5
+aoe: true
+baseDamage: 15
+damageForLevel: 3

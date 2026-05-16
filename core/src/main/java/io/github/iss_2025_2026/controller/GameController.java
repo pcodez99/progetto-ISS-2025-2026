@@ -5,8 +5,9 @@ import com.badlogic.gdx.Input;
 import io.github.iss_2025_2026.model.GameModel;
 
 /**
- * Game Controller.
- * Handles user input and translates it into state changes in the Model.
+ * Game Controller (Parte del pattern MVC).
+ * Intercetta l'input dell'utente e lo traduce in cambiamenti di stato nel Model.
+ * Coordina l'aggiornamento della logica di gioco.
  */
 public class GameController {
     private final GameModel model;

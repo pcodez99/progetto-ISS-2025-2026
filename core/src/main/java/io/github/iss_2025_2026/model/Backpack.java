@@ -16,7 +16,7 @@ public class Backpack {
         this.items = new ArrayList<>();
     }
 
-    /** Default constructor for Jackson serialization */
+    /** Default constructor for serialization */
     public Backpack() {
         this.capacity = 10;
         this.items = new ArrayList<>();
@@ -53,7 +53,7 @@ public class Backpack {
     }
 
     /**
-     * Sets the items list (required for Jackson deserialization).
+     * Sets the items list (required for deserialization).
      * @param items List of items
      */
     public void setItems(List<Collectible> items) {

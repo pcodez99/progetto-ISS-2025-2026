@@ -13,8 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import io.github.iss_2025_2026.controller.GameController;
-import io.github.iss_2025_2026.model.GameModel;
+import io.github.iss_2025_2026.controller.MainMenuController;
 import io.github.iss_2025_2026.model.MainMenuModel;
 
 public class MainMenuScreen implements Screen {
@@ -23,11 +22,13 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
     private Texture backgroundTexture;
     private SpriteBatch batch;
-    private MainMenuModel model;
+    private final MainMenuModel model;
+    private final MainMenuController controller;
 
-    public MainMenuScreen(GameModel model, GameController controller) {
+    public MainMenuScreen(MainMenuModel model, MainMenuController controller) {
         this.batch = new SpriteBatch();
-        this.model = new MainMenuModel();
+        this.model = model;
+        this.controller = controller;
 
         // Carichiamo gli asset in cartella
         this.skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -50,11 +51,7 @@ public class MainMenuScreen implements Screen {
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    if (action == MainMenuModel.MenuAction.EXIT) {
-                        Gdx.app.exit();
-                    } else if (action == MainMenuModel.MenuAction.NEW_GAME) {
-                        System.out.println("Inizio Partita!");
-                    }
+                    controller.handleMenuAction(action);
                 }
             });
 
@@ -62,6 +59,7 @@ public class MainMenuScreen implements Screen {
             table.row();
         }
     }
+
 
     @Override
     public void render(float delta) {

@@ -9,8 +9,10 @@ import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.model.GameModel;
 
 /**
- * Game View (LibGDX Screen).
- * Renders the state of the Model.
+ * Game View (Parte del pattern MVC).
+ * Implementazione di {@link Screen} di LibGDX.
+ * Si occupa esclusivamente del rendering dello stato del Model.
+ * Delega la logica di aggiornamento e input al Controller.
  */
 public class TestScreen implements Screen {
     private final GameModel model;

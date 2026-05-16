@@ -1,7 +1,7 @@
 package io.github.iss_2025_2026.model;
 
 /** Represents a character selectable by the player */
-public abstract class Player extends Character {
+public class Player extends Character {
     private int karma; // from -50 to +50 (egoism and altruism)
     private Backpack backpack;
     private SpecialAbility ability;
@@ -17,6 +17,11 @@ public abstract class Player extends Character {
         this.ability = ability;
         this.maxHpGrowth = maxHpGrowth;
         this.damageGrowth = damageGrowth;
+    }
+
+    /** Convenience constructor with default growth values */
+    public Player(String name, int maxHp, int baseDamage, SpecialAbility ability) {
+        this(name, maxHp, baseDamage, ability, 10, 2);
     }
 
     /** Modifies karma safely within range

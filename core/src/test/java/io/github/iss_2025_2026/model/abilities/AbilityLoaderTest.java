@@ -28,8 +28,12 @@ public class AbilityLoaderTest {
         AbilityLoader loader = new AbilityLoader();
 
         // 2. ACT (Esecuzione)
-        // Facciamo leggere il file appena creato al nostro loader
-        AbilityConfiguration config = loader.loadAbility(tempFile.toString());
+        // Facciamo leggere il file appena creato al nostro loader tramite un InputStream
+        AbilityConfiguration config;
+        try (java.io.InputStream is = Files.newInputStream(tempFile)) {
+            config = loader.loadAbility(is);
+        }
+
 
         // 3. ASSERT (Verifica)
         // Se Jackson ha fatto bene il suo lavoro, il config non sarà nullo

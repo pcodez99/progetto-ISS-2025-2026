@@ -1,9 +1,9 @@
 package io.github.iss_2025_2026.model;
 
 /**
- * Game Model.
- * Holds the state of the game and logic that doesn't depend on rendering or
- * input.
+ * Game Model (Parte del pattern MVC).
+ * Rappresenta lo stato del gioco e la logica di business.
+ * Non contiene riferimenti a LibGDX per il rendering o l'input.
  */
 public class GameModel {
     private String message;

@@ -1,17 +1,19 @@
-package io.github.iss_2025_2026.model;
+package io.github.iss_2025_2026.persistence;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import io.github.iss_2025_2026.model.GameState;
 import java.io.File;
 import java.io.IOException;
 
 /**
- * Gestisce il salvataggio e il caricamento delle partite in formato JSON.
+ * Gestisce il salvataggio e il caricamento delle partite in formato JSON tramite Jackson ObjectMapper.
  */
 public class SaveManager {
     private static final ObjectMapper mapper = new ObjectMapper()
-        .enable(SerializationFeature.INDENT_OUTPUT).configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,false); // Rende il JSON leggibile (pretty print)
+        .enable(SerializationFeature.INDENT_OUTPUT)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private static final String SAVE_DIRECTORY = "saves/";
 

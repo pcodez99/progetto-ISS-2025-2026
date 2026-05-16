@@ -2,14 +2,8 @@ package io.github.iss_2025_2026.model.abilities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.File;
+import java.io.InputStream;
 import java.io.IOException;
-
-/**
- * "ponte" tra dati esterni e codice, utilizza la libreria Jackson per leggere i file .yaml
- * e trasformarli in oggetti Java; utilizza il "Data-Driven" per modificare i valori
- * senza dover ricompilare il codice
- */
 
 public class AbilityLoader {
 
@@ -19,13 +13,14 @@ public class AbilityLoader {
         this.mapper = new ObjectMapper(new YAMLFactory());
     }
 
-    public AbilityConfiguration loadAbility(String filePath) {
+    public AbilityConfiguration loadAbility(InputStream inputStream) {
         try {
-            return mapper.readValue(new File(filePath), AbilityConfiguration.class);
+            return mapper.readValue(inputStream, AbilityConfiguration.class);
         } catch (IOException exception) {
-            System.err.println("Failed to load YAML file: " + filePath);
+            System.err.println("Failed to load YAML from stream");
             exception.printStackTrace();
             return null;
         }
     }
 }
+
