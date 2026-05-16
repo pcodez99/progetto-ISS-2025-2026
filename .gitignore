@@ -178,4 +178,4 @@ yarn-error.log*
 
 /bundles
 /saves
-/assets/config/settings.json
+/assets/settings.json
