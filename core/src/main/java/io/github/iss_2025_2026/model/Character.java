@@ -7,6 +7,10 @@ public abstract class Character {
     private int maxHp;
     private int baseDamage;
     protected int level = 1;
+    private float x;
+    private float y;
+    private float speed = 200f;
+    private Direction direction = Direction.DOWN;
 
     /** Constructor with safety checks for hp (min 1) and baseDamage (min 1) */
     public Character(String name, int maxHp, int baseDamage, int level) {
@@ -15,6 +19,8 @@ public abstract class Character {
         this.hp = this.maxHp;
         this.baseDamage = Math.max(1, baseDamage);
         this.level = level;
+        this.x = 0;
+        this.y = 0;
     }
 
     /**
@@ -90,5 +96,37 @@ public abstract class Character {
 
     protected void setBaseDamage(int baseDamage) {
         this.baseDamage = baseDamage;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 }

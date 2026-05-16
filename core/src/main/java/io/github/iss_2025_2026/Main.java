@@ -3,6 +3,7 @@ package io.github.iss_2025_2026;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
+import com.badlogic.gdx.assets.AssetManager;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.view.MainMenuScreen;
@@ -12,8 +13,11 @@ import io.github.iss_2025_2026.view.MainMenuScreen;
  * platforms.
  */
 public class Main extends Game {
+    private AssetManager assetManager;
+
     @Override
     public void create() {
+        assetManager = new AssetManager();
 
         String charactersPath = "configs/characters.yaml";
         String abilitiesPath = "configs/abilities/";
@@ -31,5 +35,17 @@ public class Main extends Game {
 
         // Set the initial screen (the View), passing the game instance and global state
         setScreen(new MainMenuScreen(this, gameModel, gameController));
+    }
+
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        if (assetManager != null) {
+            assetManager.dispose();
+        }
     }
 }
