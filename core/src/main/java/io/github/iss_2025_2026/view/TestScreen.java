@@ -51,11 +51,11 @@ public class TestScreen implements Screen {
     private Label timerLabel;
     private Label infoLabel;
 
-    private static final String ATLAS_PATH = "sprites/characters/child/child_sprite.atlas";
-    private static final String WALK_FRONT = "sprites/characters/child/walk/child_front.atlas";
-    private static final String WALK_BACK = "sprites/characters/child/walk/child_back.atlas";
-    private static final String WALK_LEFT = "sprites/characters/child/walk/child_left.atlas";
-    private static final String WALK_RIGHT = "sprites/characters/child/walk/child_right.atlas";
+    private static final String ATLAS_PATH = "child_sprite.atlas";
+    private static final String WALK_FRONT = "sprites/characters/child/walk/child_walk_sprite_front.atlas";
+    private static final String WALK_BACK = "sprites/characters/child/walk/child_walk_sprite_back.atlas";
+    private static final String WALK_LEFT = "sprites/characters/child/walk/child_walk_sprite_left.atlas";
+    private static final String WALK_RIGHT = "sprites/characters/child/walk/child_walk_sprite_right.atlas";
 
     private static final String BG_PATH = "test_walk_background.png";
     private static final String BG_FALLBACK_PATH = "select-character-bg.png";
@@ -97,10 +97,10 @@ public class TestScreen implements Screen {
         }
 
         // Inizializziamo le animazioni Walk dai 4 atlas separati
-        loadWalkAnimation(Direction.DOWN, WALK_FRONT, "front");
-        loadWalkAnimation(Direction.UP, WALK_BACK, "back");
-        loadWalkAnimation(Direction.LEFT, WALK_LEFT, "left");
-        loadWalkAnimation(Direction.RIGHT, WALK_RIGHT, "right");
+        loadWalkAnimation(Direction.DOWN, WALK_FRONT, "child_walk_sprite_front");
+        loadWalkAnimation(Direction.UP, WALK_BACK, "child_walk_sprite_back");
+        loadWalkAnimation(Direction.LEFT, WALK_LEFT, "child_walk_sprite_left");
+        loadWalkAnimation(Direction.RIGHT, WALK_RIGHT, "child_walk_sprite_right");
 
         stateTime = 0f;
 
