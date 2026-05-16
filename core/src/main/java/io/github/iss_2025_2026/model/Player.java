@@ -1,8 +1,7 @@
 package io.github.iss_2025_2026.model;
 
 /** Represents a character selectable by the player */
-public class Player extends Character {
-    private int level;
+public abstract class Player extends Character {
     private int karma; // from -50 to +50 (egoism and altruism)
     private Backpack backpack;
     private SpecialAbility ability;
@@ -13,7 +12,6 @@ public class Player extends Character {
 
     public Player(String name, int maxHp, int baseDamage, SpecialAbility ability, int maxHpGrowth, int damageGrowth) {
         super(name, maxHp, baseDamage);
-        this.level = 1;
         this.karma = 0;
         this.backpack = new Backpack(10);
         this.ability = ability;
@@ -37,7 +35,7 @@ public class Player extends Character {
      */
     public void useSpecialAbility(Character target) {
         if (this.ability != null) {
-            this.ability.perform(this, target, this.level);
+            this.ability.perform(this, target, getLevel());
         }
     }
 
@@ -45,17 +43,13 @@ public class Player extends Character {
      * Increases level and updates stats based on growth parameters
      */
     public void levelUp() {
-        this.level++;
+        setLevel(getLevel() + 1);
         setMaxHp(getMaxHp() + maxHpGrowth);
         setBaseDamage(getBaseDamage() + damageGrowth);
         setHp(getMaxHp()); // Heal on level up
     }
 
     // GETTERS
-    public int getLevel() {
-        return level;
-    }
-
     public int getKarma() {
         return karma;
     }
@@ -66,5 +60,21 @@ public class Player extends Character {
 
     public SpecialAbility getAbility() {
         return ability;
+    }
+    
+    public int getMaxHpGrowth() {
+        return maxHpGrowth;
+    }
+    
+    public int getDamageGrowth() {
+        return damageGrowth;
+    }
+    
+    public void setKarma(int karma) {
+        this.karma = karma;
+    }
+    
+    public void setBackpack(Backpack backpack) {
+        this.backpack = backpack;
     }
 }

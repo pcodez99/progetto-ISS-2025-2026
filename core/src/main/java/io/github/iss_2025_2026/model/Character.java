@@ -6,6 +6,7 @@ public abstract class Character {
     private int hp;
     private int maxHp;
     private int baseDamage;
+    protected int level = 1;
 
     /** Constructor with safety checks for hp (min 1) and baseDamage (min 1) */
     public Character(String name, int maxHp, int baseDamage) {
@@ -23,6 +24,18 @@ public abstract class Character {
             this.hp -= amount;
             if (this.hp < 0) {
                 this.hp = 0;
+            }
+        }
+    }
+
+    /** Method to heal the character
+     * @param amount The amount of HP to restore
+     */
+    public void heal(int amount) {
+        if (amount > 0) {
+            this.hp += amount;
+            if (this.hp > maxHp) {
+                this.hp = maxHp;
             }
         }
     }
@@ -49,8 +62,17 @@ public abstract class Character {
         return baseDamage;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    // SETTERS
     public void setHp(int hp) {
         this.hp = Math.min(maxHp, Math.max(0, hp));
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     protected void setMaxHp(int maxHp) {

@@ -6,6 +6,7 @@ package io.github.iss_2025_2026.model;
 public interface SpecialAbility {
     String getName();
     String getDescription();
+
     /** Executes the ability.
      * @param user The character using the ability
      * @param target The target character
