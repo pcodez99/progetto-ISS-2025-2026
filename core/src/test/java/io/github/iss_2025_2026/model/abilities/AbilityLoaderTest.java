@@ -17,8 +17,7 @@ public class AbilityLoaderTest {
             "id: TEST_HEAL\n" +
                 "name: Magic Heal\n" +
                 "strategy: HEAL\n" +
-                "baseHealing: 20\n" +
-                "healingForLevel: 5\n";
+                "baseHealing: 20\n";
 
         // Creiamo il file fisico nella cartella temporanea di JUnit
         Path tempFile = tempDir.resolve("test_ability.yaml");
