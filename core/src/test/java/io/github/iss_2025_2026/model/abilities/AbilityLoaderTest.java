@@ -16,6 +16,7 @@ public class AbilityLoaderTest {
         String yamlContent =
             "id: TEST_HEAL\n" +
                 "name: Magic Heal\n" +
+                "description: Restores the whole party.\n" +
                 "strategy: HEAL\n" +
                 "baseHealing: 20\n";
 
@@ -41,6 +42,7 @@ public class AbilityLoaderTest {
 
         assertEquals("TEST_HEAL", config.getId(), "ID does not match");
         assertEquals("Magic Heal", config.getName(), "Name does not match");
+        assertEquals("Restores the whole party.", config.getDescription(), "Description does not match");
         assertEquals("HEAL", config.getStrategy(), "Strategy does not match");
         assertEquals(20, config.getBaseHealing(), "Base healing does not match");
     }

@@ -1,5 +1,6 @@
 id: "STONE_RAIN"
 name: "Pioggia di Pietre"
+description: "Scarica un colpo ad area aggressivo, ideale per chiudere in fretta."
 strategy: "DAMAGE"
 cooldown: 5
 aoe: true

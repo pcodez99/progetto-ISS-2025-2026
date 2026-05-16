@@ -2,6 +2,7 @@ package io.github.iss_2025_2026.model;
 
 /** Represents a character selectable by the player */
 public class Player extends Character {
+    private String characterId;
     private int karma; // from -50 to +50 (egoism and altruism)
     private Backpack backpack;
     private SpecialAbility ability;
@@ -63,6 +64,10 @@ public class Player extends Character {
         return karma;
     }
 
+    public String getCharacterId() {
+        return characterId;
+    }
+
     public Backpack getBackpack() {
         return backpack;
     }
@@ -83,7 +88,23 @@ public class Player extends Character {
         this.karma = karma;
     }
 
+    public void setCharacterId(String characterId) {
+        this.characterId = characterId;
+    }
+
     public void setBackpack(Backpack backpack) {
         this.backpack = backpack;
+    }
+
+    public void restoreState(String name, int hp, int maxHp, int baseDamage, int level, int karma, Backpack backpack) {
+        if (name != null && !name.trim().isEmpty()) {
+            setName(name);
+        }
+        setLevel(Math.max(1, level));
+        setMaxHp(Math.max(1, maxHp));
+        setBaseDamage(Math.max(1, baseDamage));
+        setHp(hp);
+        setKarma(karma);
+        setBackpack(backpack != null ? backpack : new Backpack(10));
     }
 }

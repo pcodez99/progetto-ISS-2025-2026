@@ -1,37 +1,81 @@
 package io.github.iss_2025_2026.model;
 
 /**
- * POJO che rappresenta lo stato della partita da salvare su file JSON.
- * Include i riferimenti per ricostruire il personaggio tramite Factory.
+ * Stato serializzabile della partita.
+ * Supporta sia il formato attuale a uno o due player, sia il vecchio formato legacy.
  */
 public class GameState {
+    private String gameName;
+    private NewGameConfigModel.GameMode gameMode;
+    private PlayerSaveState playerOne;
+    private PlayerSaveState playerTwo;
+    private String savedAt;
+
+    // Legacy single-player fields kept for backward compatibility.
     private String playerName;
-    private String characterType; // Es: "MAMMA", "PAPA", "NONNO" (per la Factory)
+    private String characterType;
     private int hp;
     private int baseDamage;
     private int level;
-    private Backpack backpack; // Jackson serializzerà l'intero oggetto Backpack
+    private Backpack backpack;
     private String lastCheckpoint;
-    private String specialAbilityId; // ID per la AbilityFactory (Es: "HEAL")
+    private String specialAbilityId;
 
-    // Costruttore vuoto obbligatorio per Jackson
     public GameState() {
     }
 
-    // Costruttore completo per creare il salvataggio velocemente
-    public GameState(String playerName, String characterType, int hp, int baseDamage,
-            int level, Backpack backpack, String lastCheckpoint, String specialAbilityId) {
-        this.playerName = playerName;
-        this.characterType = characterType;
-        this.hp = hp;
-        this.baseDamage = baseDamage;
-        this.level = level;
-        this.backpack = backpack;
-        this.lastCheckpoint = lastCheckpoint;
-        this.specialAbilityId = specialAbilityId;
+    public GameState(String gameName, NewGameConfigModel.GameMode gameMode, PlayerSaveState playerOne,
+            PlayerSaveState playerTwo, String savedAt) {
+        this.gameName = gameName;
+        this.gameMode = gameMode;
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
+        this.savedAt = savedAt;
     }
 
-    // --- GETTER E SETTER ---
+    public boolean hasLegacySinglePlayerData() {
+        return playerOne == null && characterType != null && !characterType.trim().isEmpty();
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public NewGameConfigModel.GameMode getGameMode() {
+        return gameMode;
+    }
+
+    public void setGameMode(NewGameConfigModel.GameMode gameMode) {
+        this.gameMode = gameMode;
+    }
+
+    public PlayerSaveState getPlayerOne() {
+        return playerOne;
+    }
+
+    public void setPlayerOne(PlayerSaveState playerOne) {
+        this.playerOne = playerOne;
+    }
+
+    public PlayerSaveState getPlayerTwo() {
+        return playerTwo;
+    }
+
+    public void setPlayerTwo(PlayerSaveState playerTwo) {
+        this.playerTwo = playerTwo;
+    }
+
+    public String getSavedAt() {
+        return savedAt;
+    }
+
+    public void setSavedAt(String savedAt) {
+        this.savedAt = savedAt;
+    }
 
     public String getPlayerName() {
         return playerName;

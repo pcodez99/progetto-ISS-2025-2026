@@ -1,0 +1,39 @@
+{
+  "gameName" : "Pietro",
+  "gameMode" : "MULTIPLAYER",
+  "playerOne" : {
+    "characterId" : "mamma",
+    "name" : "Mamma",
+    "hp" : 110,
+    "maxHp" : 110,
+    "baseDamage" : 10,
+    "level" : 1,
+    "karma" : 0,
+    "backpack" : {
+      "capacity" : 10,
+      "items" : [ ]
+    }
+  },
+  "playerTwo" : {
+    "characterId" : "nonno",
+    "name" : "Nonno",
+    "hp" : 120,
+    "maxHp" : 120,
+    "baseDamage" : 20,
+    "level" : 1,
+    "karma" : 0,
+    "backpack" : {
+      "capacity" : 10,
+      "items" : [ ]
+    }
+  },
+  "savedAt" : "2026-05-16T14:05:43.085980Z",
+  "playerName" : null,
+  "characterType" : null,
+  "hp" : 0,
+  "baseDamage" : 0,
+  "level" : 0,
+  "backpack" : null,
+  "lastCheckpoint" : null,
+  "specialAbilityId" : null
+}

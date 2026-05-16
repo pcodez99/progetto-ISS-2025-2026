@@ -1,29 +1,49 @@
 characters:
   - id: "nonno"
     name: "Nonno"
+    description: "Veterano resistente che regge il fronte e apre la strada."
     maxHp: 120
     baseDamage: 20
     maxHpGrowth: 15
     damageGrowth: 3
     abilityId: "WHEELCHAIR_JUMP"
+    traits:
+      - "Resistente"
+      - "Controllo dell'area"
+      - "Impatto frontale"
   - id: "papa"
     name: "Papà"
+    description: "Combattente solido, preciso e affidabile nei momenti critici."
     maxHp: 150
     baseDamage: 17
     maxHpGrowth: 10
     damageGrowth: 5
     abilityId: "VIDDANO_THROW"
+    traits:
+      - "Alta tenuta"
+      - "Danni costanti"
+      - "Pressione ad area"
   - id: "mamma"
     name: "Mamma"
+    description: "Supporto tattico che tiene in piedi la squadra."
     maxHp: 110
     baseDamage: 10
     maxHpGrowth: 12
     damageGrowth: 4
     abilityId: "GROUP_HEAL"
+    traits:
+      - "Supporto"
+      - "Recupero del team"
+      - "Sicurezza nelle fasi lunghe"
   - id: "bambino"
     name: "Bambino"
+    description: "Personaggio rapido da scalare, fragile ma molto offensivo."
     maxHp: 80
     baseDamage: 13
     maxHpGrowth: 20
     damageGrowth: 6
     abilityId: "STONE_RAIN"
+    traits:
+      - "Crescita esplosiva"
+      - "Picchi di danno"
+      - "Rischio elevato"

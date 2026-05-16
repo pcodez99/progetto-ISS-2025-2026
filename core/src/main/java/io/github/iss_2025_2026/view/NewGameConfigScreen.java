@@ -4,16 +4,18 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.NewGameConfigModel;
+import io.github.iss_2025_2026.service.MenuMusicManager;
 
 public class NewGameConfigScreen implements Screen {
 
@@ -24,17 +26,20 @@ public class NewGameConfigScreen implements Screen {
 
     private Stage stage;
     private Skin skin;
-    private SpriteBatch batch;
     private Texture background;
 
     public NewGameConfigScreen(Main game, GameModel gameModel, GameController gameController) {
+        this(game, gameModel, gameController, null);
+    }
+
+    public NewGameConfigScreen(Main game, GameModel gameModel, GameController gameController,
+            NewGameConfigModel existingConfig) {
         this.game = game;
         this.gameModel = gameModel;
         this.gameController = gameController;
-        this.configModel = new NewGameConfigModel();
+        this.configModel = existingConfig != null ? existingConfig : new NewGameConfigModel();
 
-        this.batch = new SpriteBatch();
-        this.skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        this.skin = GameUiTheme.loadSkin();
         this.background = new Texture(Gdx.files.internal("background_init.png"));
 
         buildUI();
@@ -44,29 +49,54 @@ public class NewGameConfigScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Responsive background
-        Image backgroundActor = new Image(background);
-        backgroundActor.setFillParent(true);
-        backgroundActor.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
-        stage.addActor(backgroundActor);
+        Table root = GameUiFactory.createScreenRoot(stage, background, skin);
+        Table shell = GameUiFactory.createPanel(skin, GameUiTheme.SPACE_5);
+        shell.defaults().growX().left();
 
-        Table root = new Table();
-        root.setFillParent(true);
-        stage.addActor(root);
+        shell.add(GameUiFactory.createHeroBlock(
+                skin,
+                "SETUP PARTITA",
+                "Configura la tua run",
+                "Scegli nome del salvataggio e modalita prima di passare alla selezione del personaggio."))
+                .width(620f).padBottom(GameUiTheme.SPACE_5).row();
 
-        Label title = new Label("CONFIGURAZIONE NUOVA PARTITA", skin);
-        root.add(title).colspan(2).padBottom(40).row();
+        Table formPanel = GameUiFactory.createStrongPanel(skin, GameUiTheme.SPACE_4);
+        formPanel.defaults().left().growX();
 
-        root.add(new Label("Nome Salvataggio:", skin)).left().padRight(20);
-        final TextField nameField = new TextField(configModel.getGameName(), skin);
-        root.add(nameField).width(300).padBottom(20).row();
+        formPanel.add(new Label("Parametri iniziali", skin, GameUiTheme.LABEL_SECTION))
+                .padBottom(GameUiTheme.SPACE_1).row();
+        formPanel.add(GameUiFactory.createMutedLabel(
+                "Dai un nome alla partita e scegli la modalita prima di passare al roster.", skin))
+                .width(560f).padBottom(GameUiTheme.SPACE_4).row();
 
-        root.add(new Label("Modalità di Gioco:", skin)).left().padRight(20);
-        final SelectBox<NewGameConfigModel.GameMode> modeSelect = new SelectBox<>(skin);
+        Label nameLabel = new Label("Nome salvataggio", skin, GameUiTheme.LABEL_BODY);
+        final TextField nameField = new TextField(configModel.getGameName(), skin, GameUiTheme.TEXT_FIELD_GAME);
+        nameField.setMessageText("Es. Difesa di Viddana");
+        nameField.setAlignment(Align.center);
+        float nameFieldInset = Math.max(14f, nameField.getStyle().background.getLeftWidth());
+        formPanel.add(nameLabel).padLeft(nameFieldInset).padBottom(GameUiTheme.SPACE_1).row();
+        formPanel.add(GameUiFactory.createMutedLabel(
+                "Usa un nome corto e riconoscibile: apparira come titolo del salvataggio.", skin))
+                .width(560f).padLeft(nameFieldInset).padBottom(GameUiTheme.SPACE_2).row();
+        formPanel.add(nameField).width(560f).height(68f).padBottom(GameUiTheme.SPACE_4).row();
+
+        Label modeLabel = new Label("Modalita di gioco", skin, GameUiTheme.LABEL_BODY);
+        final SelectBox<NewGameConfigModel.GameMode> modeSelect = new SelectBox<>(skin, GameUiTheme.SELECT_BOX_GAME);
         modeSelect.setItems(NewGameConfigModel.GameMode.values());
-        root.add(modeSelect).width(300).padBottom(40).row();
+        modeSelect.setSelected(configModel.getGameMode());
+        modeSelect.setAlignment(Align.center);
+        modeSelect.getList().setAlignment(Align.left);
+        modeSelect.getScrollPane().setFadeScrollBars(false);
+        float modeSelectInset = Math.max(14f, modeSelect.getStyle().background.getLeftWidth());
+        formPanel.add(modeLabel).padLeft(modeSelectInset).padBottom(GameUiTheme.SPACE_1).row();
+        formPanel.add(GameUiFactory.createMutedLabel(
+                "Single player per una run solitaria, multiplayer per due selezioni personaggio consecutive.", skin))
+                .width(560f).padLeft(modeSelectInset).padBottom(GameUiTheme.SPACE_2).row();
+        formPanel.add(modeSelect).width(560f).height(68f).padBottom(GameUiTheme.SPACE_6).row();
 
-        TextButton backBtn = new TextButton("Indietro", skin);
+        shell.add(formPanel).width(640f).padBottom(GameUiTheme.SPACE_4).row();
+
+        TextButton backBtn = GameUiFactory.createButton("Indietro", skin, GameUiTheme.BUTTON_GHOST);
         backBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -75,21 +105,26 @@ public class NewGameConfigScreen implements Screen {
             }
         });
 
-        TextButton nextBtn = new TextButton("Avanti", skin);
+        TextButton nextBtn = GameUiFactory.createButton("Scegli Personaggio", skin, GameUiTheme.BUTTON_PRIMARY);
         nextBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 configModel.setGameName(nameField.getText());
                 configModel.setGameMode(modeSelect.getSelected());
-                game.setScreen(new CharacterSelectionScreen(game, gameModel, gameController, configModel));
+                configModel.clearCharacterSelections();
+                game.setScreen(new CharacterSelectionScreen(game, gameModel, gameController, configModel, 1));
                 dispose();
             }
         });
 
         Table buttons = new Table();
-        buttons.add(backBtn).width(150).padRight(20);
-        buttons.add(nextBtn).width(150);
-        root.add(buttons).colspan(2);
+        buttons.add(backBtn).width(180f).height(56f).padRight(GameUiTheme.SPACE_2);
+        buttons.add(nextBtn).width(240f).height(56f);
+        shell.add(buttons).left();
+
+        Container<Table> shellWrap = new Container<>(shell);
+        shellWrap.width(760f);
+        root.add(shellWrap).center();
     }
 
     @Override
@@ -101,15 +136,36 @@ public class NewGameConfigScreen implements Screen {
         stage.draw();
     }
 
-    @Override public void show() { Gdx.input.setInputProcessor(stage); }
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-    @Override public void dispose() {
+    @Override
+    public void show() {
+        Gdx.input.setInputProcessor(stage);
+        MenuMusicManager.play();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+        CursorHoverUtil.resetDefaultCursor();
+        MenuMusicManager.pause();
+    }
+
+    @Override
+    public void dispose() {
+        CursorHoverUtil.resetDefaultCursor();
         stage.dispose();
         skin.dispose();
-        batch.dispose();
         background.dispose();
     }
 }

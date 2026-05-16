@@ -9,7 +9,8 @@ import java.util.Map;
  * <p>
  * Gestisce:
  * <ul>
- *   <li>Volume master (musica + effetti) — range [0.0, 1.0]</li>
+ *   <li>Volume master generale — range [0.0, 1.0]</li>
+ *   <li>Volume musica — range [0.0, 1.0]</li>
  *   <li>Volume SFX — range [0.0, 1.0]</li>
  *   <li>Mappatura comandi di gioco (read-only dall'esterno)</li>
  * </ul>
@@ -22,12 +23,14 @@ public class SettingsMenuModel {
     private static final float DEFAULT_VOLUME = 0.5f;
 
     private float masterVolume;
+    private float musicVolume;
     private float sfxVolume;
     private final Map<String, String> keyBindings;
 
     /** Costruisce il model con i valori di default e i comandi standard. */
     public SettingsMenuModel() {
         this.masterVolume = DEFAULT_VOLUME;
+        this.musicVolume  = DEFAULT_VOLUME;
         this.sfxVolume    = DEFAULT_VOLUME;
         this.keyBindings  = buildDefaultKeyBindings();
     }
@@ -47,6 +50,14 @@ public class SettingsMenuModel {
      */
     public void setMasterVolume(float volume) {
         this.masterVolume = clamp(volume);
+    }
+
+    public float getMusicVolume() {
+        return musicVolume;
+    }
+
+    public void setMusicVolume(float volume) {
+        this.musicVolume = clamp(volume);
     }
 
     public float getSfxVolume() {
@@ -87,6 +98,7 @@ public class SettingsMenuModel {
     public GameSettings toGameSettings() {
         GameSettings gs = new GameSettings();
         gs.setMasterVolume(masterVolume);
+        gs.setMusicVolume(musicVolume);
         gs.setSfxVolume(sfxVolume);
         gs.setKeyBindings(new HashMap<>(keyBindings));
         return gs;
@@ -101,6 +113,7 @@ public class SettingsMenuModel {
     public void loadFrom(GameSettings gs) {
         if (gs == null) return;
         setMasterVolume(gs.getMasterVolume());
+        setMusicVolume(gs.getMusicVolume());
         setSfxVolume(gs.getSfxVolume());
         if (gs.getKeyBindings() != null) {
             keyBindings.clear();

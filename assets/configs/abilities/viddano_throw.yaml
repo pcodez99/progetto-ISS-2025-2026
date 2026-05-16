@@ -1,5 +1,6 @@
 id: "VIDDANO_THROW"
 name: "Lancio del Viddano"
+description: "Attacco ad area rapido e affidabile che mantiene alta la pressione."
 strategy: "DAMAGE"
 cooldown: 2
 aoe: true

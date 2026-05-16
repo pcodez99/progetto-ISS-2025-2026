@@ -27,6 +27,12 @@ class SettingsMenuModelTest {
     }
 
     @Test
+    void testDefaultMusicVolume() {
+        assertEquals(0.5f, model.getMusicVolume(), 0.001f,
+                "Il volume musica di default deve essere 0.5");
+    }
+
+    @Test
     void testDefaultSfxVolume() {
         assertEquals(0.5f, model.getSfxVolume(), 0.001f,
                 "Il volume SFX di default deve essere 0.5");
@@ -41,6 +47,13 @@ class SettingsMenuModelTest {
         model.setMasterVolume(0.8f);
         assertEquals(0.8f, model.getMasterVolume(), 0.001f,
                 "Il volume master deve essere aggiornato a 0.8");
+    }
+
+    @Test
+    void testSetValidMusicVolume() {
+        model.setMusicVolume(0.6f);
+        assertEquals(0.6f, model.getMusicVolume(), 0.001f,
+                "Il volume musica deve essere aggiornato a 0.6");
     }
 
     @Test
@@ -89,6 +102,13 @@ class SettingsMenuModelTest {
                 "Il volume SFX deve essere clampato a 1.0");
     }
 
+    @Test
+    void testMusicVolumeClampedBelowMin() {
+        model.setMusicVolume(-0.3f);
+        assertEquals(0.0f, model.getMusicVolume(), 0.001f,
+                "Il volume musica deve essere clampato a 0.0 se scende sotto il minimo");
+    }
+
     // ---------------------------------------------------------------
     // Mappatura comandi
     // ---------------------------------------------------------------
@@ -121,6 +141,7 @@ class SettingsMenuModelTest {
     @Test
     void testExportToGameSettingsPreservesVolumes() {
         model.setMasterVolume(0.7f);
+        model.setMusicVolume(0.6f);
         model.setSfxVolume(0.4f);
 
         GameSettings gs = model.toGameSettings();
@@ -128,6 +149,8 @@ class SettingsMenuModelTest {
         assertNotNull(gs, "toGameSettings() non deve restituire null");
         assertEquals(0.7f, gs.getMasterVolume(), 0.001f,
                 "Il volume master esportato deve corrispondere");
+        assertEquals(0.6f, gs.getMusicVolume(), 0.001f,
+                "Il volume musica esportato deve corrispondere");
         assertEquals(0.4f, gs.getSfxVolume(), 0.001f,
                 "Il volume SFX esportato deve corrispondere");
     }
@@ -147,6 +170,7 @@ class SettingsMenuModelTest {
     void testLoadFromGameSettings() {
         GameSettings gs = new GameSettings();
         gs.setMasterVolume(0.9f);
+        gs.setMusicVolume(0.65f);
         gs.setSfxVolume(0.2f);
         gs.getKeyBindings().put("Jump", "W");
 
@@ -154,6 +178,8 @@ class SettingsMenuModelTest {
 
         assertEquals(0.9f, model.getMasterVolume(), 0.001f,
                 "Dopo loadFrom, il volume master deve essere 0.9");
+        assertEquals(0.65f, model.getMusicVolume(), 0.001f,
+                "Dopo loadFrom, il volume musica deve essere 0.65");
         assertEquals(0.2f, model.getSfxVolume(), 0.001f,
                 "Dopo loadFrom, il volume SFX deve essere 0.2");
         assertEquals("W", model.getKeyBindings().get("Jump"),

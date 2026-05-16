@@ -72,6 +72,10 @@ public abstract class Character {
     }
 
     // SETTERS
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setHp(int hp) {
         this.hp = Math.min(maxHp, Math.max(0, hp));
     }

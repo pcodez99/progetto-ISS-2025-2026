@@ -2,10 +2,8 @@ package io.github.iss_2025_2026.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -19,6 +17,8 @@ import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.GameSettings;
 import io.github.iss_2025_2026.model.SettingsMenuModel;
+import io.github.iss_2025_2026.service.MenuMusicManager;
+import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SettingsManager;
 
 import java.util.Map;
@@ -28,7 +28,8 @@ import java.util.Map;
  * <p>
  * Permette al giocatore di:
  * <ul>
- * <li>Modificare il volume master (musica + effetti)</li>
+ * <li>Modificare il volume master generale</li>
+ * <li>Modificare il volume della musica</li>
  * <li>Modificare il volume degli effetti sonori (SFX)</li>
  * <li>Visualizzare la mappatura dei comandi di gioco</li>
  * <li>Salvare le impostazioni nel file {@code settings.json}</li>
@@ -48,7 +49,6 @@ public class SettingsScreen implements Screen {
 
     private Stage stage;
     private Skin skin;
-    private SpriteBatch batch;
     private Texture backgroundTexture;
 
     /** Label di feedback mostrata dopo il salvataggio. */
@@ -65,8 +65,7 @@ public class SettingsScreen implements Screen {
         GameSettings saved = settingsManager.load(SETTINGS_FILE);
         settingsModel.loadFrom(saved);
 
-        this.batch = new SpriteBatch();
-        this.skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        this.skin = GameUiTheme.loadSkin();
         this.backgroundTexture = new Texture(Gdx.files.internal("settings_background.png"));
 
         buildUI();
@@ -80,77 +79,94 @@ public class SettingsScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Responsive background
-        Image backgroundActor = new Image(backgroundTexture);
-        backgroundActor.setFillParent(true);
-        backgroundActor.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
-        stage.addActor(backgroundActor);
+        Table root = GameUiFactory.createScreenRoot(stage, backgroundTexture, skin);
 
-        // Contenitore principale con scroll
-        Table root = new Table();
-        root.setFillParent(true);
-        root.pad(30);
-        stage.addActor(root);
+        Table shell = GameUiFactory.createPanel(skin, GameUiTheme.SPACE_5);
+        shell.defaults().left().growX();
+        shell.add(GameUiFactory.createHeroBlock(
+                skin,
+                "SISTEMA GIOCO",
+                "Impostazioni",
+                "Regola il mix audio e consulta i controlli principali mantenendo un look coerente con il resto del gioco."))
+                .padBottom(GameUiTheme.SPACE_4).row();
 
-        // ---- Titolo ------------------------------------------------
-        Label title = new Label("IMPOSTAZIONI", skin, "default");
-        root.add(title).colspan(2).padBottom(20).row();
+        Table audioPanel = GameUiFactory.createStrongPanel(skin, GameUiTheme.SPACE_4);
+        audioPanel.defaults().left();
+        audioPanel.add(new Label("Audio", skin, GameUiTheme.LABEL_SECTION)).colspan(2)
+                .padBottom(GameUiTheme.SPACE_3).row();
 
-        // ---- Sezione Volume ----------------------------------------
-        root.add(new Label("--- Volume ---", skin)).colspan(2).padBottom(10).row();
-
-        // Definizione stile personalizzato neon per le slider
-        Slider.SliderStyle neonStyle = new Slider.SliderStyle();
-        neonStyle.background = skin.newDrawable("progress-bar-square", new Color(0.1f, 0.4f, 0.5f, 1f)); // Ciano scuro
-        neonStyle.knob = skin.newDrawable("slider-knob", new Color(0f, 0.8f, 1f, 1f)); // Ciano acceso
-        neonStyle.knobOver = skin.newDrawable("slider-knob", new Color(0.3f, 0.9f, 1f, 1f)); // Ciano ancora più acceso
-        neonStyle.knobDown = skin.newDrawable("slider-knob", new Color(0f, 0.6f, 0.8f, 1f)); // Ciano premuto
-
-        // Slider Master Volume
-        root.add(new Label("Volume Generale:", skin)).left().padRight(10);
-        final Slider masterSlider = new Slider(0f, 1f, 0.01f, false, neonStyle);
+        audioPanel.add(new Label("Volume generale", skin, GameUiTheme.LABEL_BODY)).padRight(GameUiTheme.SPACE_3);
+        final Slider masterSlider = new Slider(0f, 1f, 0.01f, false,
+                skin.get(GameUiTheme.SLIDER_GAME, Slider.SliderStyle.class));
         masterSlider.setValue(settingsModel.getMasterVolume());
         masterSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 settingsModel.setMasterVolume(masterSlider.getValue());
+                applyAudioSettingsRealtime();
                 clearStatus();
             }
         });
-        root.add(masterSlider).width(300).padBottom(8).row();
+        audioPanel.add(masterSlider).width(320f).padBottom(GameUiTheme.SPACE_2).row();
 
-        // Slider SFX Volume
-        root.add(new Label("Volume Effetti (SFX):", skin)).left().padRight(10);
-        final Slider sfxSlider = new Slider(0f, 1f, 0.01f, false, neonStyle);
+        audioPanel.add(new Label("Volume musica", skin, GameUiTheme.LABEL_BODY)).padRight(GameUiTheme.SPACE_3);
+        final Slider musicSlider = new Slider(0f, 1f, 0.01f, false,
+                skin.get(GameUiTheme.SLIDER_GAME, Slider.SliderStyle.class));
+        musicSlider.setValue(settingsModel.getMusicVolume());
+        musicSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                settingsModel.setMusicVolume(musicSlider.getValue());
+                applyAudioSettingsRealtime();
+                clearStatus();
+            }
+        });
+        audioPanel.add(musicSlider).width(320f).padBottom(GameUiTheme.SPACE_2).row();
+
+        audioPanel.add(new Label("Volume effetti (SFX)", skin, GameUiTheme.LABEL_BODY)).padRight(GameUiTheme.SPACE_3);
+        final Slider sfxSlider = new Slider(0f, 1f, 0.01f, false,
+                skin.get(GameUiTheme.SLIDER_GAME, Slider.SliderStyle.class));
         sfxSlider.setValue(settingsModel.getSfxVolume());
         sfxSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 settingsModel.setSfxVolume(sfxSlider.getValue());
+                applyAudioSettingsRealtime();
                 clearStatus();
             }
         });
-        root.add(sfxSlider).width(300).padBottom(20).row();
+        audioPanel.add(sfxSlider).width(320f).padBottom(GameUiTheme.SPACE_3).row();
 
-        // ---- Sezione Comandi ---------------------------------------
-        root.add(new Label("--- Comandi di Gioco ---", skin)).colspan(2).padBottom(10).row();
+        Table audioChips = new Table();
+        audioChips.left();
+        audioChips.add(GameUiFactory.createChip(skin, "Audio dinamico")).padRight(GameUiTheme.SPACE_2);
+        audioChips.add(GameUiFactory.createChip(skin, "Salvataggio locale"));
+        audioPanel.add(audioChips).colspan(2).left().row();
 
+        shell.add(audioPanel).width(700f).padBottom(GameUiTheme.SPACE_4).row();
+
+        Table controlsPanel = GameUiFactory.createStrongPanel(skin, GameUiTheme.SPACE_4);
+        controlsPanel.defaults().left();
+        controlsPanel.add(new Label("Comandi di gioco", skin, GameUiTheme.LABEL_SECTION)).padBottom(GameUiTheme.SPACE_3)
+                .row();
+
+        Table controlsGrid = new Table();
+        controlsGrid.defaults().left().pad(GameUiTheme.SPACE_1);
         Map<String, String> bindings = settingsModel.getKeyBindings();
         for (Map.Entry<String, String> entry : bindings.entrySet()) {
-            root.add(new Label(entry.getKey() + ":", skin)).left().padRight(20);
-            root.add(new Label("[ " + entry.getValue() + " ]", skin)).left().padBottom(6).row();
+            Table bindingCard = GameUiFactory.createStatChip(skin, entry.getKey(), entry.getValue());
+            controlsGrid.add(bindingCard).width(150f);
         }
+        controlsPanel.add(controlsGrid).row();
 
-        root.add(new Label("", skin)).colspan(2).padBottom(20).row(); // spazio
+        shell.add(controlsPanel).width(700f).padBottom(GameUiTheme.SPACE_3).row();
 
-        // ---- Status label -----------------------------------------
-        statusLabel = new Label("", skin);
-        root.add(statusLabel).colspan(2).padBottom(10).row();
+        statusLabel = new Label("", skin, GameUiTheme.LABEL_MUTED);
+        shell.add(statusLabel).padBottom(GameUiTheme.SPACE_2).row();
 
-        // ---- Pulsanti ---------------------------------------------
         Table buttons = new Table();
 
-        TextButton saveBtn = new TextButton("Salva", skin);
+        TextButton saveBtn = GameUiFactory.createButton("Salva Impostazioni", skin, GameUiTheme.BUTTON_PRIMARY);
         saveBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -158,7 +174,7 @@ public class SettingsScreen implements Screen {
             }
         });
 
-        TextButton backBtn = new TextButton("Indietro", skin);
+        TextButton backBtn = GameUiFactory.createButton("Indietro", skin, GameUiTheme.BUTTON_GHOST);
         backBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -167,9 +183,13 @@ public class SettingsScreen implements Screen {
             }
         });
 
-        buttons.add(saveBtn).width(150).padRight(20);
-        buttons.add(backBtn).width(150);
-        root.add(buttons).colspan(2);
+        buttons.add(saveBtn).width(240f).height(56f).padRight(GameUiTheme.SPACE_2);
+        buttons.add(backBtn).width(180f).height(56f);
+        shell.add(buttons).left();
+
+        Container<Table> shellWrap = new Container<>(shell);
+        shellWrap.width(820f);
+        root.add(shellWrap).center();
     }
 
     // ---------------------------------------------------------------
@@ -180,9 +200,12 @@ public class SettingsScreen implements Screen {
         try {
             GameSettings gs = settingsModel.toGameSettings();
             settingsManager.save(gs, SETTINGS_FILE);
+            applyAudioSettings(gs);
             statusLabel.setText("Impostazioni salvate!");
+            statusLabel.setColor(GameUiTheme.SUCCESS);
         } catch (Exception e) {
             statusLabel.setText("Errore nel salvataggio.");
+            statusLabel.setColor(GameUiTheme.DANGER);
             Gdx.app.error("SettingsScreen", "Salvataggio fallito", e);
         }
     }
@@ -190,6 +213,17 @@ public class SettingsScreen implements Screen {
     private void clearStatus() {
         if (statusLabel != null)
             statusLabel.setText("");
+        if (statusLabel != null)
+            statusLabel.setColor(GameUiTheme.MUTED);
+    }
+
+    private void applyAudioSettingsRealtime() {
+        applyAudioSettings(settingsModel.toGameSettings());
+    }
+
+    private void applyAudioSettings(GameSettings settings) {
+        MenuMusicManager.applySettings(settings);
+        RunMusicManager.applySettings(settings);
     }
 
     // ---------------------------------------------------------------
@@ -199,6 +233,7 @@ public class SettingsScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        MenuMusicManager.play();
     }
 
     @Override
@@ -225,13 +260,15 @@ public class SettingsScreen implements Screen {
 
     @Override
     public void hide() {
+        CursorHoverUtil.resetDefaultCursor();
+        MenuMusicManager.pause();
     }
 
     @Override
     public void dispose() {
+        CursorHoverUtil.resetDefaultCursor();
         stage.dispose();
         skin.dispose();
         backgroundTexture.dispose();
-        batch.dispose();
     }
 }

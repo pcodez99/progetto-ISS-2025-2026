@@ -24,7 +24,24 @@ public class DataDrivenAbility implements SpecialAbility {
 
     @Override
     public String getDescription() {
-        return config.isAoe() ? "Effetto ad area (AoE)" : "Bersaglio singolo";
+        String description = config.getDescription();
+        if (description != null && !description.trim().isEmpty()) {
+            return description;
+        }
+
+        if (config.getBaseHealing() > 0) {
+            return config.isAoe()
+                    ? "Cura tutti gli alleati con un effetto ad area."
+                    : "Cura un singolo alleato.";
+        }
+
+        if (config.getBaseDamage() > 0) {
+            return config.isAoe()
+                    ? "Infligge danni ad area a tutti i bersagli."
+                    : "Infligge danni a un singolo bersaglio.";
+        }
+
+        return config.isAoe() ? "Effetto ad area" : "Bersaglio singolo";
     }
 
     @Override

@@ -1,72 +1,84 @@
 package io.github.iss_2025_2026.model;
 
 import io.github.iss_2025_2026.persistence.SaveManager;
-
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SaveManagerTest {
 
     private static final String TEST_FILENAME = "test_salvataggio_temporaneo";
-    private static final String SAVE_DIRECTORY = "saves/";
+    private static final String TEST_FILENAME_WITH_SPACES = "save con spazi";
+    private static final String SAVE_DIRECTORY = "saves";
 
-    /**
-     * Questo metodo viene eseguito DOPO ogni test.
-     * Serve a cancellare il file JSON di prova per mantenere pulito il progetto.
-     */
     @AfterEach
     void tearDown() {
-        File file = new File(SAVE_DIRECTORY + TEST_FILENAME + ".json");
-        if (file.exists()) {
-            file.delete();
-        }
+        deleteIfExists(TEST_FILENAME);
+        deleteIfExists(TEST_FILENAME_WITH_SPACES);
     }
 
     @Test
     void testSaveAndLoadConsistency() throws IOException {
-        // 1. ARRANGE: Prepariamo i dati "finti" completi di tutte le novità
         Backpack zainoTest = new Backpack();
-
+        PlayerSaveState playerOne = new PlayerSaveState("mamma", "Mamma", 95, 100, 25, 3, 4, zainoTest);
+        PlayerSaveState playerTwo = new PlayerSaveState("papa", "Papa", 120, 120, 19, 2, -3, new Backpack());
         GameState statoOriginale = new GameState(
-            "SuperMario",
-            "MAMMA",       // Il characterType per la factory
-            100,
-            25,
-            10,
-            zainoTest,
-            "Castello_Livello_3",
-            "FIREBALL"     // L'ID per la AbilityFactory
-        );
+                "Run di Test",
+                NewGameConfigModel.GameMode.MULTIPLAYER,
+                playerOne,
+                playerTwo,
+                "2026-05-16T10:15:30Z");
 
-        // 2. ACT: Salviamo il file e poi lo ricarichiamo subito dopo
         SaveManager.saveGame(statoOriginale, TEST_FILENAME);
         GameState statoCaricato = SaveManager.loadGame(TEST_FILENAME);
 
-        // 3. ASSERT: Controlliamo che Jackson abbia ricostruito tutto alla perfezione
-        assertNotNull(statoCaricato, "Il file ricaricato non deve essere nullo");
-        assertEquals(statoOriginale.getPlayerName(), statoCaricato.getPlayerName());
-        assertEquals(statoOriginale.getCharacterType(), statoCaricato.getCharacterType());
-        assertEquals(statoOriginale.getHp(), statoCaricato.getHp());
-        assertEquals(statoOriginale.getBaseDamage(), statoCaricato.getBaseDamage());
-        assertEquals(statoOriginale.getLevel(), statoCaricato.getLevel());
-        assertEquals(statoOriginale.getLastCheckpoint(), statoCaricato.getLastCheckpoint());
-        assertEquals(statoOriginale.getSpecialAbilityId(), statoCaricato.getSpecialAbilityId());
-        assertNotNull(statoCaricato.getBackpack(), "Lo zaino deve essere stato serializzato correttamente");
+        assertNotNull(statoCaricato);
+        assertEquals(statoOriginale.getGameName(), statoCaricato.getGameName());
+        assertEquals(statoOriginale.getGameMode(), statoCaricato.getGameMode());
+        assertNotNull(statoCaricato.getPlayerOne());
+        assertNotNull(statoCaricato.getPlayerTwo());
+        assertEquals("mamma", statoCaricato.getPlayerOne().getCharacterId());
+        assertEquals("Mamma", statoCaricato.getPlayerOne().getName());
+        assertEquals(95, statoCaricato.getPlayerOne().getHp());
+        assertEquals(120, statoCaricato.getPlayerTwo().getHp());
+        assertEquals("2026-05-16T10:15:30Z", statoCaricato.getSavedAt());
     }
 
     @Test
     void testLoadNonExistentFileThrowsException() {
-        // Verifichiamo che il sistema lanci un'eccezione se cerchiamo di caricare un salvataggio inesistente
-        Exception exception = assertThrows(IOException.class, () -> {
-            SaveManager.loadGame("file_che_non_esiste_assolutamente");
-        });
+        Exception exception = assertThrows(IOException.class, () -> SaveManager.loadGame("file_che_non_esiste"));
+        assertTrue(exception.getMessage().contains("non esiste"));
+    }
 
-        assertTrue(exception.getMessage().contains("non esiste"), "L'eccezione deve avvisare che il file manca");
+    @Test
+    void testListSaveFilesReturnsNormalizedNames() throws IOException {
+        GameState state = new GameState(
+                "Save con spazi",
+                NewGameConfigModel.GameMode.SINGLE_PLAYER,
+                new PlayerSaveState("mamma", "Mamma", 100, 100, 18, 1, 0, new Backpack()),
+                null,
+                "2026-05-16T10:20:00Z");
+
+        SaveManager.saveGame(state, TEST_FILENAME_WITH_SPACES);
+        List<String> saveFiles = SaveManager.listSaveFiles();
+
+        assertFalse(saveFiles.isEmpty());
+        assertTrue(saveFiles.contains("save con spazi.json"));
+    }
+
+    private void deleteIfExists(String fileName) {
+        File file = new File(SAVE_DIRECTORY, SaveManager.toSaveFileName(fileName));
+        if (file.exists()) {
+            file.delete();
+        }
     }
 }

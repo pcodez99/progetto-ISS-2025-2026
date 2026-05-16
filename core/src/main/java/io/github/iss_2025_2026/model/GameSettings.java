@@ -11,6 +11,9 @@ public class GameSettings {
     /** Volume generale (musica + effetti). Range: [0.0, 1.0]. Default: 0.5 */
     private float masterVolume;
 
+    /** Volume della musica. Range: [0.0, 1.0]. Default: 0.5 */
+    private float musicVolume;
+
     /** Volume degli effetti sonori. Range: [0.0, 1.0]. Default: 0.5 */
     private float sfxVolume;
 
@@ -20,6 +23,7 @@ public class GameSettings {
     /** Costruttore che inizializza i valori di default. */
     public GameSettings() {
         this.masterVolume = 0.5f;
+        this.musicVolume  = 0.5f;
         this.sfxVolume    = 0.5f;
         this.keyBindings  = new HashMap<>();
     }
@@ -34,6 +38,14 @@ public class GameSettings {
 
     public void setMasterVolume(float masterVolume) {
         this.masterVolume = masterVolume;
+    }
+
+    public float getMusicVolume() {
+        return musicVolume;
+    }
+
+    public void setMusicVolume(float musicVolume) {
+        this.musicVolume = musicVolume;
     }
 
     public float getSfxVolume() {

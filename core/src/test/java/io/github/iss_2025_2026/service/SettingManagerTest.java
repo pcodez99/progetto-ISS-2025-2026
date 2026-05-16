@@ -30,6 +30,7 @@ class SettingsManagerTest {
         // 1. Prepariamo i dati
         GameSettings original = new GameSettings();
         original.setMasterVolume(0.85f);
+        original.setMusicVolume(0.55f);
         original.getKeyBindings().put("Jump", "Space");
 
         // 2. Salvataggio
@@ -41,6 +42,7 @@ class SettingsManagerTest {
         // 4. Verifiche
         assertNotNull(loaded, "Il file caricato non deve essere null");
         assertEquals(0.85f, loaded.getMasterVolume(), 0.001f, "Il volume non corrisponde!");
+        assertEquals(0.55f, loaded.getMusicVolume(), 0.001f, "Il volume musica non corrisponde!");
         assertEquals("Space", loaded.getKeyBindings().get("Jump"), "Il tasto Jump non corrisponde!");
     }
 

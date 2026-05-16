@@ -102,7 +102,13 @@ public class CharacterFactory {
                     + "'. Player will have NO special ability!");
         }
 
-        return new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, 1);
+        Player player = new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, 1);
+        player.setCharacterId(id);
+        return player;
+    }
+
+    public SpecialAbility getAbility(String abilityId) {
+        return abilityRegistry.get(abilityId);
     }
 
     /**

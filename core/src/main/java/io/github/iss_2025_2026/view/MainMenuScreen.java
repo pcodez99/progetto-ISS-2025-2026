@@ -4,9 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -18,26 +19,31 @@ import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.controller.MainMenuController;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.MainMenuModel;
+import io.github.iss_2025_2026.service.MenuMusicManager;
 
 public class MainMenuScreen implements Screen {
 
     private Stage stage;
     private Skin skin;
     private Texture backgroundTexture;
-    private SpriteBatch batch;
+    private final boolean isRunning;
 
     private final MainMenuModel menuModel;
     private final MainMenuController menuController;
 
     public MainMenuScreen(Main game, GameModel model, GameController controller) {
-        this.batch = new SpriteBatch();
+        this(game, model, controller, false, null);
+    }
 
+    public MainMenuScreen(Main game, GameModel model, GameController controller, boolean isRunning,
+            Screen resumeScreen) {
+        this.isRunning = isRunning;
         // Menu-specific MVC components
         this.menuModel = new MainMenuModel();
-        this.menuController = new MainMenuController(game, model, controller);
+        this.menuController = new MainMenuController(game, model, controller, isRunning, resumeScreen);
 
         // Carichiamo gli asset in cartella
-        this.skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        this.skin = GameUiTheme.loadSkin();
         this.backgroundTexture = new Texture(Gdx.files.internal("background_init.png"));
 
         createUI();
@@ -47,18 +53,37 @@ public class MainMenuScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // Responsive background
-        com.badlogic.gdx.scenes.scene2d.ui.Image background = new com.badlogic.gdx.scenes.scene2d.ui.Image(backgroundTexture);
-        background.setFillParent(true);
-        background.setScaling(com.badlogic.gdx.utils.Scaling.stretch);
-        stage.addActor(background);
+        Table root = GameUiFactory.createScreenRoot(stage, backgroundTexture, skin);
+        Table shell = GameUiFactory.createPanel(skin, GameUiTheme.SPACE_6);
+        shell.defaults().growX();
 
-        Table table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
+        shell.add(GameUiFactory.createHeroBlock(
+                skin,
+                isRunning ? "PAUSA" : "RURAL SCI-FI RPG",
+                isRunning ? "Gioco in pausa" : "VIDDANI VS ALIENI",
+                isRunning
+                        ? "Riprendi la run oppure torna al menu principale senza riaprire la configurazione della partita."
+                        : "Difendi la Terra con i tuoi viddani tra campagna, invasioni e abilita speciali."
+        )).width(560f).padBottom(GameUiTheme.SPACE_5).row();
 
-        for (MainMenuModel.MenuAction action : menuModel.getAvailableActions()) {
-            TextButton button = new TextButton(action.name().replace("_", " "), skin);
+        if (!isRunning) {
+            Table chips = new Table();
+            chips.left();
+            chips.add(GameUiFactory.createChip(skin, "4 personaggi")).padRight(GameUiTheme.SPACE_2);
+            chips.add(GameUiFactory.createChip(skin, "Turni locali")).padRight(GameUiTheme.SPACE_2);
+            chips.add(GameUiFactory.createChip(skin, "RPG a livelli"));
+            shell.add(chips).padBottom(GameUiTheme.SPACE_5).row();
+        }
+
+        Table actions = new Table();
+        actions.defaults().width(320f).padBottom(GameUiTheme.SPACE_2);
+
+        for (MainMenuModel.MenuAction action : menuModel.getAvailableActions(isRunning)) {
+            String styleName = action == MainMenuModel.MenuAction.NEW_GAME
+                    || action == MainMenuModel.MenuAction.CONTINUE_GAME
+                    ? GameUiTheme.BUTTON_PRIMARY
+                    : GameUiTheme.BUTTON_SECONDARY;
+            TextButton button = GameUiFactory.createButton(formatAction(action), skin, styleName);
 
             button.addListener(new ClickListener() {
                 @Override
@@ -67,8 +92,37 @@ public class MainMenuScreen implements Screen {
                 }
             });
 
-            table.add(button).width(300).pad(10);
-            table.row();
+            actions.add(button).height(58f).row();
+        }
+
+        shell.add(actions).left().row();
+
+        Label footer = new Label("Un'interfaccia piu chiara per scegliere, configurare e combattere piu in fretta.",
+                skin, GameUiTheme.LABEL_MUTED);
+        footer.setWrap(true);
+        shell.add(footer).width(520f).padTop(GameUiTheme.SPACE_4).row();
+
+        Container<Table> shellWrap = new Container<>(shell);
+        shellWrap.width(760f);
+        root.add(shellWrap).center();
+    }
+
+    private String formatAction(MainMenuModel.MenuAction action) {
+        switch (action) {
+            case CONTINUE_GAME:
+                return "Continua a giocare";
+            case NEW_GAME:
+                return "Nuova Partita";
+            case LOAD_GAME:
+                return "Carica Partita";
+            case SETTINGS:
+                return "Impostazioni";
+            case RETURN_TO_MAIN_MENU:
+                return "Torna al menu principale";
+            case EXIT:
+                return "Esci";
+            default:
+                return action.name().replace("_", " ");
         }
     }
 
@@ -85,6 +139,7 @@ public class MainMenuScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        MenuMusicManager.play();
     }
 
     @Override
@@ -102,13 +157,18 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void hide() {
+        CursorHoverUtil.resetDefaultCursor();
+        MenuMusicManager.pause();
+        if (isRunning) {
+            dispose();
+        }
     }
 
     @Override
     public void dispose() {
+        CursorHoverUtil.resetDefaultCursor();
         stage.dispose();
         skin.dispose();
         backgroundTexture.dispose();
-        batch.dispose();
     }
 }
