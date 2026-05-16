@@ -13,7 +13,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
+import io.github.iss_2025_2026.Main;
+import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.controller.MainMenuController;
+import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.MainMenuModel;
 
 public class MainMenuScreen implements Screen {
@@ -22,13 +25,23 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
     private Texture backgroundTexture;
     private SpriteBatch batch;
-    private final MainMenuModel model;
-    private final MainMenuController controller;
 
-    public MainMenuScreen(MainMenuModel model, MainMenuController controller) {
-        this.batch = new SpriteBatch();
+    private final Main game;
+    private final GameModel model;
+    private final GameController controller;
+
+    private final MainMenuModel menuModel;
+    private final MainMenuController menuController;
+
+    public MainMenuScreen(Main game, GameModel model, GameController controller) {
+        this.game = game;
         this.model = model;
         this.controller = controller;
+        this.batch = new SpriteBatch();
+
+        // Menu-specific MVC components
+        this.menuModel = new MainMenuModel();
+        this.menuController = new MainMenuController(game, model, controller);
 
         // Carichiamo gli asset in cartella
         this.skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
@@ -45,13 +58,13 @@ public class MainMenuScreen implements Screen {
         table.setFillParent(true);
         stage.addActor(table);
 
-        for (MainMenuModel.MenuAction action : model.getAvailableActions()) {
+        for (MainMenuModel.MenuAction action : menuModel.getAvailableActions()) {
             TextButton button = new TextButton(action.name().replace("_", " "), skin);
 
             button.addListener(new ClickListener() {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
-                    controller.handleMenuAction(action);
+                    menuController.handleMenuAction(action);
                 }
             });
 
@@ -59,7 +72,6 @@ public class MainMenuScreen implements Screen {
             table.row();
         }
     }
-
 
     @Override
     public void render(float delta) {

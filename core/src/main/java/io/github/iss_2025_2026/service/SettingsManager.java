@@ -1,12 +1,10 @@
 package io.github.iss_2025_2026.service;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import io.github.iss_2025_2026.model.GameSettings;
 
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -16,10 +14,10 @@ import java.io.IOException;
  */
 public class SettingsManager {
 
-    private final Gson gson;
+    private final ObjectMapper mapper;
 
     public SettingsManager() {
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.mapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
     }
 
     /**
@@ -30,8 +28,8 @@ public class SettingsManager {
      * @throws RuntimeException se la scrittura fallisce
      */
     public void save(GameSettings settings, String filePath) {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            gson.toJson(settings, writer);
+        try {
+            mapper.writeValue(new java.io.File(filePath), settings);
         } catch (IOException e) {
             throw new RuntimeException("Impossibile salvare le impostazioni in: " + filePath, e);
         }
@@ -47,11 +45,15 @@ public class SettingsManager {
      * @return le impostazioni caricate, oppure i valori di default
      */
     public GameSettings load(String filePath) {
-        try (FileReader reader = new FileReader(filePath)) {
-            GameSettings loaded = gson.fromJson(reader, GameSettings.class);
+        try {
+            java.io.File file = new java.io.File(filePath);
+            if (!file.exists()) {
+                return new GameSettings();
+            }
+            GameSettings loaded = mapper.readValue(file, GameSettings.class);
             return loaded != null ? loaded : new GameSettings();
         } catch (IOException e) {
-            // File non trovato o non leggibile → restituiamo i default
+            // Errore durante la lettura → restituiamo i default
             return new GameSettings();
         }
     }

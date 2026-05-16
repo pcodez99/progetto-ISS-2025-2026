@@ -28,10 +28,10 @@ import java.util.Map;
  * <p>
  * Permette al giocatore di:
  * <ul>
- *   <li>Modificare il volume master (musica + effetti)</li>
- *   <li>Modificare il volume degli effetti sonori (SFX)</li>
- *   <li>Visualizzare la mappatura dei comandi di gioco</li>
- *   <li>Salvare le impostazioni nel file {@code settings.json}</li>
+ * <li>Modificare il volume master (musica + effetti)</li>
+ * <li>Modificare il volume degli effetti sonori (SFX)</li>
+ * <li>Visualizzare la mappatura dei comandi di gioco</li>
+ * <li>Salvare le impostazioni nel file {@code settings.json}</li>
  * </ul>
  */
 public class SettingsScreen implements Screen {
@@ -55,10 +55,10 @@ public class SettingsScreen implements Screen {
     private Label statusLabel;
 
     public SettingsScreen(Main game, GameModel gameModel, GameController gameController) {
-        this.game           = game;
-        this.gameModel      = gameModel;
+        this.game = game;
+        this.gameModel = gameModel;
         this.gameController = gameController;
-        this.settingsModel  = new SettingsMenuModel();
+        this.settingsModel = new SettingsMenuModel();
         this.settingsManager = new SettingsManager();
 
         // Tentiamo di caricare le impostazioni esistenti
@@ -66,7 +66,7 @@ public class SettingsScreen implements Screen {
         settingsModel.loadFrom(saved);
 
         this.batch = new SpriteBatch();
-        this.skin  = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        this.skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         this.backgroundTexture = new Texture(Gdx.files.internal("settings_background.png"));
 
         buildUI();
@@ -96,9 +96,9 @@ public class SettingsScreen implements Screen {
         // Definizione stile personalizzato neon per le slider
         Slider.SliderStyle neonStyle = new Slider.SliderStyle();
         neonStyle.background = skin.newDrawable("progress-bar-square", new Color(0.1f, 0.4f, 0.5f, 1f)); // Ciano scuro
-        neonStyle.knob = skin.newDrawable("slider-knob", new Color(0f, 0.8f, 1f, 1f));       // Ciano acceso
-        neonStyle.knobOver = skin.newDrawable("slider-knob", new Color(0.3f, 0.9f, 1f, 1f));   // Ciano ancora più acceso
-        neonStyle.knobDown = skin.newDrawable("slider-knob", new Color(0f, 0.6f, 0.8f, 1f));   // Ciano premuto
+        neonStyle.knob = skin.newDrawable("slider-knob", new Color(0f, 0.8f, 1f, 1f)); // Ciano acceso
+        neonStyle.knobOver = skin.newDrawable("slider-knob", new Color(0.3f, 0.9f, 1f, 1f)); // Ciano ancora più acceso
+        neonStyle.knobDown = skin.newDrawable("slider-knob", new Color(0f, 0.6f, 0.8f, 1f)); // Ciano premuto
 
         // Slider Master Volume
         root.add(new Label("Volume Generale:", skin)).left().padRight(10);
@@ -182,7 +182,8 @@ public class SettingsScreen implements Screen {
     }
 
     private void clearStatus() {
-        if (statusLabel != null) statusLabel.setText("");
+        if (statusLabel != null)
+            statusLabel.setText("");
     }
 
     // ---------------------------------------------------------------
@@ -212,9 +213,17 @@ public class SettingsScreen implements Screen {
         stage.getViewport().update(width, height, true);
     }
 
-    @Override public void pause()  {}
-    @Override public void resume() {}
-    @Override public void hide()   {}
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void hide() {
+    }
 
     @Override
     public void dispose() {

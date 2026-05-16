@@ -1,6 +1,9 @@
 package io.github.iss_2025_2026.controller;
 
 import com.badlogic.gdx.Gdx;
+import io.github.iss_2025_2026.Main;
+import io.github.iss_2025_2026.model.GameModel;
+import io.github.iss_2025_2026.view.SettingsScreen;
 import io.github.iss_2025_2026.model.MainMenuModel;
 
 /**
@@ -9,7 +12,14 @@ import io.github.iss_2025_2026.model.MainMenuModel;
  */
 public class MainMenuController {
 
-    public MainMenuController() {
+    private final Main game;
+    private final GameModel model;
+    private final GameController controller;
+
+    public MainMenuController(Main game, GameModel model, GameController controller) {
+        this.game = game;
+        this.model = model;
+        this.controller = controller;
     }
 
     /**
@@ -21,13 +31,14 @@ public class MainMenuController {
         switch (action) {
             case NEW_GAME:
                 System.out.println("Avvio nuova partita...");
-                // Qui andrà la logica per cambiare Screen
+                // In futuro qui si cambierà schermata verso il gioco vero e proprio
                 break;
             case LOAD_GAME:
                 System.out.println("Caricamento partita...");
                 break;
             case SETTINGS:
                 System.out.println("Apertura impostazioni...");
+                game.setScreen(new SettingsScreen(game, model, controller));
                 break;
             case EXIT:
                 System.out.println("Chiusura gioco...");

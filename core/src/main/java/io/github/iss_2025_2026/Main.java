@@ -1,7 +1,9 @@
 package io.github.iss_2025_2026;
 
 import com.badlogic.gdx.Game;
+import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.controller.MainMenuController;
+import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.MainMenuModel;
 import io.github.iss_2025_2026.view.MainMenuScreen;
 
@@ -12,12 +14,11 @@ import io.github.iss_2025_2026.view.MainMenuScreen;
 public class Main extends Game {
     @Override
     public void create() {
-        // Initialize MVC components for Main Menu
-        MainMenuModel mainMenuModel = new MainMenuModel();
-        MainMenuController mainMenuController = new MainMenuController();
+        // Initialize global MVC components
+        GameModel gameModel = new GameModel();
+        GameController gameController = new GameController(gameModel);
 
-
-        // Set the initial screen (the View)
-        setScreen(new MainMenuScreen(mainMenuModel, mainMenuController));
+        // Set the initial screen (the View), passing the game instance and global state
+        setScreen(new MainMenuScreen(this, gameModel, gameController));
     }
 }
