@@ -3,21 +3,41 @@ package io.github.iss_2025_2026;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 
-import com.badlogic.gdx.assets.AssetManager;
 import io.github.iss_2025_2026.controller.GameController;
+import io.github.iss_2025_2026.factory.CharacterFactory;
 import io.github.iss_2025_2026.model.GameModel;
+import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.view.MainMenuScreen;
+import io.github.iss_2025_2026.view.TestScreen;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all
  * platforms.
  */
 public class Main extends Game {
-    private AssetManager assetManager;
-
     @Override
     public void create() {
-        assetManager = new AssetManager();
+        // Support launching directly into the test map with a specific character via system
+        // property "character"
+        String characterProp = System.getProperty("character");
+        if (characterProp != null && !characterProp.isEmpty()) {
+            // Map common aliases (like "child" -> "bambino", "father" -> "papa", "mom" -> "mamma")
+            String mappedId = characterProp.toLowerCase();
+            if ("child".equals(mappedId)) mappedId = "bambino";
+            if ("father".equals(mappedId)) mappedId = "papa";
+            if ("mom".equals(mappedId)) mappedId = "mamma";
+
+            // Create a player for the specified character and start directly in TestScreen
+            CharacterFactory factory = new CharacterFactory();
+            Player player = factory.createPlayer(mappedId);
+            if (player != null) {
+                GameModel testMapModel = new GameModel();
+                testMapModel.startSinglePlayerGame("Campagna", player);
+                GameController testMapController = new GameController(testMapModel);
+                setScreen(new TestScreen(this, testMapModel, testMapController));
+                return; // Skip default menu
+            }
+        }
 
         String charactersPath = "configs/characters.yaml";
         String abilitiesPath = "configs/abilities/";
@@ -37,15 +57,8 @@ public class Main extends Game {
         setScreen(new MainMenuScreen(this, gameModel, gameController));
     }
 
-    public AssetManager getAssetManager() {
-        return assetManager;
-    }
-
     @Override
     public void dispose() {
         super.dispose();
-        if (assetManager != null) {
-            assetManager.dispose();
-        }
     }
 }

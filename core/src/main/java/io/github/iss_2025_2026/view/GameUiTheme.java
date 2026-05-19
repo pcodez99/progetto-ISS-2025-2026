@@ -107,7 +107,7 @@ public final class GameUiTheme {
         style.over = tint(skin, "button-normal-over", overColor);
         style.down = tint(skin, "button-normal-pressed", downColor);
         style.focused = style.over;
-        style.font = skin.getFont("font");
+        style.font = skin.getFont("subtitle");
         style.fontColor = fontColor;
         style.overFontColor = fontColor;
         style.downFontColor = fontColor;

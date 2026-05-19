@@ -1,8 +1,0 @@
-child_walk_sprite_right.png
-size: 1280, 1280
-format: RGBA8888
-filter: Linear, Linear
-repeat: none
-pma: false
-child_walk_sprite_right
-  bounds: 0, 0, 1280, 1280

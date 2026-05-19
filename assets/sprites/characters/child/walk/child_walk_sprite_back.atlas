@@ -1,8 +1,0 @@
-child_walk_sprite_back.png
-size: 1254, 1254
-format: RGBA8888
-filter: Linear, Linear
-repeat: none
-pma: false
-child_walk_sprite_back
-  bounds: 0, 0, 1254, 1254

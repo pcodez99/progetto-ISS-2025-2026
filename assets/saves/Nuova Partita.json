@@ -1,20 +1,7 @@
 {
   "gameName" : "Nuova Partita",
-  "gameMode" : "MULTIPLAYER",
+  "gameMode" : "SINGLE_PLAYER",
   "playerOne" : {
-    "characterId" : "mamma",
-    "name" : "Mamma",
-    "hp" : 110,
-    "maxHp" : 110,
-    "baseDamage" : 10,
-    "level" : 1,
-    "karma" : 0,
-    "backpack" : {
-      "capacity" : 10,
-      "items" : [ ]
-    }
-  },
-  "playerTwo" : {
     "characterId" : "nonno",
     "name" : "Nonno",
     "hp" : 120,
@@ -27,7 +14,8 @@
       "items" : [ ]
     }
   },
-  "savedAt" : "2026-05-16T14:06:29.099354Z",
+  "playerTwo" : null,
+  "savedAt" : "2026-05-17T14:53:27.570992Z",
   "playerName" : null,
   "characterType" : null,
   "hp" : 0,
