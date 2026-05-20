@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 
 public class CollectibleFactory {
 
-    // 1. Uso del Logger ufficiale di Java al posto dei System.out
+    //Uso del Logger ufficiale di Java al posto dei System.out
     private static final Logger LOGGER = Logger.getLogger(CollectibleFactory.class.getName());
 
     private final Map<String, Collectible> collectibleCatalog;
@@ -26,8 +26,10 @@ public class CollectibleFactory {
         this.collectibleCatalog = new HashMap<>();
         this.mapper = new ObjectMapper(new YAMLFactory());
 
-        // 2. Configurazione PRO: Evita che il programma crashi se un domani
-        // aggiungi un campo nel file YAML ma dimentichi di metterlo nella classe Java
+        /**
+         * Evita che il programma crashi se
+         * si aggiunge un campo nel file YAML ma si dimentica di aggiungerlo nella classe Java
+         */
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         loadCollectibleConfigs();
@@ -55,7 +57,7 @@ public class CollectibleFactory {
             }
 
         } catch (Exception e) {
-            // Il Logger stampa l'errore di rosso insieme a tutta la scia di dettagli tecnici (Stacktrace)
+            //Logger stampa l'errore di rosso insieme a tutta la scia di dettagli tecnici (Stacktrace)
             LOGGER.log(Level.SEVERE, "Errore durante il parsing del file YAML: " + path, e);
         }
     }
@@ -68,7 +70,7 @@ public class CollectibleFactory {
             return null;
         }
 
-        // Restituiamo una nuova istanza pulita clonando i dati del prototipo
+        // Restituisce una nuova istanza pulita clonando i dati del prototipo
         return new Collectible(
             prototype.getId(),
             prototype.getName(),
