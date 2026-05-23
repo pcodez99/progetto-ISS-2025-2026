@@ -24,6 +24,7 @@ public class MainMenuModel {
         if (isRunning) {
             return new MenuAction[] {
                     MenuAction.CONTINUE_GAME,
+                    MenuAction.SETTINGS,
                     MenuAction.RETURN_TO_MAIN_MENU
             };
         }
