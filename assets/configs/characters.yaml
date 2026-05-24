@@ -47,3 +47,20 @@ characters:
       - "Crescita esplosiva"
       - "Picchi di danno"
       - "Rischio elevato"
+
+enemies:
+  - id: "alieno_base"
+    name: "Alieno Invasore"
+    maxHp: 45
+    baseDamage: 8
+    xpReward: 15
+    isBoss: false
+    abilityId: "NONE" # Gli alieni base fanno solo attacchi standard
+
+  - id: "boss_alieno"
+    name: "Generalissimo Xylar"
+    maxHp: 350
+    baseDamage: 25
+    xpReward: 200
+    isBoss: true
+    abilityId: "STONE_RAIN"
