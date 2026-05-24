@@ -1,0 +1,20 @@
+- id: "SMALL_POTION"
+  name: "Pozione piccola"
+  description: "Cura 20 HP a un alleato"
+  effectType: "HEAL"
+  aoe: false
+  effectValue: 20
+
+- id: "SMALL_BOMB"
+  name: "Bomba piccola"
+  description: "Danneggia di 15 HP tutti i nemici"
+  effectType: "DAMAGE"
+  aoe: true
+  effectValue: 15
+
+- id: "STRENGTH_ELIXIR"
+  name: "Elisir della forza"
+  description: "Aumenta il danno del 20% per tutta la battaglia"
+  effectType: "BUFF"
+  aoe: false
+  effectValue: 20

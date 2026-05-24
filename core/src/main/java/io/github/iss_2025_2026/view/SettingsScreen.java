@@ -43,6 +43,8 @@ public class SettingsScreen implements Screen {
     private final Main game;
     private final GameModel gameModel;
     private final GameController gameController;
+    private final boolean isRunning;
+    private final Screen resumeScreen;
 
     private final SettingsMenuModel settingsModel;
     private final SettingsManager settingsManager;
@@ -55,9 +57,15 @@ public class SettingsScreen implements Screen {
     private Label statusLabel;
 
     public SettingsScreen(Main game, GameModel gameModel, GameController gameController) {
+        this(game, gameModel, gameController, false, null);
+    }
+
+    public SettingsScreen(Main game, GameModel gameModel, GameController gameController, boolean isRunning, Screen resumeScreen) {
         this.game = game;
         this.gameModel = gameModel;
         this.gameController = gameController;
+        this.isRunning = isRunning;
+        this.resumeScreen = resumeScreen;
         this.settingsModel = new SettingsMenuModel();
         this.settingsManager = new SettingsManager();
 
@@ -178,7 +186,7 @@ public class SettingsScreen implements Screen {
         backBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new MainMenuScreen(game, gameModel, gameController));
+                game.setScreen(new MainMenuScreen(game, gameModel, gameController, isRunning, resumeScreen));
                 dispose();
             }
         });

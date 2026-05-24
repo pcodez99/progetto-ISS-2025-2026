@@ -57,7 +57,7 @@ public class MainMenuController {
                 break;
             case SETTINGS:
                 System.out.println("Apertura impostazioni...");
-                game.setScreen(new SettingsScreen(game, model, controller));
+                game.setScreen(new SettingsScreen(game, model, controller, isRunning, resumeScreen));
                 break;
             case RETURN_TO_MAIN_MENU:
                 if (resumeScreen != null) {

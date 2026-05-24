@@ -17,6 +17,10 @@ dependencies {
   testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
   testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+sourceSets {
+  main.java.srcDirs=[ "src/main/java"]
+  test.resources.srcDirs+= [file('../assets')]
+}
 
 jar {
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
