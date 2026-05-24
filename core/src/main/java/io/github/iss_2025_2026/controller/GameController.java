@@ -11,9 +11,11 @@ import io.github.iss_2025_2026.model.GameModel;
  */
 public class GameController {
     private final GameModel model;
+    private final PlayerController playerController;
 
     public GameController(GameModel model) {
         this.model = model;
+        this.playerController = new PlayerController();
     }
 
     public void handleInput() {
@@ -28,6 +30,7 @@ public class GameController {
 
     public void update(float delta) {
         handleInput();
+        playerController.handleMovement(delta, model.getPlayerOne());
         model.update(delta);
     }
 }

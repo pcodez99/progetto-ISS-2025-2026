@@ -31,6 +31,7 @@ if (JavaVersion.current().isJava9Compatible()) {
 dependencies {
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
   implementation project(':core')
 
   if(enableGraalNative == 'true') {
@@ -56,6 +57,24 @@ run {
   //setIgnoreExitValue(true)
   jvmArgs += "--enable-native-access=ALL-UNNAMED"
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+}
+
+// Avvia il gioco direttamente nell'arena con un personaggio specifico.
+// Uso: ./gradlew lwjgl3:runArena -Pcharacter=child
+//      ./gradlew lwjgl3:runArena -Pcharacter=papa
+//      ./gradlew lwjgl3:runArena -Pcharacter=mamma
+//      ./gradlew lwjgl3:runArena -Pcharacter=nonno
+task runArena(type: JavaExec) {
+  dependsOn ':core:classes', ':lwjgl3:classes'
+  group = 'application'
+  description = 'Avvia direttamente l\'arena con il personaggio specificato (-Pcharacter=child|papa|mamma|nonno)'
+  classpath = sourceSets.main.runtimeClasspath
+  mainClass = application.mainClass
+  workingDir = rootProject.file('assets').path
+  jvmArgs += "--enable-native-access=ALL-UNNAMED"
+  if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+  def charName = project.findProperty('character') ?: 'bambino'
+  jvmArgs += "-Dcharacter=${charName}"
 }
 
 jar {
