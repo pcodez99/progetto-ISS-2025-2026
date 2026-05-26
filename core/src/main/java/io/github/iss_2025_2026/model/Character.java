@@ -11,6 +11,9 @@ public abstract class Character {
     private float y;
     private float speed = 200f;
     private Direction direction = Direction.DOWN;
+    private CharacterState state = CharacterState.IDLE;
+    private float stateTime = 0f;
+    private float attackDuration = 0.32f;
 
     /** Constructor with safety checks for hp (min 1) and baseDamage (min 1) */
     public Character(String name, int maxHp, int baseDamage, int level) {
@@ -128,5 +131,36 @@ public abstract class Character {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public CharacterState getState() {
+        return state;
+    }
+
+    public void setState(CharacterState state) {
+        if (this.state != state) {
+            this.state = state;
+            this.stateTime = 0f;
+        }
+    }
+
+    public float getStateTime() {
+        return stateTime;
+    }
+
+    public void setStateTime(float stateTime) {
+        this.stateTime = stateTime;
+    }
+
+    public void updateStateTime(float delta) {
+        this.stateTime += delta;
+    }
+
+    public float getAttackDuration() {
+        return attackDuration;
+    }
+
+    public void setAttackDuration(float attackDuration) {
+        this.attackDuration = attackDuration;
     }
 }
