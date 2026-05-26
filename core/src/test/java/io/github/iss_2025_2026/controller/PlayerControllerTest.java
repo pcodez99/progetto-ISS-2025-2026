@@ -64,6 +64,27 @@ public class PlayerControllerTest {
         assertEquals(CharacterState.IDLE, player.getState());
     }
 
+    @Test
+    public void playersCannotExceedMaxDistance() {
+        Player p1 = playerAt(0f, 0f);
+        Player p2 = playerAt(300f, 0f); // separated by 300 units
+
+        // Under MAX_DISTANCE (400), should not be clamped
+        controller.clampPlayerDistance(p1, p2, 400f);
+        assertEquals(0f, p1.getX(), 0.01f);
+        assertEquals(0f, p1.getY(), 0.01f);
+
+        // Position changes such that distance is 500 (which is > 400)
+        p1.setX(-200f); // distance becomes 300 - (-200) = 500
+        controller.clampPlayerDistance(p1, p2, 400f);
+        
+        // P1 should be clamped relative to P2, exactly 400 units away.
+        // Direction from P2 (300, 0) to P1 (-200, 0) is (-1, 0).
+        // Clamped position = P2 + (-1, 0) * 400 = (300 - 400, 0) = (-100, 0).
+        assertEquals(-100f, p1.getX(), 0.01f);
+        assertEquals(0f, p1.getY(), 0.01f);
+    }
+
     private static Player playerAt(float x, float y) {
         Player player = new Player("Hero", 100, 10, null);
         player.setX(x);

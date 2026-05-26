@@ -44,4 +44,35 @@ public class CharacterTest {
         assertEquals(0, c.getHp());
         assertFalse(c.isAlive());
     }
+
+    @Test
+    public void testCharacterStateAndStateTime() {
+        Character c = new CharacterImpl("Hero", 100, 10, 1);
+        
+        // Default state is IDLE, stateTime is 0
+        assertEquals(CharacterState.IDLE, c.getState());
+        assertEquals(0f, c.getStateTime(), 0.001f);
+
+        // Setting a new state should keep stateTime at 0
+        c.setState(CharacterState.WALKING);
+        assertEquals(CharacterState.WALKING, c.getState());
+        assertEquals(0f, c.getStateTime(), 0.001f);
+
+        // Ticking time should update stateTime
+        c.updateStateTime(0.5f);
+        assertEquals(0.5f, c.getStateTime(), 0.001f);
+
+        // Setting the same state should NOT reset stateTime
+        c.setState(CharacterState.WALKING);
+        assertEquals(0.5f, c.getStateTime(), 0.001f);
+
+        // Setting a different state should reset stateTime
+        c.setState(CharacterState.ATTACKING);
+        assertEquals(CharacterState.ATTACKING, c.getState());
+        assertEquals(0f, c.getStateTime(), 0.001f);
+
+        // Test attack duration
+        c.setAttackDuration(0.5f);
+        assertEquals(0.5f, c.getAttackDuration(), 0.001f);
+    }
 }

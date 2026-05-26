@@ -10,6 +10,7 @@ import io.github.iss_2025_2026.model.Player;
  * Controller dedicato alla gestione dell'input del Player (Movimento, etc).
  */
 public class PlayerController {
+    public static final float MAX_PLAYER_DISTANCE = 400f;
 
     public void handleMovement(float delta, Player player) {
         handleMovement(
@@ -89,6 +90,22 @@ public class PlayerController {
             player.setState(CharacterState.WALKING);
         } else {
             player.setState(CharacterState.IDLE);
+        }
+    }
+
+    public void clampPlayerDistance(Player p1, Player p2, float maxDistance) {
+        if (p1 == null || p2 == null) return;
+
+        float dx = p1.getX() - p2.getX();
+        float dy = p1.getY() - p2.getY();
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > maxDistance && dist > 0f) {
+            float dirX = dx / dist;
+            float dirY = dy / dist;
+
+            p1.setX(p2.getX() + dirX * maxDistance);
+            p1.setY(p2.getY() + dirY * maxDistance);
         }
     }
 }

@@ -29,6 +29,7 @@ import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.physics.PhysicsFacade;
+import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
 
@@ -53,23 +54,33 @@ public class TestScreen implements Screen {
     // Design Patterns delegation
     private PhysicsFacade physicsFacade;
     private PlayerAssets playerAssets;
+    private PlayerAssets playerTwoAssets;
     
-    private CharacterState lastState = CharacterState.IDLE;
+    private CharacterState lastStateP1 = CharacterState.IDLE;
+    private CharacterState lastStateP2 = CharacterState.IDLE;
     private Rectangle mapBounds;
     private float cameraEdgePadding;
 
     private static final String MAP_PATH = TmxMapContract.CAMPAIGN_MAP_PATH;
-    private static final float PLAYER_SIZE = 160f;
-    private static final float PLAYER_Y_OFFSET = PLAYER_SIZE * 0.48f;
-    private static final float CAMERA_ZOOM = 0.72f;
     private static final float DEFAULT_CAMERA_EDGE_PADDING = 320f;
-    private boolean drawObstacleDebug = true;
+
+    // Configurable game properties
+    private final float playerSize;
+    private final float playerYOffset;
+    private final float cameraZoom;
+    private boolean drawObstacleDebug;
 
     public TestScreen(Main game, GameModel model, GameController controller) {
         this.model = model;
         this.controller = controller;
         this.skin = GameUiTheme.loadSkin();
         
+        // Carica le proprietà configurabili dal file properties
+        this.playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
+        this.playerYOffset = this.playerSize * 0.48f;
+        this.cameraZoom = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM, 0.72f);
+        this.drawObstacleDebug = GameProperties.getBoolean(GameProperties.KEY_DRAW_PHYSICS_DEBUG, true);
+
         loadMap();
 
         Player player = model.getPlayerOne();
@@ -78,6 +89,14 @@ public class TestScreen implements Screen {
         // Sincronizza la durata dell'attacco del modello con la durata dell'animazione caricata
         if (player != null && playerAssets.getAttackAnim() != null) {
             player.setAttackDuration(playerAssets.getAttackAnim().getAnimationDuration());
+        }
+
+        Player playerTwo = model.getPlayerTwo();
+        if (model.isMultiplayerGame() && playerTwo != null) {
+            this.playerTwoAssets = new PlayerAssets(playerTwo);
+            if (playerTwoAssets.getAttackAnim() != null) {
+                playerTwo.setAttackDuration(playerTwoAssets.getAttackAnim().getAnimationDuration());
+            }
         }
 
         buildUI();
@@ -106,8 +125,8 @@ public class TestScreen implements Screen {
         mapBounds = level.getGeometry().getBounds();
         cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
         
-        // Inizializza la facciata fisica Box2D
-        physicsFacade = new PhysicsFacade(level, PLAYER_SIZE, PLAYER_Y_OFFSET);
+        // Inizializza la facciata fisica Box2D con le dimensioni configurate
+        physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
     }
 
     private void buildUI() {
@@ -118,14 +137,37 @@ public class TestScreen implements Screen {
         root.setFillParent(true);
         stage.addActor(root);
 
+        // Aggiungi Giocatore 1
+        Player p1 = model.getPlayerOne();
+        if (p1 != null) {
+            addPlayerActor(p1, playerAssets);
+            if (p1.getX() == 0) {
+                Vector2 spawn = level.playerSpawnWorldPosition();
+                p1.setX(spawn.x - playerSize / 2f);
+                p1.setY(spawn.y - playerYOffset);
+            }
+            physicsFacade.initPlayerBody(p1);
+        }
+
+        // Aggiungi Giocatore 2 se in modalità multiplayer
+        if (model.isMultiplayerGame() && model.getPlayerTwo() != null) {
+            Player p2 = model.getPlayerTwo();
+            addPlayerActor(p2, playerTwoAssets);
+            if (p2.getX() == 0) {
+                Vector2 spawn = level.playerSpawnWorldPosition();
+                // Spawn leggermente sfalsato per evitare sovrapposizione esatta
+                p2.setX(spawn.x - playerSize / 2f + 50f);
+                p2.setY(spawn.y - playerYOffset);
+            }
+            physicsFacade.initPlayerBody(p2);
+        }
+    }
+
+    private void addPlayerActor(final Player player, final PlayerAssets assets) {
         // Actor personalizzato per il rendering delle animazioni del giocatore basato sullo State Pattern
         Image animatedSprite = new Image() {
             @Override
             public void draw(Batch batch, float parentAlpha) {
-                Player player = model.getPlayerOne();
-                if (player == null)
-                    return;
-
                 Direction dir = player.getDirection();
                 CharacterState state = player.getState();
                 TextureRegion frame = null;
@@ -135,8 +177,8 @@ public class TestScreen implements Screen {
                 float drawWidth = getWidth();
                 float drawHeight = getHeight();
 
-                if (state == CharacterState.ATTACKING && playerAssets.getAttackAnim() != null) {
-                    frame = playerAssets.getAttackAnim().getKeyFrame(player.getStateTime(), false);
+                if (state == CharacterState.ATTACKING && assets.getAttackAnim() != null) {
+                    frame = assets.getAttackAnim().getKeyFrame(player.getStateTime(), false);
                     if (dir == Direction.LEFT) {
                         TextureRegion flippedFrame = new TextureRegion(frame);
                         flippedFrame.flip(true, false);
@@ -152,8 +194,8 @@ public class TestScreen implements Screen {
                     }
                 } else {
                     Animation<TextureRegion> currentAnim = (state == CharacterState.WALKING) 
-                            ? playerAssets.getWalkAnim(dir) 
-                            : playerAssets.getIdleAnim(dir);
+                            ? assets.getWalkAnim(dir) 
+                            : assets.getIdleAnim(dir);
 
                     if (currentAnim != null) {
                         frame = currentAnim.getKeyFrame(player.getStateTime(), true);
@@ -170,24 +212,13 @@ public class TestScreen implements Screen {
             public void act(float delta) {
                 super.act(delta);
                 // Sincronizza la posizione dell'attore con le coordinate del modello del giocatore
-                if (model.getPlayerOne() != null) {
-                    setX(model.getPlayerOne().getX());
-                    setY(model.getPlayerOne().getY());
-                }
+                setX(player.getX());
+                setY(player.getY());
             }
         };
         
         stage.addActor(animatedSprite);
-        animatedSprite.setSize(PLAYER_SIZE, PLAYER_SIZE);
-
-        if (model.getPlayerOne() != null && model.getPlayerOne().getX() == 0) {
-            Vector2 spawn = level.playerSpawnWorldPosition();
-            model.getPlayerOne().setX(spawn.x - PLAYER_SIZE / 2f);
-            model.getPlayerOne().setY(spawn.y - PLAYER_Y_OFFSET);
-        }
-        if (model.getPlayerOne() != null) {
-            physicsFacade.initPlayerBody(model.getPlayerOne());
-        }
+        animatedSprite.setSize(playerSize, playerSize);
     }
 
     @Override
@@ -199,31 +230,55 @@ public class TestScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Player player = model.getPlayerOne();
+        Player p1 = model.getPlayerOne();
+        Player p2 = model.getPlayerTwo();
         OrthographicCamera cam = (OrthographicCamera) stage.getCamera();
 
         // 1. Aggiorna lo stato del gioco e i controlli (Controller)
         controller.update(delta);
 
         // 2. Aggiorna la simulazione fisica (Fisica)
-        if (player != null && physicsFacade != null) {
-            physicsFacade.update(delta, player);
-
-            // Riproduce il suono di attacco all'inizio dello stato ATTACKING
-            if (player.getState() == CharacterState.ATTACKING && lastState != CharacterState.ATTACKING) {
-                if (playerAssets.getAttackSound() != null) {
-                    playerAssets.getAttackSound().play();
+        if (physicsFacade != null) {
+            if (p1 != null) {
+                physicsFacade.setPlayerVelocity(p1, delta);
+                
+                // Suono attacco Player 1
+                if (p1.getState() == CharacterState.ATTACKING && lastStateP1 != CharacterState.ATTACKING) {
+                    if (playerAssets.getAttackSound() != null) {
+                        playerAssets.getAttackSound().play();
+                    }
                 }
+                lastStateP1 = p1.getState();
             }
-            lastState = player.getState();
+
+            if (model.isMultiplayerGame() && p2 != null) {
+                physicsFacade.setPlayerVelocity(p2, delta);
+
+                // Suono attacco Player 2
+                if (p2.getState() == CharacterState.ATTACKING && lastStateP2 != CharacterState.ATTACKING) {
+                    if (playerTwoAssets != null && playerTwoAssets.getAttackSound() != null) {
+                        playerTwoAssets.getAttackSound().play();
+                    }
+                }
+                lastStateP2 = p2.getState();
+            }
+
+            physicsFacade.step(delta);
+            physicsFacade.syncPlayerPositions();
         }
 
-        // Gestione della telecamera
-        if (player != null) {
-            cam.zoom = CAMERA_ZOOM;
+        // Gestione della telecamera (Midpoint dei due giocatori in Multiplayer)
+        if (p1 != null) {
+            cam.zoom = cameraZoom;
 
-            float targetCamX = player.getX() + PLAYER_SIZE / 2f;
-            float targetCamY = player.getY() + PLAYER_SIZE / 2f;
+            float targetCamX, targetCamY;
+            if (model.isMultiplayerGame() && p2 != null) {
+                targetCamX = (p1.getX() + p2.getX()) / 2f + playerSize / 2f;
+                targetCamY = (p1.getY() + p2.getY()) / 2f + playerSize / 2f;
+            } else {
+                targetCamX = p1.getX() + playerSize / 2f;
+                targetCamY = p1.getY() + playerSize / 2f;
+            }
 
             float halfViewportWidth  = (stage.getViewport().getWorldWidth()  * cam.zoom) / 2f;
             float halfViewportHeight = (stage.getViewport().getWorldHeight() * cam.zoom) / 2f;
@@ -280,6 +335,9 @@ public class TestScreen implements Screen {
 
         if (playerAssets != null) {
             playerAssets.dispose();
+        }
+        if (playerTwoAssets != null) {
+            playerTwoAssets.dispose();
         }
         if (physicsFacade != null) {
             physicsFacade.dispose();

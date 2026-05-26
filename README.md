@@ -128,6 +128,20 @@ La lista completa degli oggetti verrà definita nelle prossime milestone di prog
 
 ---
 
+## ⚙️ Configurazione dinamica
+
+Il gioco utilizza un file di configurazione **`game.properties`** nella root del progetto per impostare parametri di gioco modificabili a runtime. Le impostazioni includono:
+
+- `max_player_distance`: distanza massima consentita tra i personaggi (default `400.0`).
+- `camera_zoom`: fattore di zoom della telecamera (default `0.72`).
+- `player_size`: scala di rendering dei personaggi (default `160.0`).
+- `default_player_speed`: velocità base dei personaggi (default `200.0`).
+- `draw_physics_debug`: visualizzare o nascondere il debug Box2D (default `true`).
+- `music_volume` e `sfx_volume`: volumi audio (default `0.5`).
+
+Il file viene generato al primo avvio se non presente e può essere modificato a caldo; le modifiche vengono salvate automaticamente su disco. Per personalizzare il comportamento di gioco, editare `game.properties` e riavviare il gioco.
+
+
 ## 🛠️ Pipeline CI/CD
 
 Il progetto utilizza **GitHub Actions** per l'automazione:

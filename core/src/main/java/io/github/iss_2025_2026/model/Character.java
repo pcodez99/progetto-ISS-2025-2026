@@ -1,5 +1,7 @@
 package io.github.iss_2025_2026.model;
 
+import io.github.iss_2025_2026.service.GameProperties;
+
 /** Represents a generic character in the game (Hero, Enemy, or Boss) */
 public abstract class Character {
     private String name;
@@ -9,7 +11,7 @@ public abstract class Character {
     protected int level = 1;
     private float x;
     private float y;
-    private float speed = 200f;
+    private float speed = GameProperties.getFloat(GameProperties.KEY_DEFAULT_PLAYER_SPEED, 200f);
     private Direction direction = Direction.DOWN;
     private CharacterState state = CharacterState.IDLE;
     private float stateTime = 0f;
