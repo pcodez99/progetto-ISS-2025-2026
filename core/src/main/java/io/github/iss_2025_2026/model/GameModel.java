@@ -6,6 +6,7 @@ package io.github.iss_2025_2026.model;
  * Non contiene riferimenti a LibGDX per il rendering o l'input.
  */
 public class GameModel {
+    private final GameState gameState;
     private String message;
     private float timer;
     private String gameName;
@@ -16,6 +17,7 @@ public class GameModel {
     private String currentSaveFileName;
 
     public GameModel() {
+        this.gameState = new GameState();
         this.message = "Viddani VS Alieni - MVC Base Architecture";
         this.timer = 0;
         this.gameName = "Nuova Partita";
@@ -44,6 +46,10 @@ public class GameModel {
 
     public NewGameConfigModel.GameMode getGameMode() {
         return gameMode;
+    }
+
+    public GameState getGameState() {
+        return gameState;
     }
 
     public Player getPlayerOne() {
@@ -82,6 +88,10 @@ public class GameModel {
         this.timer = 0f;
         this.gameStarted = true;
         this.currentSaveFileName = null;
+        this.gameState.setGameName(gameName);
+        this.gameState.setGameMode(NewGameConfigModel.GameMode.SINGLE_PLAYER);
+        this.gameState.setCurrentLevelId(1);
+        this.gameState.setPhase(GameState.Phase.PLAYING);
         this.message = "Partita avviata: " + playerOne.getName() + " e pronto a combattere.";
     }
 
@@ -93,6 +103,10 @@ public class GameModel {
         this.timer = 0f;
         this.gameStarted = true;
         this.currentSaveFileName = null;
+        this.gameState.setGameName(gameName);
+        this.gameState.setGameMode(NewGameConfigModel.GameMode.MULTIPLAYER);
+        this.gameState.setCurrentLevelId(1);
+        this.gameState.setPhase(GameState.Phase.PLAYING);
         this.message = "Partita multiplayer avviata: " + playerOne.getName() + " e " + playerTwo.getName() + ".";
     }
 }

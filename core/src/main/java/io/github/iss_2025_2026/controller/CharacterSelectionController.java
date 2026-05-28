@@ -9,7 +9,6 @@ import io.github.iss_2025_2026.model.NewGameConfigModel;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.service.GameSaveService;
 import io.github.iss_2025_2026.view.PlayerSelectionTransitionScreen;
-import io.github.iss_2025_2026.view.TestScreen;
 
 import java.io.IOException;
 
@@ -53,7 +52,7 @@ public class CharacterSelectionController {
         Player playerOne = factory.createPlayer(characterId);
         gameModel.startSinglePlayerGame(config.getGameName(), playerOne);
         persistNewRun();
-        game.setScreen(new TestScreen(game, gameModel, gameController));
+        game.getGameContext().getFlowController().startCurrentLevel();
     }
 
     private void handleMultiplayerSelection(String characterId) {
@@ -74,7 +73,7 @@ public class CharacterSelectionController {
         Player playerTwo = factory.createPlayer(config.getSelectedCharacterPlayerTwo());
         gameModel.startMultiplayerGame(config.getGameName(), playerOne, playerTwo);
         persistNewRun();
-        game.setScreen(new TestScreen(game, gameModel, gameController));
+        game.getGameContext().getFlowController().startCurrentLevel();
     }
 
     private void persistNewRun() {

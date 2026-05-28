@@ -226,7 +226,7 @@ public class LoadGameScreen implements Screen {
 
         try {
             GameSaveService.loadGameIntoModel(gameModel, selectedFile);
-            game.setScreen(new TestScreen(game, gameModel, gameController));
+            game.getGameContext().getFlowController().startCurrentLevel();
             dispose();
         } catch (IOException e) {
             setError("Caricamento fallito: " + e.getMessage());

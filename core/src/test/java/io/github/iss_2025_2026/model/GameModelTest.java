@@ -19,6 +19,8 @@ public class GameModelTest {
         assertSame(playerOne, model.getPlayerOne());
         assertNull(model.getPlayerTwo());
         assertFalse(model.isMultiplayerGame());
+        assertEquals(1, model.getGameState().getCurrentLevelId());
+        assertEquals(GameState.Phase.PLAYING, model.getGameState().getPhase());
     }
 
     @Test
@@ -35,5 +37,16 @@ public class GameModelTest {
         assertSame(playerOne, model.getPlayerOne());
         assertSame(playerTwo, model.getPlayerTwo());
         assertTrue(model.isMultiplayerGame());
+        assertEquals(1, model.getGameState().getCurrentLevelId());
+        assertEquals(GameState.Phase.PLAYING, model.getGameState().getPhase());
+    }
+
+    @Test
+    public void testGameStateDefaultsToMenuBeforeRunStarts() {
+        GameModel model = new GameModel();
+
+        assertEquals(1, model.getGameState().getCurrentLevelId());
+        assertEquals(GameState.Phase.MENU, model.getGameState().getPhase());
+        assertTrue(model.getGameState().getCompletedLevelIds().isEmpty());
     }
 }

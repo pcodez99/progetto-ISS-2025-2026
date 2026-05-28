@@ -38,12 +38,16 @@ public final class GameSaveService {
     }
 
     public static GameState toGameState(GameModel model) {
-        return new GameState(
+        GameState state = new GameState(
                 model.getGameName(),
                 model.getGameMode(),
                 toPlayerSaveState(model.getPlayerOne()),
                 toPlayerSaveState(model.getPlayerTwo()),
                 Instant.now().toString());
+        state.setCurrentLevelId(model.getGameState().getCurrentLevelId());
+        state.setPhase(model.getGameState().getPhase());
+        state.setCompletedLevelIds(model.getGameState().getCompletedLevelIds());
+        return state;
     }
 
     private static void loadGameIntoModel(GameModel model, GameState state) throws IOException {
@@ -56,9 +60,11 @@ public final class GameSaveService {
             if ((state.getGameMode() == NewGameConfigModel.GameMode.MULTIPLAYER || playerTwo != null)
                     && playerTwo != null) {
                 model.startMultiplayerGame(gameName, playerOne, playerTwo);
+                restoreProgress(model, state);
                 return;
             }
             model.startSinglePlayerGame(gameName, playerOne);
+            restoreProgress(model, state);
             return;
         }
 
@@ -73,10 +79,17 @@ public final class GameSaveService {
                     0,
                     state.getBackpack());
             model.startSinglePlayerGame(resolveGameName(state), legacyPlayer);
+            restoreProgress(model, state);
             return;
         }
 
         throw new IOException("Il salvataggio selezionato non contiene dati giocabili.");
+    }
+
+    private static void restoreProgress(GameModel model, GameState state) {
+        model.getGameState().setCurrentLevelId(state.getCurrentLevelId());
+        model.getGameState().setPhase(state.getPhase());
+        model.getGameState().setCompletedLevelIds(state.getCompletedLevelIds());
     }
 
     private static PlayerSaveState toPlayerSaveState(Player player) {

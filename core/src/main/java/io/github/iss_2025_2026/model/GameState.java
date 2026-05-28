@@ -1,15 +1,32 @@
 package io.github.iss_2025_2026.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Stato serializzabile della partita.
  * Supporta sia il formato attuale a uno o due player, sia il vecchio formato legacy.
  */
 public class GameState {
+    public enum Phase {
+        MENU,
+        LOADING_LEVEL,
+        PLAYING,
+        LEVEL_COMPLETED,
+        GAME_COMPLETED
+    }
+
+    private static final int DEFAULT_LEVEL_ID = 1;
+
     private String gameName;
     private NewGameConfigModel.GameMode gameMode;
     private PlayerSaveState playerOne;
     private PlayerSaveState playerTwo;
     private String savedAt;
+    private int currentLevelId = DEFAULT_LEVEL_ID;
+    private Phase phase = Phase.MENU;
+    private List<Integer> completedLevelIds = new ArrayList<>();
 
     // Legacy single-player fields kept for backward compatibility.
     private String playerName;
@@ -31,6 +48,8 @@ public class GameState {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.savedAt = savedAt;
+        this.currentLevelId = DEFAULT_LEVEL_ID;
+        this.phase = Phase.MENU;
     }
 
     public boolean hasLegacySinglePlayerData() {
@@ -75,6 +94,41 @@ public class GameState {
 
     public void setSavedAt(String savedAt) {
         this.savedAt = savedAt;
+    }
+
+    public int getCurrentLevelId() {
+        return currentLevelId > 0 ? currentLevelId : DEFAULT_LEVEL_ID;
+    }
+
+    public void setCurrentLevelId(int currentLevelId) {
+        this.currentLevelId = currentLevelId > 0 ? currentLevelId : DEFAULT_LEVEL_ID;
+    }
+
+    public Phase getPhase() {
+        return phase != null ? phase : Phase.MENU;
+    }
+
+    public void setPhase(Phase phase) {
+        this.phase = phase != null ? phase : Phase.MENU;
+    }
+
+    public List<Integer> getCompletedLevelIds() {
+        return Collections.unmodifiableList(completedLevelIds);
+    }
+
+    public void setCompletedLevelIds(List<Integer> completedLevelIds) {
+        this.completedLevelIds = new ArrayList<>(
+                completedLevelIds != null ? completedLevelIds : Collections.<Integer>emptyList());
+    }
+
+    public void addCompletedLevelId(int levelId) {
+        if (!completedLevelIds.contains(levelId)) {
+            completedLevelIds.add(levelId);
+        }
+    }
+
+    public void clearCompletedLevels() {
+        completedLevelIds.clear();
     }
 
     public String getPlayerName() {

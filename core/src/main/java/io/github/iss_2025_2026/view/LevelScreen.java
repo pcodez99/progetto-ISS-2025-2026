@@ -21,12 +21,8 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.GameController;
-import io.github.iss_2025_2026.map.LevelAssetResolvers;
-import io.github.iss_2025_2026.map.LevelCatalog;
-import io.github.iss_2025_2026.map.LevelDefinition;
+import io.github.iss_2025_2026.map.LevelRuntime;
 import io.github.iss_2025_2026.map.TmxLevel;
-import io.github.iss_2025_2026.map.TmxLevelLoader;
-import io.github.iss_2025_2026.map.TmxMapContract;
 import io.github.iss_2025_2026.model.CharacterState;
 import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
@@ -35,7 +31,6 @@ import io.github.iss_2025_2026.physics.PhysicsFacade;
 import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
-import java.io.IOException;
 
 /**
  * Game View (Parte del pattern MVC).
@@ -43,10 +38,11 @@ import java.io.IOException;
  * Si occupa esclusivamente del rendering dello stato del Model.
  * Delega la logica di aggiornamento al Controller, la fisica a PhysicsFacade e gli asset a PlayerAssets.
  */
-public class TestScreen implements Screen {
+public class LevelScreen implements Screen {
     private final GameModel model;
     private final GameController controller;
     private final InputAdapter inputListener;
+    private final LevelRuntime levelRuntime;
 
     private Stage stage;
     private Skin skin;
@@ -73,9 +69,10 @@ public class TestScreen implements Screen {
     private final float cameraZoom;
     private boolean drawObstacleDebug;
 
-    public TestScreen(Main game, GameModel model, GameController controller) {
+    public LevelScreen(Main game, GameModel model, GameController controller, LevelRuntime levelRuntime) {
         this.model = model;
         this.controller = controller;
+        this.levelRuntime = levelRuntime;
         this.skin = GameUiTheme.loadSkin();
         
         // Carica le proprietà configurabili dal file properties
@@ -84,7 +81,7 @@ public class TestScreen implements Screen {
         this.cameraZoom = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM, 0.72f);
         this.drawObstacleDebug = GameProperties.getBoolean(GameProperties.KEY_DRAW_PHYSICS_DEBUG, true);
 
-        loadMap();
+        configureLevel(levelRuntime);
 
         Player player = model.getPlayerOne();
         this.playerAssets = new PlayerAssets(player);
@@ -108,7 +105,7 @@ public class TestScreen implements Screen {
             @Override
             public boolean keyDown(int keycode) {
                 if (keycode == Input.Keys.ESCAPE) {
-                    game.setScreen(new MainMenuScreen(game, model, controller, true, TestScreen.this));
+                    game.setScreen(new MainMenuScreen(game, model, controller, true, LevelScreen.this));
                     return true;
                 }
                 if (keycode == Input.Keys.F3) {
@@ -121,9 +118,8 @@ public class TestScreen implements Screen {
         };
     }
 
-    private void loadMap() {
-        LevelDefinition levelDefinition = loadDefaultLevelDefinition();
-        level = TmxLevelLoader.load(levelDefinition);
+    private void configureLevel(LevelRuntime levelRuntime) {
+        level = levelRuntime.getLevel();
         map = level.getMap();
         mapRenderer = new IsometricTiledMapRenderer(map, 1f);
         mapBounds = level.getGeometry().getBounds();
@@ -131,14 +127,6 @@ public class TestScreen implements Screen {
         
         // Inizializza la facciata fisica Box2D con le dimensioni configurate
         physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
-    }
-
-    private LevelDefinition loadDefaultLevelDefinition() {
-        try {
-            return LevelCatalog.load(LevelAssetResolvers.gdx()).requireLevel(TmxMapContract.DEFAULT_LEVEL_ID);
-        } catch (IOException exception) {
-            throw new IllegalStateException("Impossibile caricare il catalogo livelli runtime.", exception);
-        }
     }
 
     private void buildUI() {
