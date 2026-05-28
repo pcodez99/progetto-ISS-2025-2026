@@ -107,4 +107,5 @@ public class Player extends Character {
         setKarma(karma);
         setBackpack(backpack != null ? backpack : new Backpack(10));
     }
+
 }

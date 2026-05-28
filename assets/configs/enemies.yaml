@@ -1,0 +1,114 @@
+enemies:
+  - id: "alieno_sciame"
+    name: "Alieno Sciame"
+    enemyClass: "SCIAME"
+    description: "Alieno leggero pensato per comparire in gruppi numerosi: tanti bersagli, poca potenza individuale."
+    levelId: 1
+    maxHp: 28
+    baseDamage: 5
+    xpReward: 8
+    isBoss: false
+    abilityId: "NONE"
+    encounter:
+      immediateBattle: true
+      minGroupSize: 4
+      maxGroupSize: 8
+    traits:
+      - "Numeroso"
+      - "Fragile"
+      - "Pressione di gruppo"
+
+  - id: "alieno_base"
+    name: "Alieno Invasore"
+    enemyClass: "INVASORE"
+    description: "Classe standard degli invasori: bilancia resistenza e danno per incontri medi."
+    levelId: 1
+    maxHp: 45
+    baseDamage: 8
+    xpReward: 15
+    isBoss: false
+    abilityId: "NONE"
+    encounter:
+      immediateBattle: true
+      minGroupSize: 2
+      maxGroupSize: 4
+    traits:
+      - "Bilanciato"
+      - "Affidabile"
+      - "Difficolta media"
+
+  - id: "alieno_guardiano"
+    name: "Guardiano Centauriano"
+    enemyClass: "GUARDIANO"
+    description: "Alieno pesante e raro: appare in piccoli gruppi ma colpisce molto piu forte."
+    levelId: 2
+    maxHp: 90
+    baseDamage: 14
+    xpReward: 30
+    isBoss: false
+    abilityId: "NONE"
+    encounter:
+      immediateBattle: true
+      minGroupSize: 1
+      maxGroupSize: 2
+    traits:
+      - "Resistente"
+      - "Danno alto"
+      - "Presenza rara"
+
+  - id: "boss_livello_1"
+    name: "Capo Crash Xylar"
+    enemyClass: "BOSS_CAMPAGNA"
+    description: "Boss finale della Campagna, guida il primo assalto nei campi terrestri."
+    levelId: 1
+    maxHp: 220
+    baseDamage: 18
+    xpReward: 120
+    isBoss: true
+    abilityId: "STONE_RAIN"
+    encounter:
+      immediateBattle: true
+      minGroupSize: 1
+      maxGroupSize: 1
+    traits:
+      - "Boss finale"
+      - "Controllo area"
+      - "Primo picco di difficolta"
+
+  - id: "boss_livello_2"
+    name: "Comandante Orbix"
+    enemyClass: "BOSS_NAVICELLA"
+    description: "Boss finale della Navicella Aliena, piu tecnico e aggressivo del primo boss."
+    levelId: 2
+    maxHp: 310
+    baseDamage: 24
+    xpReward: 180
+    isBoss: true
+    abilityId: "VIDDANO_THROW"
+    encounter:
+      immediateBattle: true
+      minGroupSize: 1
+      maxGroupSize: 1
+    traits:
+      - "Boss finale"
+      - "Danno costante"
+      - "Pressione tattica"
+
+  - id: "boss_livello_3"
+    name: "Sovrano Proxima"
+    enemyClass: "BOSS_PROXIMA"
+    description: "Boss finale del pianeta Proxima Centauri b e culmine dell'invasione aliena."
+    levelId: 3
+    maxHp: 420
+    baseDamage: 32
+    xpReward: 260
+    isBoss: true
+    abilityId: "WHEELCHAIR_JUMP"
+    encounter:
+      immediateBattle: true
+      minGroupSize: 1
+      maxGroupSize: 1
+    traits:
+      - "Boss finale"
+      - "Massima resistenza"
+      - "Minaccia decisiva"

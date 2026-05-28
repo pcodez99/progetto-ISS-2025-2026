@@ -6,7 +6,7 @@ import io.github.iss_2025_2026.model.SpecialAbility;
  * Represents an enemy in the game (can be a standard alien or a boss).
  * Extends the abstract Character class.
  */
-public class Enemy extends Character {
+public class Enemy extends Character implements CharacterPrototype<Enemy> {
 
     private String enemyId;         // L'ID dello YAML (es. "alieno_base")
     private int xpReward;          // I punti esperienza che dona al giocatore quando muore
@@ -55,5 +55,13 @@ public class Enemy extends Character {
     // SETTERS
     public void setSpecialAbility(SpecialAbility specialAbility) {
         this.specialAbility = specialAbility;
+    }
+
+    @Override
+    public Enemy copy() {
+        Enemy copy = new Enemy(getName(), enemyId, getMaxHp(), getBaseDamage(), xpReward, isBoss);
+        copy.setSpecialAbility(specialAbility);
+        copyRuntimeStateTo(copy);
+        return copy;
     }
 }

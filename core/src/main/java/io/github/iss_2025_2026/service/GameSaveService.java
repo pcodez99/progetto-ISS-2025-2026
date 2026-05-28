@@ -1,6 +1,7 @@
 package io.github.iss_2025_2026.service;
 
 import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.YamlCharacterFactory;
 import io.github.iss_2025_2026.model.Backpack;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.GameState;
@@ -46,7 +47,7 @@ public final class GameSaveService {
     }
 
     private static void loadGameIntoModel(GameModel model, GameState state) throws IOException {
-        CharacterFactory factory = new CharacterFactory();
+        CharacterFactory factory = new YamlCharacterFactory();
 
         if (state.getPlayerOne() != null) {
             Player playerOne = restorePlayer(factory, state.getPlayerOne());

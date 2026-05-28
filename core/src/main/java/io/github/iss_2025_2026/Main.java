@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.YamlCharacterFactory;
 import io.github.iss_2025_2026.map.GameStartupValidator;
 import io.github.iss_2025_2026.map.LevelValidationResult;
 import io.github.iss_2025_2026.model.GameModel;
@@ -37,7 +38,7 @@ public class Main extends Game {
             if ("mom".equals(mappedId)) mappedId = "mamma";
 
             // Create a player for the specified character and start directly in TestScreen
-            CharacterFactory factory = new CharacterFactory();
+            CharacterFactory factory = new YamlCharacterFactory();
             Player player = factory.createPlayer(mappedId);
             if (player != null) {
                 GameModel testMapModel = new GameModel();
@@ -49,11 +50,14 @@ public class Main extends Game {
         }
 
         String charactersPath = "configs/characters.yaml";
+        String enemiesPath = "configs/enemies.yaml";
         String abilitiesPath = "configs/abilities/";
 
-        if (!Gdx.files.internal(charactersPath).exists() || !Gdx.files.internal(abilitiesPath).exists()) {
-            Gdx.app.error("CharacterFactory", "CRITICAL: characters.yaml or abilities.yaml NOT FOUND at "
-                    + charactersPath + " or " + abilitiesPath);
+        if (!Gdx.files.internal(charactersPath).exists()
+                || !Gdx.files.internal(enemiesPath).exists()
+                || !Gdx.files.internal(abilitiesPath).exists()) {
+            Gdx.app.error("CharacterFactory", "CRITICAL: required character configs NOT FOUND at "
+                    + charactersPath + ", " + enemiesPath + " or " + abilitiesPath);
             // TO DO: AGGIUNGERE WARNING E CHIUDERE IL GIOCO SE MANCANO LE CONFIGS
             return;
         }

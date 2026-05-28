@@ -172,4 +172,16 @@ public abstract class Character {
     public void setAttackDuration(float attackDuration) {
         this.attackDuration = attackDuration;
     }
+
+    protected void copyRuntimeStateTo(Character copy) {
+        copy.setHp(getHp());
+        copy.setLevel(getLevel());
+        copy.setX(getX());
+        copy.setY(getY());
+        copy.setSpeed(getSpeed());
+        copy.setDirection(getDirection());
+        copy.setState(getState());
+        copy.setStateTime(getStateTime());
+        copy.setAttackDuration(getAttackDuration());
+    }
 }

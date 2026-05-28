@@ -6,10 +6,12 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.YamlCharacterFactory;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import io.github.iss_2025_2026.model.Enemy;
+
 public class EnemyFactoryTest {
     private CharacterFactory factory;
 
@@ -26,7 +28,7 @@ public class EnemyFactoryTest {
     @BeforeEach
     public void setUp() {
         // Inizializziamo la factory prima di ogni test
-        factory = new CharacterFactory();
+        factory = new YamlCharacterFactory();
     }
 
     @Test
@@ -48,12 +50,12 @@ public class EnemyFactoryTest {
     @Test
     public void testCreateBoss() {
         // 1. Creiamo il boss dallo YAML
-        Enemy boss = factory.createEnemy("boss_alieno");
+        Enemy boss = factory.createEnemy("boss_livello_1");
 
         // 2. Verifichiamo i dati del boss
         assertNotNull(boss);
         assertTrue(boss.isBoss(), "Il boss deve avere il flag isBoss a true");
-        assertEquals(350, boss.getMaxHp());
+        assertEquals(220, boss.getMaxHp());
 
         // CORRETTO: Verifichiamo che il boss ABBIA l'abilità "stone_rain" agganciata
         assertTrue(boss.hasSpecialAbility(), "Il boss dovrebbe avere un'abilità speciale");
@@ -66,5 +68,83 @@ public class EnemyFactoryTest {
         assertThrows(IllegalArgumentException.class, () -> {
             factory.createEnemy("id_inesistente_che_fa_crashtare");
         });
+    }
+
+    @Test
+    public void createEnemyReturnsIndependentPrototypeCopies() {
+        Enemy firstAlien = factory.createEnemy("alieno_base");
+        Enemy secondAlien = factory.createEnemy("alieno_base");
+
+        assertNotSame(firstAlien, secondAlien);
+        firstAlien.takeDamage(20);
+        firstAlien.setX(250f);
+
+        assertEquals(25, firstAlien.getHp());
+        assertEquals(45, secondAlien.getHp());
+        assertEquals(0f, secondAlien.getX());
+    }
+
+    @Test
+    public void createPlayerBuildsIndependentInstances() {
+        Player firstPlayer = factory.createPlayer("papa");
+        Player secondPlayer = factory.createPlayer("papa");
+
+        assertNotSame(firstPlayer, secondPlayer);
+        assertNotSame(firstPlayer.getBackpack(), secondPlayer.getBackpack());
+
+        firstPlayer.modifyKarma(15);
+        firstPlayer.getBackpack().addItem(new Collectible("test", "Test", "Oggetto test", "HEAL", false, 1));
+
+        assertEquals(15, firstPlayer.getKarma());
+        assertEquals(0, secondPlayer.getKarma());
+        assertEquals(1, firstPlayer.getBackpack().getSize());
+        assertEquals(0, secondPlayer.getBackpack().getSize());
+    }
+
+    @Test
+    public void enemyYamlRepresentsReadmeContract() {
+        Map<String, Map<String, Object>> enemies = factory.getEnemyData();
+
+        assertEquals(6, enemies.size(), "Il README prevede 3 classi di alieni e 3 boss finali.");
+        assertEquals(3, enemies.values().stream().filter(enemy -> !bool(enemy.get("isBoss"))).count());
+        assertEquals(3, enemies.values().stream().filter(enemy -> bool(enemy.get("isBoss"))).count());
+
+        Map<String, Object> sciame = enemies.get("alieno_sciame");
+        Map<String, Object> base = enemies.get("alieno_base");
+        Map<String, Object> guardiano = enemies.get("alieno_guardiano");
+        assertNotNull(sciame);
+        assertNotNull(base);
+        assertNotNull(guardiano);
+
+        assertEquals("SCIAME", sciame.get("enemyClass"));
+        assertEquals("INVASORE", base.get("enemyClass"));
+        assertEquals("GUARDIANO", guardiano.get("enemyClass"));
+        assertTrue(bool(encounter(sciame).get("immediateBattle")));
+        assertTrue(bool(encounter(base).get("immediateBattle")));
+        assertTrue(bool(encounter(guardiano).get("immediateBattle")));
+
+        assertTrue(intValue(encounter(sciame).get("maxGroupSize")) > intValue(encounter(base).get("maxGroupSize")));
+        assertTrue(intValue(encounter(base).get("maxGroupSize")) > intValue(encounter(guardiano).get("maxGroupSize")));
+        assertTrue(intValue(sciame.get("maxHp")) < intValue(base.get("maxHp")));
+        assertTrue(intValue(base.get("maxHp")) < intValue(guardiano.get("maxHp")));
+        assertTrue(intValue(sciame.get("baseDamage")) < intValue(base.get("baseDamage")));
+        assertTrue(intValue(base.get("baseDamage")) < intValue(guardiano.get("baseDamage")));
+
+        assertEquals(1, intValue(enemies.get("boss_livello_1").get("levelId")));
+        assertEquals(2, intValue(enemies.get("boss_livello_2").get("levelId")));
+        assertEquals(3, intValue(enemies.get("boss_livello_3").get("levelId")));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> encounter(Map<String, Object> enemy) {
+        return (Map<String, Object>) enemy.get("encounter");
+    }
+
+    private static boolean bool(Object value) {
+        return Boolean.TRUE.equals(value);
+    }
+
+    private static int intValue(Object value) {
+        return ((Number) value).intValue();
     }
 }
