@@ -22,6 +22,7 @@ public class GameProperties {
     public static final String KEY_DRAW_PHYSICS_DEBUG = "draw_physics_debug";
     public static final String KEY_MUSIC_VOLUME = "music_volume";
     public static final String KEY_SFX_VOLUME = "sfx_volume";
+    public static final String KEY_DEV_MODE = "dev_mode";
 
     static {
         // Impostiamo i valori di default
@@ -32,6 +33,7 @@ public class GameProperties {
         properties.setProperty(KEY_DRAW_PHYSICS_DEBUG, "true");
         properties.setProperty(KEY_MUSIC_VOLUME, "0.5");
         properties.setProperty(KEY_SFX_VOLUME, "0.5");
+        properties.setProperty(KEY_DEV_MODE, "true");
 
         load();
     }

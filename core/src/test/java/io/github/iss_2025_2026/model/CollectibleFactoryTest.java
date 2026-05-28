@@ -54,4 +54,17 @@ public class CollectibleFactoryTest {
         //DA RIVEDERE: in questo momento factory robusta che restituisce null senza far crashare il gioco
         assertNull(oggettoFalso, "La factory dovrebbe restituire null per oggetti inesistenti.");
     }
+
+    @Test
+    public void testFactoryRestituisceCopieIndipendenti() {
+        Collectible primaPozione = factory.getCollectible("SMALL_POTION");
+        Collectible secondaPozione = factory.getCollectible("SMALL_POTION");
+
+        assertNotSame(primaPozione, secondaPozione);
+
+        primaPozione.setName("Nome modificato");
+
+        assertEquals("Pozione piccola", secondaPozione.getName());
+        assertEquals("Pozione piccola", factory.getCollectible("SMALL_POTION").getName());
+    }
 }

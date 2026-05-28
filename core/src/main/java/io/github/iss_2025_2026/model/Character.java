@@ -56,6 +56,13 @@ public abstract class Character {
         }
     }
 
+    public void increaseBaseDamageByPercent(int percentage) {
+        if (percentage > 0) {
+            int increase = Math.max(1, Math.round(baseDamage * percentage / 100f));
+            this.baseDamage += increase;
+        }
+    }
+
     /** Method to check if a character is still alive */
     public boolean isAlive() {
         return this.hp > 0;

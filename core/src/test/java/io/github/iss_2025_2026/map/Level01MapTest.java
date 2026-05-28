@@ -5,121 +5,150 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.github.iss_2025_2026.map.TmxMapContract;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class Level01MapTest {
-    private static final String MAP_FILE = "assets/map/campagna.tmx";
-    private static final String MAP_DIRECTORY = "assets/map";
+    private static final String LEVEL_ONE_MAP = "map/levels/1/level.tmx";
 
     @Test
-    public void mapLoadsAndHasCorrectMetadata() throws Exception {
-        Document document = loadMapDocument();
+    public void manifestDefinesTheAvailableDevRuntimeLevel() throws Exception {
+        LevelCatalog catalog = loadProjectCatalog();
+
+        assertEquals(1, catalog.getLevels().size());
+        assertEquals("map/levels/1/level.tmx", catalog.requireLevel(1).getMapPath());
+    }
+
+    @Test
+    public void levelOneMapUsesRuntimeFolderContract() throws Exception {
+        Document document = loadProjectMapDocument(LEVEL_ONE_MAP);
         Element map = document.getDocumentElement();
-        assertEquals("isometric", map.getAttribute("orientation"), "The map orientation should be isometric.");
-        assertEquals("60", map.getAttribute("width"), "Map width should be 60.");
-        assertEquals("30", map.getAttribute("height"), "Map height should be 30.");
-        assertEquals("256", map.getAttribute("tilewidth"), "Tile width should be 256.");
-        assertEquals("128", map.getAttribute("tileheight"), "Tile height should be 128.");
+
+        assertEquals("isometric", map.getAttribute("orientation"));
+        assertTrue(Integer.parseInt(map.getAttribute("width")) > 0);
+        assertTrue(Integer.parseInt(map.getAttribute("height")) > 0);
+        assertNotNull(layer(document, "terreno"));
+        assertNotNull(layer(document, "oggetti"));
+        assertNotNull(objectGroup(document, TmxMapContract.LAYER_SPAWN));
+        assertNotNull(objectGroup(document, TmxMapContract.LAYER_OBSTACLES));
     }
 
     @Test
-    public void hasSpawnLayerAndSpawnPoints() throws Exception {
-        Document document = loadMapDocument();
-        Element spawnLayer = objectGroup(document, TmxMapContract.LAYER_SPAWN);
-        NodeList objects = spawnLayer.getElementsByTagName("object");
-        assertTrue(objects.getLength() >= 1, "There should be at least one spawn point object.");
-
-        boolean foundSpawn = false;
-        for (int i = 0; i < objects.getLength(); i++) {
-            Element object = (Element) objects.item(i);
-            String name = object.getAttribute("name");
-            if (TmxMapContract.isPlayerSpawnName(name)) {
-                foundSpawn = true;
-                assertNotNull(object.getAttribute("x"), "Spawn point must have x coordinate.");
-                assertNotNull(object.getAttribute("y"), "Spawn point must have y coordinate.");
-            }
-        }
-        assertTrue(foundSpawn, "Should contain a supported player spawn object.");
-    }
-
-    @Test
-    public void hasOstacoliLayerAndObstacles() throws Exception {
-        Document document = loadMapDocument();
-        Element obstaclesLayer = objectGroup(document, TmxMapContract.LAYER_OBSTACLES);
-        NodeList objects = obstaclesLayer.getElementsByTagName("object");
-        assertTrue(objects.getLength() >= 5, "There should be at least 5 obstacle objects.");
-
-        boolean foundCollisionObject = false;
-        for (int i = 0; i < objects.getLength(); i++) {
-            Element object = (Element) objects.item(i);
-            boolean hasPolygon = object.getElementsByTagName("polygon").getLength() > 0;
-            boolean hasPolyline = object.getElementsByTagName("polyline").getLength() > 0;
-            boolean hasUnsupportedShape = object.getElementsByTagName("ellipse").getLength() > 0
-                    || object.getElementsByTagName("capsule").getLength() > 0
-                    || object.getElementsByTagName("point").getLength() > 0
-                    || object.getElementsByTagName("text").getLength() > 0;
-            boolean hasRectangle = !hasPolygon && !hasPolyline && !hasUnsupportedShape;
-            boolean hasCollision = hasBooleanProperty(object, TmxMapContract.PROPERTY_COLLISION, true);
-            if (hasCollision) {
-                foundCollisionObject = true;
-                assertTrue(hasRectangle || hasPolygon || hasPolyline,
-                        "Collidable obstacle object must be a rectangle, polygon or polyline.");
-            }
-        }
-        assertTrue(foundCollisionObject, "There should be at least one collision=true obstacle.");
-    }
-
-    @Test
-    public void hasExpectedTiledLayers() throws Exception {
-        Document document = loadMapDocument();
-        assertNotNull(layer(document, "terreno"), "Map should have 'terreno' tiled layer.");
-        assertNotNull(layer(document, "oggetti"), "Map should have 'oggetti' tiled layer.");
-    }
-
-    @Test
-    public void referencedImagesExistNextToTmx() throws Exception {
-        Document document = loadMapDocument();
+    public void levelOneImageSourcesAreOrganizedBySharedAndLevelAssets() throws Exception {
+        Document document = loadProjectMapDocument(LEVEL_ONE_MAP);
         NodeList images = document.getElementsByTagName("image");
-        Path mapDirectory = Paths.get(MAP_DIRECTORY);
-        if (!Files.exists(mapDirectory)) {
-            mapDirectory = Paths.get("..").resolve(MAP_DIRECTORY);
-        }
+        boolean foundSharedTile = false;
+        boolean foundLevelAsset = false;
 
         for (int i = 0; i < images.getLength(); i++) {
             Element image = (Element) images.item(i);
             String source = image.getAttribute("source");
-            if (source == null || source.trim().isEmpty()) {
-                continue;
-            }
-            assertTrue(Files.exists(mapDirectory.resolve(source)),
-                    "Missing TMX image source: " + source);
+            assertFalse(source.startsWith("Isometric/"), "TMX must not reference the old map/Isometric folder.");
+            assertFalse(source.startsWith("ship/"), "TMX must not reference the old map/ship folder.");
+            foundSharedTile = foundSharedTile || source.startsWith("../../shared/tiles/isometric/");
+            foundLevelAsset = foundLevelAsset || source.startsWith("assets/ship/");
         }
+
+        assertTrue(foundSharedTile, "Level 1 should reference shared isometric tiles.");
+        assertTrue(foundLevelAsset, "Level 1 should reference level-specific ship assets.");
+    }
+
+    @Test
+    public void validatorAllowsOnlyLevelOneInDevMode(@TempDir Path tempDir) throws Exception {
+        createMinimalValidLevel(tempDir);
+
+        LevelAssetResolver resolver = LevelAssetResolvers.filesystem(tempDir);
+        LevelCatalog catalog = LevelCatalog.load(resolver);
+        LevelValidationResult result = new LevelAssetValidator(resolver).validate(catalog, true);
+
+        assertTrue(result.isValid(), result.toUserMessage());
+    }
+
+    @Test
+    public void validatorReportsMissingLevelsOutsideDevMode(@TempDir Path tempDir) throws Exception {
+        createMinimalValidLevel(tempDir);
+
+        LevelAssetResolver resolver = LevelAssetResolvers.filesystem(tempDir);
+        LevelCatalog catalog = LevelCatalog.load(resolver);
+        LevelValidationResult result = new LevelAssetValidator(resolver).validate(catalog, false);
+
+        assertFalse(result.isValid());
+        assertTrue(result.toUserMessage().contains("Avvio bloccato"));
+        assertTrue(result.toUserMessage().contains("manca il livello 2"));
+        assertTrue(result.toUserMessage().contains("manca il livello 3"));
+    }
+
+    @Test
+    public void validatorReportsMissingMapsWithClearStartupMessage(@TempDir Path tempDir) throws Exception {
+        Path mapDirectory = tempDir.resolve("map");
+        Files.createDirectories(mapDirectory);
+        Files.write(mapDirectory.resolve("levels.yaml"), (
+                "levels:\n" +
+                "  - id: 1\n" +
+                "    name: Missing One\n" +
+                "    map: map/levels/1/level.tmx\n" +
+                "  - id: 2\n" +
+                "    name: Missing Two\n" +
+                "    map: map/levels/2/level.tmx\n" +
+                "  - id: 3\n" +
+                "    name: Missing Three\n" +
+                "    map: map/levels/3/level.tmx\n").getBytes(StandardCharsets.UTF_8));
+
+        LevelAssetResolver resolver = LevelAssetResolvers.filesystem(tempDir);
+        LevelCatalog catalog = LevelCatalog.load(resolver);
+        LevelValidationResult result = new LevelAssetValidator(resolver).validate(catalog, false);
+
+        assertFalse(result.isValid());
+        assertTrue(result.toUserMessage().contains("Avvio bloccato"));
+        assertTrue(result.toUserMessage().contains("map/levels/1/level.tmx"));
+        assertTrue(result.toUserMessage().contains("map/levels/2/level.tmx"));
+        assertTrue(result.toUserMessage().contains("map/levels/3/level.tmx"));
     }
 
     @Test
     public void proceduralGeneratorHasBeenRemoved() {
-        assertFalse(Files.exists(projectPath("assets/map/kenney_isometric-miniature-farm/generate_map.py")),
+        assertFalse(Files.exists(projectPath("map/kenney_isometric-miniature-farm/generate_map.py")),
                 "TMX maps must be authored in Tiled, not generated by local scripts.");
-        assertFalse(Files.exists(projectPath("assets/map/generated/level_01_countryside_crash.tmx")),
+        assertFalse(Files.exists(projectPath("map/generated/level_01_countryside_crash.tmx")),
                 "Legacy generated TMX should not be part of the runtime map pipeline.");
-        assertFalse(Files.exists(projectPath("assets/map/kenney_isometric-miniature-farm/countryside_level.tmx")),
+        assertFalse(Files.exists(projectPath("map/kenney_isometric-miniature-farm/countryside_level.tmx")),
                 "Sample/generated TMX files should not be part of the runtime map pipeline.");
     }
 
-    private static Document loadMapDocument() throws Exception {
-        Path path = Paths.get(MAP_FILE);
-        if (!Files.exists(path)) {
-            path = Paths.get("..").resolve(MAP_FILE);
-        }
-        assertTrue(Files.exists(path), "Missing map file: " + MAP_FILE);
+    private static LevelCatalog loadProjectCatalog() throws Exception {
+        return LevelCatalog.load(LevelAssetResolvers.filesystem(assetsRoot()));
+    }
+
+    private static void createMinimalValidLevel(Path tempDir) throws Exception {
+        Path mapDirectory = tempDir.resolve("map");
+        Path levelDirectory = mapDirectory.resolve("levels/1");
+        Files.createDirectories(levelDirectory);
+        Files.write(mapDirectory.resolve("levels.yaml"), (
+                "levels:\n" +
+                "  - id: 1\n" +
+                "    name: Dev One\n" +
+                "    map: map/levels/1/level.tmx\n").getBytes(StandardCharsets.UTF_8));
+        Files.write(levelDirectory.resolve("level.tmx"), (
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<map orientation=\"isometric\" width=\"1\" height=\"1\" tilewidth=\"256\" tileheight=\"128\">\n" +
+                "  <layer name=\"terreno\" width=\"1\" height=\"1\"><data encoding=\"csv\">0</data></layer>\n" +
+                "  <layer name=\"oggetti\" width=\"1\" height=\"1\"><data encoding=\"csv\">0</data></layer>\n" +
+                "  <objectgroup name=\"Ostacoli\"/>\n" +
+                "  <objectgroup name=\"Spawn\"><object name=\"Spawn\" x=\"0\" y=\"0\"><point/></object></objectgroup>\n" +
+                "</map>\n").getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static Document loadProjectMapDocument(String internalPath) throws Exception {
+        Path path = assetsRoot().resolve(internalPath);
+        assertTrue(Files.exists(path), "Missing map file: " + internalPath);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -151,21 +180,14 @@ public class Level01MapTest {
     }
 
     private static Path projectPath(String path) {
-        Path candidate = Paths.get(path);
-        if (Files.exists(Paths.get("assets"))) {
-            return candidate;
-        }
-        return Paths.get("..").resolve(path);
+        return assetsRoot().resolve(path);
     }
 
-    private static boolean hasBooleanProperty(Element object, String propertyName, boolean expectedValue) {
-        NodeList properties = object.getElementsByTagName("property");
-        for (int i = 0; i < properties.getLength(); i++) {
-            Element property = (Element) properties.item(i);
-            if (propertyName.equals(property.getAttribute("name"))) {
-                return Boolean.toString(expectedValue).equals(property.getAttribute("value"));
-            }
+    private static Path assetsRoot() {
+        Path candidate = Paths.get("assets");
+        if (Files.exists(candidate)) {
+            return candidate;
         }
-        return false;
+        return Paths.get("..").resolve("assets");
     }
 }

@@ -1,5 +1,8 @@
 package io.github.iss_2025_2026.model;
 
+import io.github.iss_2025_2026.model.collectibles.CollectibleEffectFactory;
+import io.github.iss_2025_2026.model.collectibles.CollectibleUseContext;
+
 /** Represents an item that can be collected and put into the backpack */
 public class Collectible {
     private String id;
@@ -21,6 +24,17 @@ public class Collectible {
         this.effectValue = effectValue;
     }
 
+    public void use(CollectibleUseContext context) {
+        if (context == null) {
+            throw new IllegalArgumentException("Il contesto d'uso del collectible non puo essere nullo.");
+        }
+        CollectibleEffectFactory.getStrategy(effectType).apply(context, this);
+    }
+
+    public Collectible copy() {
+        return new Collectible(id, name, description, effectType, aoe, effectValue);
+    }
+
     //------Getters----
     public String getId(){
         return id;
@@ -35,6 +49,9 @@ public class Collectible {
         return effectType;
     }
     public boolean getAoe(){
+        return aoe;
+    }
+    public boolean isAoe(){
         return aoe;
     }
     public int getEffectValue(){

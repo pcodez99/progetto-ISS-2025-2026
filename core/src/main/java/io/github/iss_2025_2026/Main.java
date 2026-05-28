@@ -2,9 +2,12 @@ package io.github.iss_2025_2026;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.map.GameStartupValidator;
+import io.github.iss_2025_2026.map.LevelValidationResult;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.view.MainMenuScreen;
@@ -17,6 +20,12 @@ import io.github.iss_2025_2026.view.TestScreen;
 public class Main extends Game {
     @Override
     public void create() {
+        LevelValidationResult mapValidation = GameStartupValidator.validateRuntimeAssets();
+        if (!mapValidation.isValid()) {
+            Gdx.app.error("GameStartup", mapValidation.toUserMessage());
+            throw new GdxRuntimeException(mapValidation.toUserMessage());
+        }
+
         // Support launching directly into the test map with a specific character via system
         // property "character"
         String characterProp = System.getProperty("character");

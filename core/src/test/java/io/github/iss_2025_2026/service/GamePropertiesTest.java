@@ -15,12 +15,14 @@ public class GamePropertiesTest {
         float playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 0f);
         float speed = GameProperties.getFloat(GameProperties.KEY_DEFAULT_PLAYER_SPEED, 0f);
         boolean debug = GameProperties.getBoolean(GameProperties.KEY_DRAW_PHYSICS_DEBUG, false);
+        boolean devMode = GameProperties.getBoolean(GameProperties.KEY_DEV_MODE, false);
 
         assertEquals(400f, maxDistance, 0.001f);
         assertEquals(0.72f, zoom, 0.001f);
         assertEquals(160f, playerSize, 0.001f);
         assertEquals(200f, speed, 0.001f);
         assertTrue(debug);
+        assertTrue(devMode);
     }
 
     @Test

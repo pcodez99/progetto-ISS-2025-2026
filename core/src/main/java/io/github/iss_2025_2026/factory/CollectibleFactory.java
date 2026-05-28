@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.iss_2025_2026.model.Collectible;
+import io.github.iss_2025_2026.model.collectibles.CollectibleEffectFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,7 +53,9 @@ public class CollectibleFactory {
 
             if (dataList != null) {
                 for (Collectible item : dataList) {
-                    collectibleCatalog.put(item.getId(), item);
+                    if (isValidCollectible(item)) {
+                        collectibleCatalog.put(item.getId(), item.copy());
+                    }
                 }
                 LOGGER.info(collectibleCatalog.size() + " oggetti caricati con successo dallo YAML!");
             }
@@ -63,25 +67,59 @@ public class CollectibleFactory {
     }
 
     public Collectible getCollectible(String id) {
-        Collectible prototype = collectibleCatalog.get(id);
-
-        if (prototype == null) {
+        Optional<Collectible> collectible = findCollectible(id);
+        if (!collectible.isPresent()) {
             LOGGER.warning("Attenzione: Richiesto oggetto inesistente con ID: " + id);
             return null;
         }
 
-        // Restituisce una nuova istanza pulita clonando i dati del prototipo
-        return new Collectible(
-            prototype.getId(),
-            prototype.getName(),
-            prototype.getDescription(),
-            prototype.getEffectType(),
-            prototype.getAoe(),
-            prototype.getEffectValue()
-        );
+        return collectible.get();
+    }
+
+    public Optional<Collectible> findCollectible(String id) {
+        Collectible prototype = collectibleCatalog.get(id);
+        if (prototype == null) {
+            return Optional.empty();
+        }
+        return Optional.of(prototype.copy());
+    }
+
+    public Collectible requireCollectible(String id) {
+        Optional<Collectible> collectible = findCollectible(id);
+        if (!collectible.isPresent()) {
+            throw new IllegalArgumentException("Collectible non trovato: " + id);
+        }
+        return collectible.get();
     }
 
     public List<Collectible> getAllCollectibles() {
-        return new ArrayList<>(collectibleCatalog.values());
+        List<Collectible> collectibles = new ArrayList<>();
+        for (Collectible item : collectibleCatalog.values()) {
+            collectibles.add(item.copy());
+        }
+        return collectibles;
+    }
+
+    private boolean isValidCollectible(Collectible item) {
+        if (item == null) {
+            LOGGER.warning("Collectible ignorato: voce YAML nulla.");
+            return false;
+        }
+        if (item.getId() == null || item.getId().trim().isEmpty()) {
+            LOGGER.warning("Collectible ignorato: id mancante.");
+            return false;
+        }
+        if (item.getEffectValue() < 0) {
+            LOGGER.warning("Collectible ignorato: effectValue negativo per ID " + item.getId());
+            return false;
+        }
+
+        try {
+            CollectibleEffectFactory.getStrategy(item.getEffectType());
+        } catch (IllegalArgumentException exception) {
+            LOGGER.warning("Collectible ignorato: " + exception.getMessage());
+            return false;
+        }
+        return true;
     }
 }

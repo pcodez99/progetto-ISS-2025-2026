@@ -6,6 +6,10 @@ public final class TmxLevelLoader {
     private TmxLevelLoader() {
     }
 
+    public static TmxLevel load(LevelDefinition level) {
+        return load(level.getMapPath());
+    }
+
     public static TmxLevel load(String mapPath) {
         return new TmxLevel(new TmxMapLoader().load(mapPath));
     }

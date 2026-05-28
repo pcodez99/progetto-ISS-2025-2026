@@ -1,0 +1,4 @@
+levels:
+  - id: 1
+    name: Campagna
+    map: map/levels/1/level.tmx

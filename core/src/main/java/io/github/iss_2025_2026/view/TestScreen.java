@@ -21,6 +21,9 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.GameController;
+import io.github.iss_2025_2026.map.LevelAssetResolvers;
+import io.github.iss_2025_2026.map.LevelCatalog;
+import io.github.iss_2025_2026.map.LevelDefinition;
 import io.github.iss_2025_2026.map.TmxLevel;
 import io.github.iss_2025_2026.map.TmxLevelLoader;
 import io.github.iss_2025_2026.map.TmxMapContract;
@@ -32,6 +35,7 @@ import io.github.iss_2025_2026.physics.PhysicsFacade;
 import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
+import java.io.IOException;
 
 /**
  * Game View (Parte del pattern MVC).
@@ -61,7 +65,6 @@ public class TestScreen implements Screen {
     private Rectangle mapBounds;
     private float cameraEdgePadding;
 
-    private static final String MAP_PATH = TmxMapContract.CAMPAIGN_MAP_PATH;
     private static final float DEFAULT_CAMERA_EDGE_PADDING = 320f;
 
     // Configurable game properties
@@ -119,7 +122,8 @@ public class TestScreen implements Screen {
     }
 
     private void loadMap() {
-        level = TmxLevelLoader.load(MAP_PATH);
+        LevelDefinition levelDefinition = loadDefaultLevelDefinition();
+        level = TmxLevelLoader.load(levelDefinition);
         map = level.getMap();
         mapRenderer = new IsometricTiledMapRenderer(map, 1f);
         mapBounds = level.getGeometry().getBounds();
@@ -127,6 +131,14 @@ public class TestScreen implements Screen {
         
         // Inizializza la facciata fisica Box2D con le dimensioni configurate
         physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
+    }
+
+    private LevelDefinition loadDefaultLevelDefinition() {
+        try {
+            return LevelCatalog.load(LevelAssetResolvers.gdx()).requireLevel(TmxMapContract.DEFAULT_LEVEL_ID);
+        } catch (IOException exception) {
+            throw new IllegalStateException("Impossibile caricare il catalogo livelli runtime.", exception);
+        }
     }
 
     private void buildUI() {
