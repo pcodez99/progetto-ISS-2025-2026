@@ -77,7 +77,7 @@ public class BattleControllerTest {
     public void testOnSpecialAbilitySelectedExecutesAbilityAndTransitionsToEnemyTurn() {
         int hpBefore = enemyOne.getHp();
 
-        controller.onSpecialAbilitySelected(enemyOne);
+        controller.onSpecialAbilitySelected();
 
         assertTrue(enemyOne.getHp() < hpBefore);
         assertEquals(BattlePhase.ENEMY_TURN, model.getPhase());

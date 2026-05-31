@@ -76,6 +76,20 @@ public final class TmxLevel {
         return Collections.unmodifiableList(objects);
     }
 
+    public List<MapObject> enemyObjects() {
+        List<MapObject> objects = new ArrayList<>();
+        MapLayer layer = map.getLayers().get(TmxMapContract.LAYER_ENEMIES);
+        if (layer == null) {
+            return Collections.unmodifiableList(objects);
+        }
+        for (MapObject object : layer.getObjects()) {
+            if (object.isVisible()) {
+                objects.add(object);
+            }
+        }
+        return Collections.unmodifiableList(objects);
+    }
+
     private void addPhysicsObjects(List<MapObject> target, String layerName, boolean requireCollisionProperty) {
         MapLayer layer = map.getLayers().get(layerName);
         if (layer == null) {

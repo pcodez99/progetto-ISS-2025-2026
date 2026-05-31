@@ -18,6 +18,7 @@ public class GameState {
         MENU,
         LOADING_LEVEL,
         PLAYING,
+        COMBAT,
         LEVEL_COMPLETED,
         GAME_COMPLETED
     }

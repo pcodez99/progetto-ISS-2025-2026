@@ -6,6 +6,8 @@ import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
+import io.github.iss_2025_2026.model.abilities.AbilityConfiguration;
+import io.github.iss_2025_2026.model.abilities.DataDrivenAbility;
 import io.github.iss_2025_2026.model.Character;
 import java.util.Arrays;
 import java.util.List;
@@ -139,7 +141,7 @@ public class BattleModelTest {
         BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
         int hpBefore = enemyOne.getHp();
 
-        model.executePlayerSpecialAbility(playerOne, enemyOne);
+        model.executePlayerSpecialAbility(playerOne);
 
         assertTrue(enemyOne.getHp() < hpBefore);
     }
@@ -150,10 +152,85 @@ public class BattleModelTest {
         int hpBefore = enemyOne.getHp();
 
         // playerTwo non ha abilità, non deve causare crash
-        model.executePlayerSpecialAbility(playerTwo, enemyOne);
+        model.executePlayerSpecialAbility(playerTwo);
 
         // L'HP non deve cambiare se non c'è abilità
         assertEquals(hpBefore, enemyOne.getHp());
+    }
+
+    @Test
+    public void testSpecialAbilityLogShowsDamageAmount() {
+        AbilityConfiguration config = new AbilityConfiguration();
+        config.setName("Pioggia di Pietre");
+        config.setStrategy("DAMAGE");
+        config.setBaseDamage(15);
+
+        playerOne = new Player("Bambino", 100, 10, new DataDrivenAbility(config));
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+
+        model.executePlayerSpecialAbility(playerOne);
+
+        String logLine = model.getBattleLog().get(model.getBattleLog().size() - 1);
+        assertTrue(logLine.contains("Danni: 16 HP"), "Il log deve riportare i danni dell'abilità (15 + livello 1)");
+    }
+
+    @Test
+    public void testSpecialAbilityLogShowsHealAmount() {
+        AbilityConfiguration config = new AbilityConfiguration();
+        config.setName("Cura di Gruppo");
+        config.setStrategy("HEAL");
+        config.setBaseHealing(20);
+
+        Player healer = new Player("Mamma", 80, 8, new DataDrivenAbility(config));
+        BattleModel model = new BattleModel(playerOne, healer, Arrays.asList(enemyOne));
+
+        model.executePlayerSpecialAbility(healer);
+
+        String logLine = model.getBattleLog().get(model.getBattleLog().size() - 1);
+        assertTrue(logLine.contains("Cura: 21 HP"), "Il log deve riportare la cura dell'abilità (20 + livello 1)");
+    }
+
+    @Test
+    public void testAoeDamageAbilityHitsAllEnemies() {
+        AbilityConfiguration config = new AbilityConfiguration();
+        config.setId("STONE_RAIN");
+        config.setName("Pioggia di Pietre");
+        config.setStrategy("DAMAGE");
+        config.setAoe(true);
+        config.setBaseDamage(10);
+
+        playerOne = new Player("Bambino", 100, 10, new DataDrivenAbility(config));
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne, enemyTwo));
+
+        model.executePlayerSpecialAbility(playerOne);
+
+        assertTrue(enemyOne.getHp() < 45);
+        assertTrue(enemyTwo.getHp() < 90);
+    }
+
+    @Test
+    public void testGroupHealAbilityHealsAllPlayers() {
+        AbilityConfiguration config = new AbilityConfiguration();
+        config.setId("GROUP_HEAL");
+        config.setName("Cura di Gruppo");
+        config.setStrategy("HEAL");
+        config.setAoe(true);
+        config.setBaseHealing(20);
+
+        playerOne.takeDamage(30);
+        Player healer = new Player("Mamma", 80, 8, new DataDrivenAbility(config));
+        healer.takeDamage(40);
+
+        BattleModel model = new BattleModel(playerOne, healer, Arrays.asList(enemyOne));
+        int hp1Before = playerOne.getHp();
+        int hp2Before = healer.getHp();
+        int enemyHpBefore = enemyOne.getHp();
+
+        model.executePlayerSpecialAbility(healer);
+
+        assertTrue(playerOne.getHp() > hp1Before, "La cura deve riguardare gli alleati");
+        assertTrue(healer.getHp() > hp2Before, "La cura deve riguardare gli alleati");
+        assertEquals(enemyHpBefore, enemyOne.getHp(), "I nemici non devono essere curati");
     }
 
     // -------------------------------------------------------------------------
