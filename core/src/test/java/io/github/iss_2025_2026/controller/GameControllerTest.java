@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
+import io.github.iss_2025_2026.model.CharacterState;
+import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
-import io.github.iss_2025_2026.model.NewGameConfigModel;
 import io.github.iss_2025_2026.model.Player;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -68,5 +69,81 @@ public class GameControllerTest {
         
         double finalDist = Math.sqrt(Math.pow(playerOne.getX() - playerTwo.getX(), 2) + Math.pow(playerOne.getY() - playerTwo.getY(), 2));
         assertEquals(400f, finalDist, 0.01f);
+    }
+
+    @Test
+    public void pressingRightMovesPlayerOnIsometricAxes() {
+        GameController controller = new GameController(new GameModel());
+        Player player = playerAt(100f, 40f);
+
+        controller.handlePlayerMovement(1f, player, false, false, false, true);
+
+        assertEquals(241.421f, player.getX(), 0.01f);
+        assertEquals(-101.421f, player.getY(), 0.01f);
+        assertEquals(Direction.RIGHT, player.getDirection());
+        assertEquals(CharacterState.WALKING, player.getState());
+    }
+
+    @Test
+    public void pressingDownMovesPlayerBelowCurrentPosition() {
+        GameController controller = new GameController(new GameModel());
+        Player player = playerAt(100f, 40f);
+
+        controller.handlePlayerMovement(1f, player, false, true, false, false);
+
+        assertEquals(-41.421f, player.getX(), 0.01f);
+        assertEquals(-101.421f, player.getY(), 0.01f);
+        assertEquals(Direction.DOWN, player.getDirection());
+        assertEquals(CharacterState.WALKING, player.getState());
+    }
+
+    @Test
+    public void playerStatesTransitionCorrectly() {
+        GameController controller = new GameController(new GameModel());
+        Player player = playerAt(100f, 40f);
+
+        assertEquals(CharacterState.IDLE, player.getState());
+
+        controller.handlePlayerMovement(1f, player, false, false, false, true, false);
+        assertEquals(CharacterState.WALKING, player.getState());
+
+        controller.handlePlayerMovement(1f, player, false, false, false, false, false);
+        assertEquals(CharacterState.IDLE, player.getState());
+
+        controller.handlePlayerMovement(1f, player, false, false, false, false, true);
+        assertEquals(CharacterState.ATTACKING, player.getState());
+
+        float startX = player.getX();
+        controller.handlePlayerMovement(0.1f, player, false, false, false, true, false);
+        assertEquals(CharacterState.ATTACKING, player.getState());
+        assertEquals(startX, player.getX());
+
+        controller.handlePlayerMovement(0.3f, player, false, false, false, false, false);
+        assertEquals(CharacterState.IDLE, player.getState());
+    }
+
+    @Test
+    public void playersCannotExceedConfiguredMaxDistance() {
+        GameController controller = new GameController(new GameModel());
+        Player playerOne = playerAt(0f, 0f);
+        Player playerTwo = playerAt(300f, 0f);
+
+        controller.clampPlayerDistance(playerOne, playerTwo, 400f);
+        assertEquals(0f, playerOne.getX(), 0.01f);
+        assertEquals(0f, playerOne.getY(), 0.01f);
+
+        playerOne.setX(-200f);
+        controller.clampPlayerDistance(playerOne, playerTwo, 400f);
+
+        assertEquals(-100f, playerOne.getX(), 0.01f);
+        assertEquals(0f, playerOne.getY(), 0.01f);
+    }
+
+    private static Player playerAt(float x, float y) {
+        Player player = new Player("Hero", 100, 10, null);
+        player.setX(x);
+        player.setY(y);
+        player.setSpeed(200f);
+        return player;
     }
 }

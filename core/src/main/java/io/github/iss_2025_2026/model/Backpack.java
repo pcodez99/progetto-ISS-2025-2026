@@ -57,7 +57,7 @@ public class Backpack {
      * @param items List of items
      */
     public void setItems(List<Collectible> items) {
-        this.items = items;
+        this.items = items != null ? items : new ArrayList<Collectible>();
     }
 
     public int getCapacity() {
@@ -65,7 +65,7 @@ public class Backpack {
     }
 
     public void setCapacity(int capacity) {
-        this.capacity = capacity;
+        this.capacity = Math.max(1, capacity);
     }
 
     @JsonIgnore

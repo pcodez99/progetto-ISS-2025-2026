@@ -9,6 +9,11 @@ import java.util.List;
  * Supporta sia il formato attuale a uno o due player, sia il vecchio formato legacy.
  */
 public class GameState {
+    public enum SaveType {
+        MANUAL,
+        AUTO
+    }
+
     public enum Phase {
         MENU,
         LOADING_LEVEL,
@@ -18,7 +23,10 @@ public class GameState {
     }
 
     private static final int DEFAULT_LEVEL_ID = 1;
+    private static final int CURRENT_SCHEMA_VERSION = 2;
 
+    private int schemaVersion = CURRENT_SCHEMA_VERSION;
+    private SaveType saveType = SaveType.MANUAL;
     private String gameName;
     private NewGameConfigModel.GameMode gameMode;
     private PlayerSaveState playerOne;
@@ -27,6 +35,7 @@ public class GameState {
     private int currentLevelId = DEFAULT_LEVEL_ID;
     private Phase phase = Phase.MENU;
     private List<Integer> completedLevelIds = new ArrayList<>();
+    private int lastCheckpointLevelId;
 
     // Legacy single-player fields kept for backward compatibility.
     private String playerName;
@@ -54,6 +63,22 @@ public class GameState {
 
     public boolean hasLegacySinglePlayerData() {
         return playerOne == null && characterType != null && !characterType.trim().isEmpty();
+    }
+
+    public int getSchemaVersion() {
+        return schemaVersion > 0 ? schemaVersion : 1;
+    }
+
+    public void setSchemaVersion(int schemaVersion) {
+        this.schemaVersion = schemaVersion > 0 ? schemaVersion : 1;
+    }
+
+    public SaveType getSaveType() {
+        return saveType != null ? saveType : SaveType.MANUAL;
+    }
+
+    public void setSaveType(SaveType saveType) {
+        this.saveType = saveType != null ? saveType : SaveType.MANUAL;
     }
 
     public String getGameName() {
@@ -129,6 +154,28 @@ public class GameState {
 
     public void clearCompletedLevels() {
         completedLevelIds.clear();
+    }
+
+    public String getLastCheckpointId() {
+        return lastCheckpoint;
+    }
+
+    public void setLastCheckpointId(String lastCheckpointId) {
+        this.lastCheckpoint = lastCheckpointId;
+    }
+
+    public int getLastCheckpointLevelId() {
+        return lastCheckpointLevelId;
+    }
+
+    public void setLastCheckpointLevelId(int lastCheckpointLevelId) {
+        this.lastCheckpointLevelId = Math.max(0, lastCheckpointLevelId);
+    }
+
+    public boolean isLastCheckpoint(String checkpointId, int levelId) {
+        return checkpointId != null
+                && checkpointId.equals(lastCheckpoint)
+                && lastCheckpointLevelId == levelId;
     }
 
     public String getPlayerName() {

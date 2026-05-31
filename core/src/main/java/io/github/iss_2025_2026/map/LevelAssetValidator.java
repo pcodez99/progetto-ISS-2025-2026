@@ -71,6 +71,7 @@ public class LevelAssetValidator {
         }
 
         validateTmxContract(document, label, errors);
+        validateCheckpoints(document, level, label, errors);
         validateExternalTilesets(document, mapPath, label, errors);
         validateImages(document, mapPath, label, errors);
     }
@@ -182,6 +183,46 @@ public class LevelAssetValidator {
                 Element object = (Element) objects.item(j);
                 String visible = object.getAttribute("visible");
                 if (!"0".equals(visible) && TmxMapContract.isPlayerSpawnName(object.getAttribute("name"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void validateCheckpoints(Document document, LevelDefinition level, String label, List<String> errors) {
+        Set<String> checkpointIds = new HashSet<>();
+        for (CheckpointDefinition checkpoint : level.getCheckpoints()) {
+            if (checkpoint == null) {
+                errors.add(label + ": checkpoint nullo nel manifest.");
+                continue;
+            }
+            if (checkpoint.getId() == null || checkpoint.getId().trim().isEmpty()) {
+                errors.add(label + ": checkpoint senza id nel manifest.");
+                continue;
+            }
+            if (!checkpointIds.add(checkpoint.getId())) {
+                errors.add(label + ": checkpoint duplicato nel manifest: " + checkpoint.getId() + ".");
+            }
+            if (!hasVisibleObject(document, checkpoint.getLayer(), checkpoint.getObjectName())) {
+                errors.add(label + ": checkpoint '" + checkpoint.getId() + "' non trovato nel layer TMX '"
+                        + checkpoint.getLayer() + "' con oggetto '" + checkpoint.getObjectName() + "'.");
+            }
+        }
+    }
+
+    private boolean hasVisibleObject(Document document, String groupName, String objectName) {
+        NodeList groups = document.getElementsByTagName("objectgroup");
+        for (int i = 0; i < groups.getLength(); i++) {
+            Element group = (Element) groups.item(i);
+            if (!groupName.equals(group.getAttribute("name"))) {
+                continue;
+            }
+            NodeList objects = group.getElementsByTagName("object");
+            for (int j = 0; j < objects.getLength(); j++) {
+                Element object = (Element) objects.item(j);
+                String visible = object.getAttribute("visible");
+                if (!"0".equals(visible) && objectName.equals(object.getAttribute("name"))) {
                     return true;
                 }
             }

@@ -25,6 +25,7 @@ import io.github.iss_2025_2026.model.PlayerSaveState;
 import io.github.iss_2025_2026.persistence.SaveManager;
 import io.github.iss_2025_2026.service.GameSaveService;
 import io.github.iss_2025_2026.service.MenuMusicManager;
+import io.github.iss_2025_2026.service.SaveValidator;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -63,7 +64,9 @@ public class LoadGameScreen implements Screen {
         Map<String, GameState> states = new LinkedHashMap<>();
         for (String fileName : files) {
             try {
-                states.put(fileName, SaveManager.loadGame(fileName));
+                GameState state = SaveManager.loadGame(fileName);
+                SaveValidator.validateForLoad(state);
+                states.put(fileName, state);
             } catch (IOException e) {
                 Gdx.app.error("LoadGameScreen", "Impossibile leggere il salvataggio " + fileName, e);
             }
@@ -224,12 +227,27 @@ public class LoadGameScreen implements Screen {
             return;
         }
 
+        GameState selectedState = saveStates.get(selectedFile);
+        if (selectedState == null) {
+            setError("Salvataggio non valido o corrotto.");
+            return;
+        }
+        if (!game.getGameContext().getSceneController().hasLevel(selectedState.getCurrentLevelId())) {
+            setError("Salvataggio non valido: livello inesistente.");
+            return;
+        }
+
         try {
+            statusLabel.setText("Caricamento in corso...");
+            statusLabel.setColor(GameUiTheme.ACCENT_CYAN);
             GameSaveService.loadGameIntoModel(gameModel, selectedFile);
             game.getGameContext().getFlowController().startCurrentLevel();
             dispose();
         } catch (IOException e) {
             setError("Caricamento fallito: " + e.getMessage());
+            Gdx.app.error("LoadGameScreen", "Errore nel caricamento del salvataggio " + selectedFile, e);
+        } catch (RuntimeException e) {
+            setError("Caricamento fallito: dati non validi.");
             Gdx.app.error("LoadGameScreen", "Errore nel caricamento del salvataggio " + selectedFile, e);
         }
     }

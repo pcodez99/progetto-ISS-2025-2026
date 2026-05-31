@@ -1,9 +1,13 @@
 package io.github.iss_2025_2026.map;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LevelDefinition {
     private int id;
     private String name;
     private String map;
+    private List<CheckpointDefinition> checkpoints = new ArrayList<>();
 
     public LevelDefinition() {
     }
@@ -40,5 +44,13 @@ public class LevelDefinition {
 
     public String getMapPath() {
         return map;
+    }
+
+    public List<CheckpointDefinition> getCheckpoints() {
+        return checkpoints;
+    }
+
+    public void setCheckpoints(List<CheckpointDefinition> checkpoints) {
+        this.checkpoints = checkpoints != null ? checkpoints : new ArrayList<CheckpointDefinition>();
     }
 }

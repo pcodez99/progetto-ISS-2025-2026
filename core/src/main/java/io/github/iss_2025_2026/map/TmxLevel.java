@@ -42,6 +42,25 @@ public final class TmxLevel {
                 + "' must contain a visible object named '" + TmxMapContract.SPAWN_OBJECT_NAME + "'.");
     }
 
+    public Vector2 checkpointWorldPosition(CheckpointDefinition checkpoint) {
+        if (checkpoint == null) {
+            throw new IllegalArgumentException("La definizione del checkpoint non puo essere nulla.");
+        }
+
+        MapLayer checkpointLayer = requireLayer(checkpoint.getLayer());
+        for (MapObject object : checkpointLayer.getObjects()) {
+            if (!object.isVisible()) {
+                continue;
+            }
+            if (checkpoint.getObjectName().equals(object.getName())) {
+                return geometry.objectToWorld(object);
+            }
+        }
+
+        throw new IllegalStateException("TMX layer '" + checkpoint.getLayer()
+                + "' must contain a visible checkpoint object named '" + checkpoint.getObjectName() + "'.");
+    }
+
     public List<MapObject> physicsObjects() {
         List<MapObject> objects = new ArrayList<>();
         addPhysicsObjects(objects, TmxMapContract.LAYER_OBSTACLES, true);

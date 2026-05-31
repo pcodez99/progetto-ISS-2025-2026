@@ -27,6 +27,8 @@ public class MainMenuScreen implements Screen {
     private Skin skin;
     private Texture backgroundTexture;
     private final boolean isRunning;
+    private final GameModel gameModel;
+    private Label statusLabel;
 
     private final MainMenuModel menuModel;
     private final MainMenuController menuController;
@@ -38,6 +40,7 @@ public class MainMenuScreen implements Screen {
     public MainMenuScreen(Main game, GameModel model, GameController controller, boolean isRunning,
             Screen resumeScreen) {
         this.isRunning = isRunning;
+        this.gameModel = model;
         // Menu-specific MVC components
         this.menuModel = new MainMenuModel();
         this.menuController = new MainMenuController(game, model, controller, isRunning, resumeScreen);
@@ -89,6 +92,9 @@ public class MainMenuScreen implements Screen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     menuController.handleMenuAction(action);
+                    if (action == MainMenuModel.MenuAction.SAVE_GAME) {
+                        updateStatusLabel();
+                    }
                 }
             });
 
@@ -96,6 +102,13 @@ public class MainMenuScreen implements Screen {
         }
 
         shell.add(actions).left().row();
+
+        if (isRunning) {
+            statusLabel = new Label("", skin, GameUiTheme.LABEL_MUTED);
+            statusLabel.setWrap(true);
+            updateStatusLabel();
+            shell.add(statusLabel).width(520f).padTop(GameUiTheme.SPACE_2).row();
+        }
 
         Label footer = new Label("Un'interfaccia piu chiara per scegliere, configurare e combattere piu in fretta.",
                 skin, GameUiTheme.LABEL_MUTED);
@@ -111,6 +124,8 @@ public class MainMenuScreen implements Screen {
         switch (action) {
             case CONTINUE_GAME:
                 return "Continua a giocare";
+            case SAVE_GAME:
+                return "Salva partita";
             case NEW_GAME:
                 return "Nuova Partita";
             case LOAD_GAME:
@@ -123,6 +138,18 @@ public class MainMenuScreen implements Screen {
                 return "Esci";
             default:
                 return action.name().replace("_", " ");
+        }
+    }
+
+    private void updateStatusLabel() {
+        if (statusLabel == null || gameModel == null) {
+            return;
+        }
+        statusLabel.setText(gameModel.getMessage() != null ? gameModel.getMessage() : "");
+        if (gameModel.getMessage() != null && gameModel.getMessage().toLowerCase().contains("fallito")) {
+            statusLabel.setColor(GameUiTheme.DANGER);
+        } else {
+            statusLabel.setColor(GameUiTheme.SUCCESS);
         }
     }
 

@@ -15,6 +15,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -28,9 +29,11 @@ import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.physics.PhysicsFacade;
+import io.github.iss_2025_2026.service.CheckpointService;
 import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
+import io.github.iss_2025_2026.service.SaveResult;
 
 /**
  * Game View (Parte del pattern MVC).
@@ -45,14 +48,19 @@ public class LevelScreen implements Screen {
     private final LevelRuntime levelRuntime;
 
     private Stage stage;
+    private Stage uiStage;
     private Skin skin;
     private Table root;
+    private Table saveToast;
+    private Label saveStatusLabel;
+    private float saveStatusTimer;
     private TmxLevel level;
     private TiledMap map;
     private IsometricTiledMapRenderer mapRenderer;
     
     // Design Patterns delegation
     private PhysicsFacade physicsFacade;
+    private CheckpointService checkpointService;
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
     
@@ -100,6 +108,8 @@ public class LevelScreen implements Screen {
         }
 
         buildUI();
+        this.checkpointService = new CheckpointService(model, levelRuntime);
+        showInitialStatus();
 
         this.inputListener = new InputAdapter() {
             @Override
@@ -131,11 +141,20 @@ public class LevelScreen implements Screen {
 
     private void buildUI() {
         stage = new Stage(new ScreenViewport());
+        uiStage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
         root = new Table();
         root.setFillParent(true);
-        stage.addActor(root);
+        root.top().left();
+        uiStage.addActor(root);
+
+        saveToast = GameUiFactory.createStrongPanel(skin, GameUiTheme.SPACE_2);
+        saveToast.setVisible(false);
+        saveStatusLabel = new Label("", skin, GameUiTheme.LABEL_BODY);
+        saveStatusLabel.setWrap(true);
+        saveToast.add(saveStatusLabel).growX();
+        root.add(saveToast).left().top().pad(GameUiTheme.SPACE_3).width(420f);
 
         // Aggiungi Giocatore 1
         Player p1 = model.getPlayerOne();
@@ -267,6 +286,14 @@ public class LevelScreen implements Screen {
             physicsFacade.syncPlayerPositions();
         }
 
+        SaveResult checkpointSave = checkpointService != null
+                ? checkpointService.pollCheckpointReachedEvent()
+                : null;
+        if (checkpointSave != null && checkpointSave.shouldNotifyPlayer()) {
+            showSaveStatus(checkpointSave);
+        }
+        updateSaveStatus(delta);
+
         // Gestione della telecamera (Midpoint dei due giocatori in Multiplayer)
         if (p1 != null) {
             cam.zoom = cameraZoom;
@@ -307,11 +334,14 @@ public class LevelScreen implements Screen {
         
         stage.act(delta);
         stage.draw();
+        uiStage.act(delta);
+        uiStage.draw();
     }
 
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        uiStage.getViewport().update(width, height, true);
     }
 
     @Override
@@ -331,6 +361,7 @@ public class LevelScreen implements Screen {
     public void dispose() {
         RunMusicManager.stop();
         stage.dispose();
+        uiStage.dispose();
         skin.dispose();
 
         if (playerAssets != null) {
@@ -355,5 +386,39 @@ public class LevelScreen implements Screen {
             return (min + max) / 2f;
         }
         return Math.max(min, Math.min(max, value));
+    }
+
+    private void showInitialStatus() {
+        String message = model.getMessage();
+        if (message != null && !message.trim().isEmpty()
+                && !message.contains("MVC Base Architecture")) {
+            showSaveStatus(message, false);
+        }
+    }
+
+    private void showSaveStatus(SaveResult result) {
+        boolean error = result.getStatus() == SaveResult.Status.ERROR
+                || result.getStatus() == SaveResult.Status.INVALID;
+        showSaveStatus(result.getMessage(), error);
+    }
+
+    private void showSaveStatus(String message, boolean error) {
+        if (saveStatusLabel == null) {
+            return;
+        }
+        saveStatusLabel.setText(message != null ? message : "");
+        saveStatusLabel.setColor(error ? GameUiTheme.DANGER : GameUiTheme.SUCCESS);
+        saveToast.setVisible(true);
+        saveStatusTimer = 3f;
+    }
+
+    private void updateSaveStatus(float delta) {
+        if (saveToast == null || !saveToast.isVisible()) {
+            return;
+        }
+        saveStatusTimer -= delta;
+        if (saveStatusTimer <= 0f) {
+            saveToast.setVisible(false);
+        }
     }
 }

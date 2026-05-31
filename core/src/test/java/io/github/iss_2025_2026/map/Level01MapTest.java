@@ -50,10 +50,11 @@ public class Level01MapTest {
         for (int i = 0; i < images.getLength(); i++) {
             Element image = (Element) images.item(i);
             String source = image.getAttribute("source");
-            assertFalse(source.startsWith("Isometric/"), "TMX must not reference the old map/Isometric folder.");
-            assertFalse(source.startsWith("ship/"), "TMX must not reference the old map/ship folder.");
-            foundSharedTile = foundSharedTile || source.startsWith("../../shared/tiles/isometric/");
-            foundLevelAsset = foundLevelAsset || source.startsWith("assets/ship/");
+            String normalizedSource = source.startsWith("./") ? source.substring(2) : source;
+            assertFalse(normalizedSource.startsWith("Isometric/"), "TMX must not reference the old map/Isometric folder.");
+            assertFalse(normalizedSource.startsWith("ship/"), "TMX must not reference the old map/ship folder.");
+            foundSharedTile = foundSharedTile || normalizedSource.startsWith("../../shared/tiles/isometric/");
+            foundLevelAsset = foundLevelAsset || normalizedSource.startsWith("assets/ship/");
         }
 
         assertTrue(foundSharedTile, "Level 1 should reference shared isometric tiles.");
