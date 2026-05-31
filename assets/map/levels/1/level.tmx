@@ -1443,7 +1443,7 @@
   </object>
  </objectgroup>
  <objectgroup id="12" name="checkpoint">
-  <object id="93" x="4564" y="5228">
+  <object id="93" x="4564" y="5228" name="checkpoint">
    <polyline points="0,0 12,-4284"/>
   </object>
  </objectgroup>

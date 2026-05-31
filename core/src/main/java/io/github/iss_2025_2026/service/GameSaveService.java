@@ -51,12 +51,12 @@ public final class GameSaveService {
 
         int currentLevelId = model.getGameState().getCurrentLevelId();
         if (model.getGameState().isLastCheckpoint(checkpoint.getId(), currentLevelId)) {
-            return SaveResult.skipped("Checkpoint gia salvato.", SaveManager.toAutoSaveFileName(model.getGameName()));
+            return SaveResult.skipped("Checkpoint gia salvato.", resolveCurrentSaveFileName(model));
         }
 
         String previousCheckpointId = model.getGameState().getLastCheckpointId();
         int previousCheckpointLevelId = model.getGameState().getLastCheckpointLevelId();
-        String saveFileName = SaveManager.toAutoSaveFileName(model.getGameName());
+        String saveFileName = resolveCurrentSaveFileName(model);
 
         model.getGameState().setLastCheckpointId(checkpoint.getId());
         model.getGameState().setLastCheckpointLevelId(currentLevelId);
@@ -73,6 +73,14 @@ public final class GameSaveService {
             model.getGameState().setLastCheckpointLevelId(previousCheckpointLevelId);
             throw exception;
         }
+    }
+
+    private static String resolveCurrentSaveFileName(GameModel model) {
+        String currentSaveFileName = model.getCurrentSaveFileName();
+        if (currentSaveFileName != null && !currentSaveFileName.trim().isEmpty()) {
+            return SaveManager.toSaveFileName(currentSaveFileName);
+        }
+        return SaveManager.toSaveFileName(model.getGameName());
     }
 
     public static void loadGameIntoModel(GameModel model, String fileName) throws IOException {

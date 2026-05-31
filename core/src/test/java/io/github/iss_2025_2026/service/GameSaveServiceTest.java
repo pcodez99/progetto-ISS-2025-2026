@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 class GameSaveServiceTest {
     private static final String SAVE_DIRECTORY = "saves";
     private static final String TEST_GAME_NAME = "service_test_save";
+    private static final String LOADED_SAVE_NAME = "service_loaded_slot";
 
     @BeforeAll
     static void initGdx() {
@@ -41,6 +42,8 @@ class GameSaveServiceTest {
     void tearDown() {
         deleteIfExists(SaveManager.toSaveFileName(TEST_GAME_NAME));
         deleteIfExists(SaveManager.toAutoSaveFileName(TEST_GAME_NAME));
+        deleteIfExists(SaveManager.toSaveFileName(LOADED_SAVE_NAME));
+        deleteIfExists(SaveManager.toAutoSaveFileName(LOADED_SAVE_NAME));
     }
 
     @Test
@@ -68,18 +71,22 @@ class GameSaveServiceTest {
 
         SaveResult firstSave = GameSaveService.saveAutoAtCheckpoint(model, checkpoint);
         SaveResult secondSave = GameSaveService.saveAutoAtCheckpoint(model, checkpoint);
-        GameState savedState = SaveManager.loadGame(SaveManager.toAutoSaveFileName(TEST_GAME_NAME));
+        GameState savedState = SaveManager.loadGame(TEST_GAME_NAME);
 
         assertTrue(firstSave.isSuccess());
         assertEquals("Checkpoint raggiunto - partita salvata.", firstSave.getMessage());
         assertEquals(SaveResult.Status.SKIPPED, secondSave.getStatus());
+        assertEquals(SaveManager.toSaveFileName(TEST_GAME_NAME), firstSave.getFileName());
+        assertEquals(SaveManager.toSaveFileName(TEST_GAME_NAME), secondSave.getFileName());
         assertEquals(GameState.SaveType.AUTO, savedState.getSaveType());
         assertEquals("campagna_cp_1", savedState.getLastCheckpointId());
+        assertEquals(0, countAutosaveFilesForTestGame());
     }
 
     @Test
     void autosaveOverwritesSameFileWhenCheckpointChanges() throws IOException {
         GameModel model = runningModel();
+        model.setCurrentSaveFileName(SaveManager.toSaveFileName(TEST_GAME_NAME));
         CheckpointDefinition firstCheckpoint = new CheckpointDefinition(
                 "campagna_cp_1", "checkpoint", "checkpoint", 96f, true);
         CheckpointDefinition secondCheckpoint = new CheckpointDefinition(
@@ -88,12 +95,33 @@ class GameSaveServiceTest {
         SaveResult firstSave = GameSaveService.saveAutoAtCheckpoint(model, firstCheckpoint);
         model.getPlayerOne().takeDamage(30);
         SaveResult secondSave = GameSaveService.saveAutoAtCheckpoint(model, secondCheckpoint);
-        GameState savedState = SaveManager.loadGame(SaveManager.toAutoSaveFileName(TEST_GAME_NAME));
+        GameState savedState = SaveManager.loadGame(TEST_GAME_NAME);
 
         assertEquals(firstSave.getFileName(), secondSave.getFileName());
-        assertEquals(1, countAutosaveFilesForTestGame());
+        assertEquals(SaveManager.toSaveFileName(TEST_GAME_NAME), secondSave.getFileName());
+        assertEquals(0, countAutosaveFilesForTestGame());
         assertEquals("campagna_cp_2", savedState.getLastCheckpointId());
         assertEquals(70, savedState.getPlayerOne().getHp());
+    }
+
+    @Test
+    void autosaveOverwritesLoadedSaveFileInsteadOfCreatingAutosaveFile() throws IOException {
+        GameModel original = runningModel();
+        SaveManager.saveGame(GameSaveService.toGameState(original), LOADED_SAVE_NAME);
+
+        GameModel loaded = new GameModel();
+        GameSaveService.loadGameIntoModel(loaded, LOADED_SAVE_NAME);
+        loaded.getPlayerOne().takeDamage(35);
+
+        SaveResult result = GameSaveService.saveAutoAtCheckpoint(
+                loaded,
+                new CheckpointDefinition("campagna_cp_1", "checkpoint", "checkpoint", 96f, true));
+
+        GameState overwrittenState = SaveManager.loadGame(LOADED_SAVE_NAME);
+        assertEquals(SaveManager.toSaveFileName(LOADED_SAVE_NAME), result.getFileName());
+        assertEquals(65, overwrittenState.getPlayerOne().getHp());
+        assertEquals("campagna_cp_1", overwrittenState.getLastCheckpointId());
+        assertEquals(0, countAutosaveFilesForLoadedSave());
     }
 
     @Test
@@ -148,6 +176,14 @@ class GameSaveServiceTest {
         File saveDirectory = new File(SAVE_DIRECTORY);
         File[] files = saveDirectory.listFiles((dir, name) ->
                 name.startsWith(TEST_GAME_NAME + "_autosave")
+                        && name.endsWith(".json"));
+        return files != null ? files.length : 0;
+    }
+
+    private int countAutosaveFilesForLoadedSave() {
+        File saveDirectory = new File(SAVE_DIRECTORY);
+        File[] files = saveDirectory.listFiles((dir, name) ->
+                name.startsWith(LOADED_SAVE_NAME + "_autosave")
                         && name.endsWith(".json"));
         return files != null ? files.length : 0;
     }

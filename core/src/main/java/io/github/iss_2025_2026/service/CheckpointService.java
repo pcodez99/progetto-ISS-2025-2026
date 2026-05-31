@@ -17,13 +17,11 @@ public final class CheckpointService {
     private final LevelRuntime levelRuntime;
     private final Map<String, Vector2> checkpointPositions = new HashMap<>();
     private final float playerSize;
-    private final float playerYOffset;
 
     public CheckpointService(GameModel model, LevelRuntime levelRuntime) {
         this.model = model;
         this.levelRuntime = levelRuntime;
         this.playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
-        this.playerYOffset = playerSize * 0.48f;
     }
 
     public SaveResult pollCheckpointReachedEvent() {
@@ -60,8 +58,8 @@ public final class CheckpointService {
 
     private boolean isReached(CheckpointDefinition checkpoint) {
         Vector2 checkpointPosition = checkpointPosition(checkpoint);
-        return isPlayerInside(model.getPlayerOne(), checkpointPosition, checkpoint.getRadius())
-                || isPlayerInside(model.getPlayerTwo(), checkpointPosition, checkpoint.getRadius());
+        return hasReachedCheckpointLine(model.getPlayerOne(), checkpointPosition.x, playerSize)
+                || hasReachedCheckpointLine(model.getPlayerTwo(), checkpointPosition.x, playerSize);
     }
 
     private Vector2 checkpointPosition(CheckpointDefinition checkpoint) {
@@ -73,15 +71,12 @@ public final class CheckpointService {
         return position;
     }
 
-    private boolean isPlayerInside(Player player, Vector2 checkpointPosition, float radius) {
-        if (player == null || checkpointPosition == null) {
+    static boolean hasReachedCheckpointLine(Player player, float checkpointX, float playerSize) {
+        if (player == null) {
             return false;
         }
 
-        float playerFootX = player.getX() + playerSize / 2f;
-        float playerFootY = player.getY() + playerYOffset;
-        float dx = playerFootX - checkpointPosition.x;
-        float dy = playerFootY - checkpointPosition.y;
-        return dx * dx + dy * dy <= radius * radius;
+        float playerCenterX = player.getX() + playerSize / 2f;
+        return playerCenterX >= checkpointX;
     }
 }

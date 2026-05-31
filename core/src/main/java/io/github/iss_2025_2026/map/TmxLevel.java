@@ -48,6 +48,7 @@ public final class TmxLevel {
         }
 
         MapLayer checkpointLayer = requireLayer(checkpoint.getLayer());
+        MapObject firstVisibleCheckpointLine = null;
         for (MapObject object : checkpointLayer.getObjects()) {
             if (!object.isVisible()) {
                 continue;
@@ -55,10 +56,17 @@ public final class TmxLevel {
             if (checkpoint.getObjectName().equals(object.getName())) {
                 return geometry.objectToWorld(object);
             }
+            if (firstVisibleCheckpointLine == null) {
+                firstVisibleCheckpointLine = object;
+            }
+        }
+
+        if (firstVisibleCheckpointLine != null) {
+            return geometry.objectToWorld(firstVisibleCheckpointLine);
         }
 
         throw new IllegalStateException("TMX layer '" + checkpoint.getLayer()
-                + "' must contain a visible checkpoint object named '" + checkpoint.getObjectName() + "'.");
+                + "' must contain a visible checkpoint line.");
     }
 
     public List<MapObject> physicsObjects() {
