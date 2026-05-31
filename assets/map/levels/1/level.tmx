@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="120" height="50" tilewidth="256" tileheight="128" infinite="0" nextlayerid="17" nextobjectid="93">
+<map version="1.10" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="120" height="50" tilewidth="256" tileheight="128" infinite="0" nextlayerid="17" nextobjectid="94">
  <tileset firstgid="1" name="terreno" tilewidth="256" tileheight="512" tilecount="22" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
@@ -740,74 +740,74 @@
  <tileset firstgid="241" name="strada" tilewidth="384" tileheight="384" tilecount="1" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
-   <image source="./assets/ship/Floor_Rocky_01-128x64.png" width="384" height="384"/>
+   <image source="assets/ship/Floor_Rocky_01-128x64.png" width="384" height="384"/>
   </tile>
  </tileset>
  <tileset firstgid="242" name="alien" tilewidth="1166" tileheight="896" tilecount="6" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
-   <image source="./assets/ship/AlienShipPiece.png" width="302" height="231"/>
+   <image source="assets/ship/AlienShipPiece.png" width="302" height="231"/>
   </tile>
   <tile id="1">
-   <image source="./assets/ship/BigCorn.png" width="336" height="365"/>
+   <image source="assets/ship/BigCorn.png" width="336" height="365"/>
   </tile>
   <tile id="2">
-   <image source="./assets/ship/Corn.png" width="421" height="339"/>
+   <image source="assets/ship/Corn.png" width="421" height="339"/>
   </tile>
   <tile id="3">
-   <image source="./assets/ship/Fence.png" width="288" height="262"/>
+   <image source="assets/ship/Fence.png" width="288" height="262"/>
   </tile>
   <tile id="10">
-   <image source="./assets/ship/ToxicLake.png" width="330" height="202"/>
+   <image source="assets/ship/ToxicLake.png" width="330" height="202"/>
   </tile>
   <tile id="12">
-   <image source="./assets/ship/nave.png" width="1166" height="896"/>
+   <image source="assets/ship/nave.png" width="1166" height="896"/>
   </tile>
  </tileset>
  <tileset firstgid="255" name="TileBruciata" tilewidth="290" tileheight="145" tilecount="1" columns="1">
   <tileoffset x="-10" y="10"/>
-  <image source="./assets/ship/TileBruciata.png" width="290" height="145"/>
+  <image source="assets/ship/TileBruciata.png" width="290" height="145"/>
  </tileset>
  <tileset firstgid="256" name="piante_terreno" tilewidth="718" tileheight="512" tilecount="11" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
-   <image source="./assets/ship/Crop Field A.png" width="648" height="512"/>
+   <image source="assets/ship/Crop Field A.png" width="648" height="512"/>
   </tile>
   <tile id="1">
-   <image source="./assets/ship/Crop Field C.png" width="500" height="297"/>
+   <image source="assets/ship/Crop Field C.png" width="500" height="297"/>
   </tile>
   <tile id="2">
-   <image source="./assets/ship/Grass Patch Large B - brown.png" width="718" height="359"/>
+   <image source="assets/ship/Grass Patch Large B - brown.png" width="718" height="359"/>
   </tile>
   <tile id="3">
-   <image source="./assets/ship/Grass Patch Medium A - brown.png" width="508" height="261"/>
+   <image source="assets/ship/Grass Patch Medium A - brown.png" width="508" height="261"/>
   </tile>
   <tile id="4">
-   <image source="./assets/ship/Grass Patch Small A - brown.png" width="452" height="215"/>
+   <image source="assets/ship/Grass Patch Small A - brown.png" width="452" height="215"/>
   </tile>
   <tile id="5">
-   <image source="./assets/ship/Sand Patch Large B - dark.png" width="701" height="323"/>
+   <image source="assets/ship/Sand Patch Large B - dark.png" width="701" height="323"/>
   </tile>
   <tile id="6">
-   <image source="./assets/ship/Sand Patch Large B - light.png" width="701" height="323"/>
+   <image source="assets/ship/Sand Patch Large B - light.png" width="701" height="323"/>
   </tile>
   <tile id="7">
-   <image source="./assets/ship/Sandy Waterway 1 - corner east.png" width="568" height="364"/>
+   <image source="assets/ship/Sandy Waterway 1 - corner east.png" width="568" height="364"/>
   </tile>
   <tile id="8">
-   <image source="./assets/ship/Sandy Waterway 1 - corner north.png" width="607" height="326"/>
+   <image source="assets/ship/Sandy Waterway 1 - corner north.png" width="607" height="326"/>
   </tile>
   <tile id="9">
-   <image source="./assets/ship/Sandy Waterway 1 - corner south.png" width="580" height="330"/>
+   <image source="assets/ship/Sandy Waterway 1 - corner south.png" width="580" height="330"/>
   </tile>
   <tile id="10">
-   <image source="./assets/ship/Sandy Waterway 1 - corner west.png" width="558" height="349"/>
+   <image source="assets/ship/Sandy Waterway 1 - corner west.png" width="558" height="349"/>
   </tile>
  </tileset>
  <tileset firstgid="267" name="MillenniumFalconVersoWest" tilewidth="840" tileheight="859" tilecount="1" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
-   <image source="./assets/ship/MillenniumFalconVersoWest.png" width="840" height="859"/>
+   <image source="assets/ship/MillenniumFalconVersoWest.png" width="840" height="859"/>
   </tile>
  </tileset>
  <layer id="1" name="terreno" width="120" height="50">
@@ -1365,7 +1365,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -1443,8 +1443,8 @@
   </object>
  </objectgroup>
  <objectgroup id="12" name="checkpoint">
-  <object id="68" name="checkpoint" x="4630" y="3306">
-   <point/>
+  <object id="93" x="4564" y="5228">
+   <polyline points="0,0 12,-4284"/>
   </object>
  </objectgroup>
  <objectgroup id="14" name="Object">
