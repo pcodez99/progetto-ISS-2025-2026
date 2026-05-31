@@ -36,7 +36,6 @@ public class Level01MapTest {
         assertTrue(Integer.parseInt(map.getAttribute("width")) > 0);
         assertTrue(Integer.parseInt(map.getAttribute("height")) > 0);
         assertNotNull(layer(document, "terreno"));
-        assertNotNull(layer(document, "oggetti"));
         assertNotNull(objectGroup(document, TmxMapContract.LAYER_SPAWN));
         assertNotNull(objectGroup(document, TmxMapContract.LAYER_OBSTACLES));
     }
@@ -90,8 +89,7 @@ public class Level01MapTest {
     public void validatorReportsMissingMapsWithClearStartupMessage(@TempDir Path tempDir) throws Exception {
         Path mapDirectory = tempDir.resolve("map");
         Files.createDirectories(mapDirectory);
-        Files.write(mapDirectory.resolve("levels.yaml"), (
-                "levels:\n" +
+        Files.write(mapDirectory.resolve("levels.yaml"), ("levels:\n" +
                 "  - id: 1\n" +
                 "    name: Missing One\n" +
                 "    map: map/levels/1/level.tmx\n" +
@@ -131,18 +129,16 @@ public class Level01MapTest {
         Path mapDirectory = tempDir.resolve("map");
         Path levelDirectory = mapDirectory.resolve("levels/1");
         Files.createDirectories(levelDirectory);
-        Files.write(mapDirectory.resolve("levels.yaml"), (
-                "levels:\n" +
+        Files.write(mapDirectory.resolve("levels.yaml"), ("levels:\n" +
                 "  - id: 1\n" +
                 "    name: Dev One\n" +
                 "    map: map/levels/1/level.tmx\n").getBytes(StandardCharsets.UTF_8));
-        Files.write(levelDirectory.resolve("level.tmx"), (
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        Files.write(levelDirectory.resolve("level.tmx"), ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<map orientation=\"isometric\" width=\"1\" height=\"1\" tilewidth=\"256\" tileheight=\"128\">\n" +
                 "  <layer name=\"terreno\" width=\"1\" height=\"1\"><data encoding=\"csv\">0</data></layer>\n" +
-                "  <layer name=\"oggetti\" width=\"1\" height=\"1\"><data encoding=\"csv\">0</data></layer>\n" +
                 "  <objectgroup name=\"Ostacoli\"/>\n" +
-                "  <objectgroup name=\"Spawn\"><object name=\"Spawn\" x=\"0\" y=\"0\"><point/></object></objectgroup>\n" +
+                "  <objectgroup name=\"Spawn\"><object name=\"Spawn\" x=\"0\" y=\"0\"><point/></object></objectgroup>\n"
+                +
                 "</map>\n").getBytes(StandardCharsets.UTF_8));
     }
 

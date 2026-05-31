@@ -87,9 +87,6 @@ public class LevelAssetValidator {
         if (!hasLayer(document, "terreno")) {
             errors.add(label + ": layer tile obbligatorio mancante: terreno.");
         }
-        if (!hasLayer(document, "oggetti")) {
-            errors.add(label + ": layer tile obbligatorio mancante: oggetti.");
-        }
         if (!hasObjectGroup(document, TmxMapContract.LAYER_OBSTACLES)) {
             errors.add(label + ": object layer obbligatorio mancante: " + TmxMapContract.LAYER_OBSTACLES + ".");
         }
