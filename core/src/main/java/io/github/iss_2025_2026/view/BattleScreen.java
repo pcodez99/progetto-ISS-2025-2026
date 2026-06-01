@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.BattleController;
+import io.github.iss_2025_2026.controller.GameContext;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.GameModel;
@@ -28,6 +29,7 @@ import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.model.combat.BattlePhase;
 import io.github.iss_2025_2026.service.EnemyEncounter;
 import io.github.iss_2025_2026.service.EnemyEncounterService;
+import io.github.iss_2025_2026.service.GameOverService;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import java.util.List;
 
@@ -36,6 +38,7 @@ import java.util.List;
  */
 public class BattleScreen implements Screen {
     private final Main game;
+    private final GameContext gameContext;
     private final GameModel gameModel;
     private final LevelScreen returnScreen;
     private final BattleModel battleModel;
@@ -58,9 +61,11 @@ public class BattleScreen implements Screen {
     private BattleController.MenuState lastRenderedMenuState;
     private final InputAdapter inputListener;
 
-    public BattleScreen(Main game, GameModel gameModel, LevelScreen returnScreen, BattleModel battleModel,
-            BattleController battleController, EnemyEncounter encounter, EnemyEncounterService encounterService) {
+    public BattleScreen(Main game, GameContext gameContext, GameModel gameModel, LevelScreen returnScreen,
+            BattleModel battleModel, BattleController battleController, EnemyEncounter encounter,
+            EnemyEncounterService encounterService) {
         this.game = game;
+        this.gameContext = gameContext;
         this.gameModel = gameModel;
         this.returnScreen = returnScreen;
         this.battleModel = battleModel;
@@ -342,16 +347,31 @@ public class BattleScreen implements Screen {
                 encounterService.removeEncounter(encounter);
             }
         }
-        gameModel.setActiveBattleModel(null);
-        gameModel.getGameState().setPhase(GameState.Phase.PLAYING);
         if (victory) {
+            gameModel.setActiveBattleModel(null);
+            gameModel.getGameState().setPhase(GameState.Phase.PLAYING);
             gameModel.setMessage("Vittoria! +" + battleModel.getTotalXpEarned() + " XP");
-        } else if (battleModel.getPhase() == BattlePhase.FLED) {
+            game.setScreen(returnScreen);
+            return;
+        }
+
+        if (battleModel.getPhase() == BattlePhase.FLED) {
+            gameModel.setActiveBattleModel(null);
+            gameModel.getGameState().setPhase(GameState.Phase.PLAYING);
             gameModel.setMessage("Sei fuggito dalla battaglia.");
             returnScreen.startEncounterCooldown(3f);
-        } else if (battleModel.isDefeat()) {
-            gameModel.setMessage("Sconfitta... entrambi i giocatori sono caduti.");
+            game.setScreen(returnScreen);
+            return;
         }
+
+        if (battleModel.isDefeat()) {
+            new GameOverService().enterGameOver(gameModel);
+            game.setScreen(new GameOverScreen(game, gameContext));
+            return;
+        }
+
+        gameModel.setActiveBattleModel(null);
+        gameModel.getGameState().setPhase(GameState.Phase.PLAYING);
         game.setScreen(returnScreen);
     }
 

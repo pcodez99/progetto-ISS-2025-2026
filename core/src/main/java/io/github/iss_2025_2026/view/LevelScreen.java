@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.BattleController;
+import io.github.iss_2025_2026.controller.GameContext;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.CharacterFactory;
 import io.github.iss_2025_2026.factory.YamlCharacterFactory;
@@ -52,6 +53,7 @@ public class LevelScreen implements Screen {
     private static final float ENCOUNTER_RADIUS = 80f;
 
     private final Main game;
+    private final GameContext gameContext;
     private final GameModel model;
     private final GameController controller;
     private final InputAdapter inputListener;
@@ -90,8 +92,10 @@ public class LevelScreen implements Screen {
     private final float cameraZoom;
     private boolean drawObstacleDebug;
 
-    public LevelScreen(Main game, GameModel model, GameController controller, LevelRuntime levelRuntime) {
+    public LevelScreen(Main game, GameContext gameContext, GameModel model, GameController controller,
+            LevelRuntime levelRuntime) {
         this.game = game;
+        this.gameContext = gameContext;
         this.model = model;
         this.controller = controller;
         this.levelRuntime = levelRuntime;
@@ -426,7 +430,8 @@ public class LevelScreen implements Screen {
         BattleController battleController = new BattleController(battleModel);
         model.setActiveBattleModel(battleModel);
         model.getGameState().setPhase(GameState.Phase.COMBAT);
-        game.setScreen(new BattleScreen(game, model, this, battleModel, battleController, encounter, encounterService));
+        game.setScreen(new BattleScreen(game, gameContext, model, this, battleModel, battleController, encounter,
+                encounterService));
     }
 
     private float clamp(float value, float min, float max) {

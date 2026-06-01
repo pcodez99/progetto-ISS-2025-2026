@@ -2,6 +2,7 @@ package io.github.iss_2025_2026.controller;
 
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.model.GameModel;
+import io.github.iss_2025_2026.service.GameOverService;
 
 /**
  * Persistent MVC runtime context.
@@ -16,8 +17,15 @@ public final class GameContext {
     public GameContext(Main game) {
         this.model = new GameModel();
         this.gameController = new GameController(model);
-        this.sceneController = new SceneController(game, model, gameController);
+        this.sceneController = new SceneController(this, game, model, gameController);
         this.flowController = new GameFlowController(model.getGameState(), sceneController);
+    }
+
+    public GameOverController createGameOverController() {
+        return new GameOverController(
+                model,
+                new GameOverService(),
+                flowController::startCurrentLevel);
     }
 
     public GameModel getModel() {
