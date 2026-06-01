@@ -11,6 +11,7 @@ import io.github.iss_2025_2026.model.abilities.DataDrivenAbility;
 import io.github.iss_2025_2026.model.Character;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -315,6 +316,109 @@ public class BattleModelTest {
         // Solo playerOne può essere stato attaccato
         assertTrue(playerOne.getHp() < hp1Before,
             "Con playerTwo a 0 HP, il nemico deve attaccare solo playerOne");
+    }
+
+    @Test
+    public void testDeadPlayerCannotAttack() {
+        playerOne.takeDamage(playerOne.getHp());
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+        int enemyHpBefore = enemyOne.getHp();
+
+        model.executePlayerAttack(playerOne, enemyOne);
+
+        assertEquals(enemyHpBefore, enemyOne.getHp());
+        assertFalse(model.canCurrentTurnPlayerAct());
+        assertTrue(model.getBattleLog().stream().noneMatch(msg -> msg.contains("attacca")));
+    }
+
+    @Test
+    public void testDeadPlayerCannotUseSpecialAbility() {
+        playerOne.takeDamage(playerOne.getHp());
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+        int enemyHpBefore = enemyOne.getHp();
+
+        model.executePlayerSpecialAbility(playerOne);
+
+        assertEquals(enemyHpBefore, enemyOne.getHp());
+    }
+
+    @Test
+    public void testSkipDeadPlayerOneTurnAtBattleStart() {
+        playerOne.takeDamage(playerOne.getHp());
+        BattleModel model = new BattleModel(playerOne, playerTwo, Arrays.asList(enemyOne));
+
+        assertEquals(BattlePhase.PLAYER_TWO_TURN, model.getPhase());
+        assertTrue(model.canCurrentTurnPlayerAct());
+    }
+
+    @Test
+    public void testAfterEnemyTurnSkipsDeadPlayerOneTurn() {
+        playerOne.takeDamage(playerOne.getHp());
+        BattleModel model = new BattleModel(playerOne, playerTwo, Arrays.asList(enemyOne));
+
+        model.executePlayerAttack(playerTwo, enemyOne);
+        assertEquals(BattlePhase.ENEMY_TURN, model.getPhase());
+
+        model.executeEnemyTurn();
+
+        assertEquals(BattlePhase.PLAYER_TWO_TURN, model.getPhase());
+        assertTrue(model.canCurrentTurnPlayerAct());
+    }
+
+    @Test
+    public void testDeadEnemyDoesNotAttack() {
+        enemyOne.takeDamage(enemyOne.getHp());
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne, enemyTwo));
+
+        model.executePlayerAttack(playerOne, enemyTwo);
+        model.executeEnemyTurn();
+
+        long attacksFromDeadEnemy = model.getBattleLog().stream()
+                .filter(msg -> msg.contains(enemyOne.getName()) && msg.contains("attacca"))
+                .count();
+
+        assertEquals(0, attacksFromDeadEnemy);
+    }
+
+    @Test
+    public void testDeadPlayerCannotAttackDeadEnemy() {
+        enemyOne.takeDamage(enemyOne.getHp());
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+
+        model.executePlayerAttack(playerOne, enemyOne);
+
+        assertTrue(model.getBattleLog().isEmpty());
+    }
+
+    @Test
+    public void testSecondEnemyDoesNotAttackPlayerKilledEarlierInSameTurn() {
+        playerTwo.takeDamage(79); // Mamma resta con 1 HP
+        Enemy strongEnemyOne = new Enemy("Alieno 1", "alieno_base", 45, 10, 15, false);
+        Enemy strongEnemyTwo = new Enemy("Alieno 2", "alieno_base", 45, 10, 15, false);
+
+        Random alwaysTargetPlayerTwo = new Random() {
+            @Override
+            public int nextInt(int bound) {
+                return bound > 1 ? 1 : 0;
+            }
+        };
+
+        BattleModel model = new BattleModel(
+                playerOne, playerTwo, Arrays.asList(strongEnemyOne, strongEnemyTwo), alwaysTargetPlayerTwo);
+
+        model.executePlayerAttack(playerOne, strongEnemyOne);
+        model.executePlayerAttack(playerTwo, strongEnemyOne);
+        assertEquals(BattlePhase.ENEMY_TURN, model.getPhase());
+
+        model.executeEnemyTurn();
+
+        long attacksOnMamma = model.getBattleLog().stream()
+                .filter(msg -> msg.contains("attacca Mamma"))
+                .count();
+
+        assertEquals(0, playerTwo.getHp());
+        assertEquals(1, attacksOnMamma,
+                "Il secondo nemico non deve attaccare Mamma se e gia stata eliminata dal primo");
     }
 
     @Test

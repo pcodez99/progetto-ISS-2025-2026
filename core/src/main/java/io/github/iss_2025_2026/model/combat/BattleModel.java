@@ -28,6 +28,10 @@ public class BattleModel {
     private final Random random;
 
     public BattleModel(Player playerOne, Player playerTwo, List<Enemy> enemies) {
+        this(playerOne, playerTwo, enemies, new Random());
+    }
+
+    public BattleModel(Player playerOne, Player playerTwo, List<Enemy> enemies, Random random) {
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.enemies = new ArrayList<>(enemies);
@@ -35,7 +39,16 @@ public class BattleModel {
         this.fleeTimer = INITIAL_FLEE_TIMER;
         this.totalXpEarned = 0;
         this.battleLog = new ArrayList<>();
-        this.random = new Random();
+        this.random = random != null ? random : new Random();
+        skipDeadPlayerTurns();
+    }
+
+    public boolean canCurrentTurnPlayerAct() {
+        if (phase != BattlePhase.PLAYER_ONE_TURN && phase != BattlePhase.PLAYER_TWO_TURN) {
+            return false;
+        }
+        Player current = getCurrentTurnPlayer();
+        return current != null && current.isAlive();
     }
 
     public BattlePhase getPhase() {
@@ -58,7 +71,7 @@ public class BattleModel {
     }
 
     public void executePlayerAttack(Player attacker, Enemy target) {
-        if (attacker == null || target == null || !target.isAlive()) {
+        if (attacker == null || !attacker.isAlive() || target == null || !target.isAlive()) {
             return;
         }
 
@@ -70,7 +83,7 @@ public class BattleModel {
     }
 
     public void executePlayerSpecialAbility(Player attacker) {
-        if (attacker == null) {
+        if (attacker == null || !attacker.isAlive()) {
             return;
         }
 
@@ -99,7 +112,7 @@ public class BattleModel {
     }
 
     public void executeUseItem(Player user, Collectible item, Enemy target) {
-        if (user == null || item == null) {
+        if (user == null || !user.isAlive() || item == null) {
             return;
         }
 
@@ -116,13 +129,17 @@ public class BattleModel {
             return;
         }
 
-        List<Player> alivePlayers = getAlivePlayers();
-        if (alivePlayers.isEmpty()) {
+        if (getAlivePlayers().isEmpty()) {
             updateEndState();
             return;
         }
 
         for (Enemy enemy : getAliveEnemies()) {
+            List<Player> alivePlayers = getAlivePlayers();
+            if (alivePlayers.isEmpty()) {
+                break;
+            }
+
             Player target = alivePlayers.get(random.nextInt(alivePlayers.size()));
             int damage = enemy.getBaseDamage();
             target.takeDamage(damage);
@@ -133,7 +150,31 @@ public class BattleModel {
             return;
         }
 
-        phase = BattlePhase.PLAYER_ONE_TURN;
+        advanceToNextAlivePlayerTurn();
+    }
+
+    /**
+     * Salta i turni dei giocatori a 0 HP e passa al prossimo giocatore vivo o al turno nemico.
+     */
+    public void skipDeadPlayerTurns() {
+        if (phase != BattlePhase.PLAYER_ONE_TURN && phase != BattlePhase.PLAYER_TWO_TURN) {
+            return;
+        }
+        if (updateEndState()) {
+            return;
+        }
+
+        if (phase == BattlePhase.PLAYER_ONE_TURN && !playerOne.isAlive()) {
+            if (playerTwo != null && playerTwo.isAlive()) {
+                phase = BattlePhase.PLAYER_TWO_TURN;
+            } else {
+                phase = BattlePhase.ENEMY_TURN;
+            }
+        }
+
+        if (phase == BattlePhase.PLAYER_TWO_TURN && (playerTwo == null || !playerTwo.isAlive())) {
+            phase = BattlePhase.ENEMY_TURN;
+        }
     }
 
     public boolean tryFlee() {
@@ -220,6 +261,9 @@ public class BattleModel {
     }
 
     private void resolveAfterPlayerAction(Player actingPlayer) {
+        if (actingPlayer == null || !actingPlayer.isAlive()) {
+            return;
+        }
         if (updateEndState()) {
             return;
         }
@@ -229,6 +273,18 @@ public class BattleModel {
         } else {
             phase = BattlePhase.ENEMY_TURN;
         }
+    }
+
+    private void advanceToNextAlivePlayerTurn() {
+        if (playerOne.isAlive()) {
+            phase = BattlePhase.PLAYER_ONE_TURN;
+            return;
+        }
+        if (playerTwo != null && playerTwo.isAlive()) {
+            phase = BattlePhase.PLAYER_TWO_TURN;
+            return;
+        }
+        phase = BattlePhase.ENEMY_TURN;
     }
 
     private boolean updateEndState() {

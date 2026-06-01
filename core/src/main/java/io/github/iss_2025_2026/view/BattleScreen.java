@@ -297,8 +297,7 @@ public class BattleScreen implements Screen {
     }
 
     private boolean isPlayerTurn() {
-        BattlePhase phase = battleModel.getPhase();
-        return phase == BattlePhase.PLAYER_ONE_TURN || phase == BattlePhase.PLAYER_TWO_TURN;
+        return battleModel.canCurrentTurnPlayerAct();
     }
 
     private void afterPlayerAction() {

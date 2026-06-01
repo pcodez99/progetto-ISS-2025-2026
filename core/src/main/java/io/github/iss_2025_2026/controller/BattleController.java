@@ -34,7 +34,14 @@ public class BattleController {
         return menuState;
     }
 
+    public boolean canCurrentPlayerAct() {
+        return model.canCurrentTurnPlayerAct();
+    }
+
     public void onAttackSelected() {
+        if (!canCurrentPlayerAct()) {
+            return;
+        }
         selectingSpecialTarget = false;
         menuState = MenuState.TARGET_SELECTION;
     }
@@ -50,6 +57,9 @@ public class BattleController {
     }
 
     public void onTargetSelected(Enemy target) {
+        if (!canCurrentPlayerAct()) {
+            return;
+        }
         Player currentPlayer = model.getCurrentTurnPlayer();
         model.executePlayerAttack(currentPlayer, target);
         menuState = MenuState.MAIN_MENU;
@@ -57,6 +67,9 @@ public class BattleController {
     }
 
     public void onSpecialAbilitySelected() {
+        if (!canCurrentPlayerAct()) {
+            return;
+        }
         Player currentPlayer = model.getCurrentTurnPlayer();
         model.executePlayerSpecialAbility(currentPlayer);
         menuState = MenuState.MAIN_MENU;
@@ -64,10 +77,16 @@ public class BattleController {
     }
 
     public void onInventorySelected() {
+        if (!canCurrentPlayerAct()) {
+            return;
+        }
         menuState = MenuState.INVENTORY_SELECTION;
     }
 
     public void onItemSelected(Collectible item, Enemy target) {
+        if (!canCurrentPlayerAct()) {
+            return;
+        }
         Player currentPlayer = model.getCurrentTurnPlayer();
         model.executeUseItem(currentPlayer, item, target);
         menuState = MenuState.MAIN_MENU;
@@ -79,6 +98,7 @@ public class BattleController {
 
     public void update(float delta) {
         model.updateFleeTimer(delta);
+        model.skipDeadPlayerTurns();
 
         if (model.getPhase() == BattlePhase.ENEMY_TURN) {
             model.executeEnemyTurn();
