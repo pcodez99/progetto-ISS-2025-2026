@@ -69,6 +69,10 @@ public final class SaveManager {
         return normalized;
     }
 
+    public static String toAutoSaveFileName(String rawName) {
+        return stripJsonExtension(toSaveFileName(rawName)) + "_autosave" + JSON_EXTENSION;
+    }
+
     public static String stripJsonExtension(String fileName) {
         if (fileName == null) {
             return "";

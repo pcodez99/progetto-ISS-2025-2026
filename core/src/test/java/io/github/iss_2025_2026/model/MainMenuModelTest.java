@@ -25,10 +25,11 @@ public class MainMenuModelTest {
         MainMenuModel model = new MainMenuModel();
         // Get available actions when game is running (pause menu)
         MainMenuModel.MenuAction[] actions = model.getAvailableActions(true);
-        // Verify that there are exactly 3 options and in the correct order
-        assertEquals(3, actions.length, "The pause menu must have exactly 3 options");
+        // Verify that there are exactly 4 options and in the correct order
+        assertEquals(4, actions.length, "The pause menu must have exactly 4 options");
         assertEquals(MainMenuModel.MenuAction.CONTINUE_GAME, actions[0]);
-        assertEquals(MainMenuModel.MenuAction.SETTINGS, actions[1]);
-        assertEquals(MainMenuModel.MenuAction.RETURN_TO_MAIN_MENU, actions[2]);
+        assertEquals(MainMenuModel.MenuAction.SAVE_GAME, actions[1]);
+        assertEquals(MainMenuModel.MenuAction.SETTINGS, actions[2]);
+        assertEquals(MainMenuModel.MenuAction.RETURN_TO_MAIN_MENU, actions[3]);
     }
 }

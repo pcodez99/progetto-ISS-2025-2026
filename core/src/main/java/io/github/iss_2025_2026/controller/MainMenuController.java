@@ -9,6 +9,8 @@ import io.github.iss_2025_2026.view.LoadGameScreen;
 import io.github.iss_2025_2026.view.MainMenuScreen;
 import io.github.iss_2025_2026.view.NewGameConfigScreen;
 import io.github.iss_2025_2026.model.MainMenuModel;
+import io.github.iss_2025_2026.service.GameSaveService;
+import java.io.IOException;
 
 /**
  * Controller per il Main Menu.
@@ -47,6 +49,9 @@ public class MainMenuController {
                     game.setScreen(resumeScreen);
                 }
                 break;
+            case SAVE_GAME:
+                saveRunningGame();
+                break;
             case NEW_GAME:
                 System.out.println("Avvio nuova configurazione partita...");
                 game.setScreen(new NewGameConfigScreen(game, model, controller));
@@ -69,6 +74,15 @@ public class MainMenuController {
                 System.out.println("Chiusura gioco...");
                 Gdx.app.exit();
                 break;
+        }
+    }
+
+    private void saveRunningGame() {
+        try {
+            GameSaveService.saveManual(model);
+        } catch (IOException exception) {
+            model.setMessage("Salvataggio fallito: " + exception.getMessage());
+            Gdx.app.error("MainMenuController", "Impossibile salvare la partita.", exception);
         }
     }
 }

@@ -3,6 +3,7 @@ package io.github.iss_2025_2026.model.abilities;
 import io.github.iss_2025_2026.model.Character;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Implementazione di SpecialAbility che utilizza una AbilityConfiguration caricata da YAML
@@ -46,14 +47,26 @@ public class DataDrivenAbility implements SpecialAbility {
 
     @Override
     public void perform(Character user, Character target, int userLevel) {
-        // Creiamo il contesto dell'azione. 
-        // Nota: Qui passiamo una lista contenente solo il target per semplicità, 
-        // ma se AoE = true, il controller dovrebbe passare tutti i target validi.
         AbilityContext context = new AbilityContext(user, Collections.singletonList(target));
+        strategy.execute(context, config);
+    }
+
+    public void performOnTargets(Character user, List<Character> targets, int userLevel) {
+        if (targets == null || targets.isEmpty()) {
+            return;
+        }
+        AbilityContext context = new AbilityContext(user, targets);
         strategy.execute(context, config);
     }
 
     public AbilityConfiguration getConfig() {
         return config;
+    }
+
+    public int getEffectAmount(int userLevel) {
+        if ("HEAL".equalsIgnoreCase(config.getStrategy())) {
+            return config.getBaseHealing() + userLevel;
+        }
+        return config.getBaseDamage() + userLevel;
     }
 }

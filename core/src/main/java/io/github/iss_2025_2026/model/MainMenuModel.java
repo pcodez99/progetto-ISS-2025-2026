@@ -6,6 +6,7 @@ public class MainMenuModel {
     // Define the possible actions for the main menu
     public enum MenuAction{
         CONTINUE_GAME,
+        SAVE_GAME,
         NEW_GAME,
         LOAD_GAME,
         SETTINGS,
@@ -24,6 +25,7 @@ public class MainMenuModel {
         if (isRunning) {
             return new MenuAction[] {
                     MenuAction.CONTINUE_GAME,
+                    MenuAction.SAVE_GAME,
                     MenuAction.SETTINGS,
                     MenuAction.RETURN_TO_MAIN_MENU
             };

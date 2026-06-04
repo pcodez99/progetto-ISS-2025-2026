@@ -180,3 +180,5 @@ yarn-error.log*
 /saves
 /assets/saves/
 /assets/settings.json
+
+ACKNOWLEDGE.md

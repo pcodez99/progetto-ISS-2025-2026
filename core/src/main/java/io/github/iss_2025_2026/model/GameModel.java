@@ -1,11 +1,14 @@
 package io.github.iss_2025_2026.model;
 
+import io.github.iss_2025_2026.model.combat.BattleModel;
+
 /**
  * Game Model (Parte del pattern MVC).
  * Rappresenta lo stato del gioco e la logica di business.
  * Non contiene riferimenti a LibGDX per il rendering o l'input.
  */
 public class GameModel {
+    private final GameState gameState;
     private String message;
     private float timer;
     private String gameName;
@@ -14,8 +17,10 @@ public class GameModel {
     private Player playerTwo;
     private boolean gameStarted;
     private String currentSaveFileName;
+    private BattleModel activeBattleModel;
 
     public GameModel() {
+        this.gameState = new GameState();
         this.message = "Viddani VS Alieni - MVC Base Architecture";
         this.timer = 0;
         this.gameName = "Nuova Partita";
@@ -46,6 +51,10 @@ public class GameModel {
         return gameMode;
     }
 
+    public GameState getGameState() {
+        return gameState;
+    }
+
     public Player getPlayerOne() {
         return playerOne;
     }
@@ -60,6 +69,14 @@ public class GameModel {
 
     public String getCurrentSaveFileName() {
         return currentSaveFileName;
+    }
+
+    public BattleModel getActiveBattleModel() {
+        return activeBattleModel;
+    }
+
+    public void setActiveBattleModel(BattleModel activeBattleModel) {
+        this.activeBattleModel = activeBattleModel;
     }
 
     public boolean isMultiplayerGame() {
@@ -82,6 +99,10 @@ public class GameModel {
         this.timer = 0f;
         this.gameStarted = true;
         this.currentSaveFileName = null;
+        this.gameState.setGameName(gameName);
+        this.gameState.setGameMode(NewGameConfigModel.GameMode.SINGLE_PLAYER);
+        this.gameState.setCurrentLevelId(1);
+        this.gameState.setPhase(GameState.Phase.PLAYING);
         this.message = "Partita avviata: " + playerOne.getName() + " e pronto a combattere.";
     }
 
@@ -93,6 +114,10 @@ public class GameModel {
         this.timer = 0f;
         this.gameStarted = true;
         this.currentSaveFileName = null;
+        this.gameState.setGameName(gameName);
+        this.gameState.setGameMode(NewGameConfigModel.GameMode.MULTIPLAYER);
+        this.gameState.setCurrentLevelId(1);
+        this.gameState.setPhase(GameState.Phase.PLAYING);
         this.message = "Partita multiplayer avviata: " + playerOne.getName() + " e " + playerTwo.getName() + ".";
     }
 }

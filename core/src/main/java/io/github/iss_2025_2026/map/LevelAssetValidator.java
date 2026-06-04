@@ -71,6 +71,7 @@ public class LevelAssetValidator {
         }
 
         validateTmxContract(document, label, errors);
+        validateCheckpoints(document, level, label, errors);
         validateExternalTilesets(document, mapPath, label, errors);
         validateImages(document, mapPath, label, errors);
     }
@@ -86,9 +87,6 @@ public class LevelAssetValidator {
         }
         if (!hasLayer(document, "terreno")) {
             errors.add(label + ": layer tile obbligatorio mancante: terreno.");
-        }
-        if (!hasLayer(document, "oggetti")) {
-            errors.add(label + ": layer tile obbligatorio mancante: oggetti.");
         }
         if (!hasObjectGroup(document, TmxMapContract.LAYER_OBSTACLES)) {
             errors.add(label + ": object layer obbligatorio mancante: " + TmxMapContract.LAYER_OBSTACLES + ".");
@@ -190,6 +188,55 @@ public class LevelAssetValidator {
             }
         }
         return false;
+    }
+
+    private void validateCheckpoints(Document document, LevelDefinition level, String label, List<String> errors) {
+        Set<String> checkpointIds = new HashSet<>();
+        for (CheckpointDefinition checkpoint : level.getCheckpoints()) {
+            if (checkpoint == null) {
+                errors.add(label + ": checkpoint nullo nel manifest.");
+                continue;
+            }
+            if (checkpoint.getId() == null || checkpoint.getId().trim().isEmpty()) {
+                errors.add(label + ": checkpoint senza id nel manifest.");
+                continue;
+            }
+            if (!checkpointIds.add(checkpoint.getId())) {
+                errors.add(label + ": checkpoint duplicato nel manifest: " + checkpoint.getId() + ".");
+            }
+            if (!hasVisibleCheckpointLine(document, checkpoint.getLayer(), checkpoint.getObjectName())) {
+                errors.add(label + ": checkpoint '" + checkpoint.getId() + "' non trovato come linea checkpoint "
+                        + "nel layer TMX '" + checkpoint.getLayer() + "'.");
+            }
+        }
+    }
+
+    private boolean hasVisibleCheckpointLine(Document document, String groupName, String objectName) {
+        boolean foundAnyVisibleLine = false;
+        NodeList groups = document.getElementsByTagName("objectgroup");
+        for (int i = 0; i < groups.getLength(); i++) {
+            Element group = (Element) groups.item(i);
+            if (!groupName.equals(group.getAttribute("name"))) {
+                continue;
+            }
+            NodeList objects = group.getElementsByTagName("object");
+            for (int j = 0; j < objects.getLength(); j++) {
+                Element object = (Element) objects.item(j);
+                String visible = object.getAttribute("visible");
+                if ("0".equals(visible) || !hasPolyline(object)) {
+                    continue;
+                }
+                foundAnyVisibleLine = true;
+                if (objectName != null && objectName.equals(object.getAttribute("name"))) {
+                    return true;
+                }
+            }
+        }
+        return foundAnyVisibleLine;
+    }
+
+    private boolean hasPolyline(Element object) {
+        return object.getElementsByTagName("polyline").getLength() > 0;
     }
 
     private String resolveRelative(String ownerPath, String relativePath) {

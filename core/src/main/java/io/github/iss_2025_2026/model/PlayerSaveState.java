@@ -12,6 +12,10 @@ public class PlayerSaveState {
     private int level;
     private int karma;
     private Backpack backpack;
+    private float x;
+    private float y;
+    private Direction direction;
+    private CharacterState state;
 
     public PlayerSaveState() {
     }
@@ -26,6 +30,8 @@ public class PlayerSaveState {
         this.level = level;
         this.karma = karma;
         this.backpack = backpack;
+        this.direction = Direction.DOWN;
+        this.state = CharacterState.IDLE;
     }
 
     public String getCharacterId() {
@@ -90,5 +96,37 @@ public class PlayerSaveState {
 
     public void setBackpack(Backpack backpack) {
         this.backpack = backpack;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
+    public Direction getDirection() {
+        return direction != null ? direction : Direction.DOWN;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
+    public CharacterState getState() {
+        return state != null ? state : CharacterState.IDLE;
+    }
+
+    public void setState(CharacterState state) {
+        this.state = state;
     }
 }
