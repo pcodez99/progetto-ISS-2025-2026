@@ -6,6 +6,8 @@ public class Player extends Character {
     private int karma; // from -50 to +50 (egoism and altruism)
     private Backpack backpack;
     private SpecialAbility ability;
+    // Flag per indicare se il giocatore ha già usato la sua abilità speciale in questa battaglia
+    private boolean specialAbilityUsedThisBattle = false;
 
     // Growth parameters for leveling up
     private int maxHpGrowth;
@@ -28,7 +30,7 @@ public class Player extends Character {
 
     /**
      * Modifies karma safely within range
-     * 
+     *
      * @param variation Karma points to add/subtract
      */
     public void modifyKarma(int variation) {
@@ -74,6 +76,24 @@ public class Player extends Character {
 
     public SpecialAbility getAbility() {
         return ability;
+    }
+
+    public boolean hasUsedSpecialAbilityThisBattle() {
+        return specialAbilityUsedThisBattle;
+    }
+
+    /**
+     * Marca che il giocatore ha usato la special in questa battaglia.
+     */
+    public void markSpecialAbilityUsed() {
+        this.specialAbilityUsedThisBattle = true;
+    }
+
+    /**
+     * Reset dello stato a inizio/nuova battaglia.
+     */
+    public void resetSpecialAbilityUsageForBattle() {
+        this.specialAbilityUsedThisBattle = false;
     }
 
     public int getMaxHpGrowth() {

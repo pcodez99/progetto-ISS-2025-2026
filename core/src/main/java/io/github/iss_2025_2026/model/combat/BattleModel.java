@@ -41,6 +41,8 @@ public class BattleModel {
         this.battleLog = new ArrayList<>();
         this.random = random != null ? random : new Random();
         skipDeadPlayerTurns();
+        // Reset dello stato di uso delle abilità speciali sui giocatori per la nuova battaglia
+        resetPlayersSpecialAbilityUsage();
     }
 
     public boolean canCurrentTurnPlayerAct() {
@@ -92,6 +94,12 @@ public class BattleModel {
             resolveAfterPlayerAction(attacker);
             return;
         }
+        // Controllo se il giocatore ha già utilizzato la special in questa battaglia
+        if (attacker.hasUsedSpecialAbilityThisBattle()) {
+            battleLog.add("L'abilità non può più essere usata per questo combattimento");
+            resolveAfterPlayerAction(attacker);
+            return;
+        }
 
         List<Character> targets = resolveSpecialAbilityTargets(attacker);
         if (targets.isEmpty()) {
@@ -108,6 +116,10 @@ public class BattleModel {
         }
 
         appendSpecialAbilityLog(attacker, ability);
+
+        // Dopo l'esecuzione, segniamo che il giocatore ha consumato la sua abilità per questa battaglia
+        attacker.markSpecialAbilityUsed();
+
         resolveAfterPlayerAction(attacker);
     }
 
@@ -174,6 +186,18 @@ public class BattleModel {
 
         if (phase == BattlePhase.PLAYER_TWO_TURN && (playerTwo == null || !playerTwo.isAlive())) {
             phase = BattlePhase.ENEMY_TURN;
+        }
+    }
+
+    /**
+     * Reset dello stato di utilizzo delle abilità speciali sui giocatori (chiamare ad inizio battaglia)
+     */
+    private void resetPlayersSpecialAbilityUsage() {
+        if (playerOne != null) {
+            playerOne.resetSpecialAbilityUsageForBattle();
+        }
+        if (playerTwo != null) {
+            playerTwo.resetSpecialAbilityUsageForBattle();
         }
     }
 

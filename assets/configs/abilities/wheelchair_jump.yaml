@@ -2,6 +2,6 @@ id: "WHEELCHAIR_JUMP"
 name: "Salto in Carrozzina"
 description: "Balzo travolgente che travolge i nemici davanti al personaggio."
 strategy: "DAMAGE"
-cooldown: 3
+cooldown: 1
 aoe: true
 baseDamage: 30

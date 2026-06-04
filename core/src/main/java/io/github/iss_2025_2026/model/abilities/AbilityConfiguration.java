@@ -11,7 +11,8 @@ public class AbilityConfiguration {
     private String name;
     private String description;
     private String strategy;
-    private int cooldown;
+    // Default cooldown: 1 use per battaglia se non specificato nel YAML
+    private int cooldown = 1;
 
     private boolean aoe; // true = Area of Effect (all), false = Single target(chosen by player)
 

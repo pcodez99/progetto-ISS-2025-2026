@@ -2,6 +2,6 @@ id: "GROUP_HEAL"
 name: "Cura di Gruppo"
 description: "Rigenera l'intera squadra e stabilizza i combattimenti piu lunghi."
 strategy: "HEAL"
-cooldown: 4
+cooldown: 1
 aoe: true
 baseHealing: 20
