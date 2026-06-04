@@ -11,6 +11,9 @@ public class Player extends Character {
     private int maxHpGrowth;
     private int damageGrowth;
 
+    // Flag per-player: traccia se l'abilità speciale è stata già usata in questa battaglia
+    private boolean specialAbilityUsedThisBattle = false;
+
     public Player(String name, int maxHp, int baseDamage, SpecialAbility ability, int maxHpGrowth, int damageGrowth,
             int level) {
         super(name, maxHp, baseDamage, level);
@@ -28,7 +31,7 @@ public class Player extends Character {
 
     /**
      * Modifies karma safely within range
-     * 
+     *
      * @param variation Karma points to add/subtract
      */
     public void modifyKarma(int variation) {
@@ -47,6 +50,27 @@ public class Player extends Character {
         if (this.ability != null) {
             this.ability.perform(this, target, getLevel());
         }
+    }
+
+    /**
+     * Controlla se il giocatore ha già usato l'abilità speciale in questa battaglia
+     */
+    public boolean hasUsedSpecialAbilityThisBattle() {
+        return specialAbilityUsedThisBattle;
+    }
+
+    /**
+     * Marca l'abilità speciale come usata in questa battaglia
+     */
+    public void markSpecialAbilityUsed() {
+        this.specialAbilityUsedThisBattle = true;
+    }
+
+    /**
+     * Resetta l'uso dell'abilità speciale all'inizio di una nuova battaglia
+     */
+    public void resetSpecialAbilityUsageForBattle() {
+        this.specialAbilityUsedThisBattle = false;
     }
 
     /**

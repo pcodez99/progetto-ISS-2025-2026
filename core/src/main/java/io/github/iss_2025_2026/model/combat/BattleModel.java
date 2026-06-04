@@ -36,6 +36,8 @@ public class BattleModel {
         this.totalXpEarned = 0;
         this.battleLog = new ArrayList<>();
         this.random = new Random();
+        // Resetta l'uso delle abilità speciali per la nuova battaglia
+        resetPlayersSpecialAbilityUsage();
     }
 
     public BattlePhase getPhase() {
@@ -74,6 +76,13 @@ public class BattleModel {
             return;
         }
 
+        // Controllo: il giocatore può usare l'abilità speciale solo una volta per battaglia
+        if (attacker.hasUsedSpecialAbilityThisBattle()) {
+            battleLog.add(" EHI, dovresti sapere che posso usare l'abilità speciale una sola volta per battaglia, ora abbiamo sprecato un turno!");
+            resolveAfterPlayerAction(attacker);
+            return;
+        }
+
         SpecialAbility ability = attacker.getAbility();
         if (ability == null) {
             resolveAfterPlayerAction(attacker);
@@ -95,6 +104,10 @@ public class BattleModel {
         }
 
         appendSpecialAbilityLog(attacker, ability);
+
+        // Segna che il giocatore ha usato l'abilità speciale in questa battaglia
+        attacker.markSpecialAbilityUsed();
+
         resolveAfterPlayerAction(attacker);
     }
 
@@ -301,5 +314,17 @@ public class BattleModel {
             return;
         }
         battleLog.add(attacker.getName() + " usa " + ability.getName() + "!");
+    }
+
+    /**
+     * Resetta l'uso delle abilità speciali per entrambi i giocatori all'inizio di una nuova battaglia
+     */
+    private void resetPlayersSpecialAbilityUsage() {
+        if (playerOne != null) {
+            playerOne.resetSpecialAbilityUsageForBattle();
+        }
+        if (playerTwo != null) {
+            playerTwo.resetSpecialAbilityUsageForBattle();
+        }
     }
 }
