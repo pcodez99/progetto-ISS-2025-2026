@@ -53,15 +53,12 @@ public class MainMenuController {
                 saveRunningGame();
                 break;
             case NEW_GAME:
-                System.out.println("Avvio nuova configurazione partita...");
                 game.setScreen(new NewGameConfigScreen(game, model, controller));
                 break;
             case LOAD_GAME:
-                System.out.println("Caricamento partita...");
                 game.setScreen(new LoadGameScreen(game, model, controller));
                 break;
             case SETTINGS:
-                System.out.println("Apertura impostazioni...");
                 game.setScreen(new SettingsScreen(game, model, controller, isRunning, resumeScreen));
                 break;
             case RETURN_TO_MAIN_MENU:
@@ -71,7 +68,6 @@ public class MainMenuController {
                 game.setScreen(new MainMenuScreen(game, model, controller));
                 break;
             case EXIT:
-                System.out.println("Chiusura gioco...");
                 Gdx.app.exit();
                 break;
         }

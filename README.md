@@ -144,9 +144,27 @@ Il file viene generato al primo avvio se non presente e può essere modificato a
 
 ## 🛠️ Pipeline CI/CD
 
-Il progetto utilizza **GitHub Actions** per l'automazione:
-- **Build & Test**: Ogni push o Pull Request verso `main` attiva una build automatica e l'esecuzione dei test.
-- **Release**: Al caricamento di un nuovo tag (es. `v1.0.0`), viene creata automaticamente una Release su GitHub con i file JAR pronti all'uso.
+Il progetto utilizza **GitHub Actions** con due workflow separati:
+
+- **CI** (`.github/workflows/ci.yml`): a ogni push verso `main` o `dev`, inclusi i merge su questi branch, esegue `./gradlew test lwjgl3:jar lwjgl3:distZip` e pubblica un artifact scaricabile. Lo stesso controllo viene eseguito anche sulle Pull Request verso `main` o `dev`.
+- **Release** (`.github/workflows/release.yml`): quando viene pubblicato un tag `v*` (es. `v1.0.0`) esegue i test, costruisce gli artefatti desktop e crea una GitHub Release.
+
+Gli artefatti prodotti localmente si trovano in:
+
+- `lwjgl3/build/libs/ISS 2025-<versione>.jar`: JAR desktop eseguibile con una JDK installata.
+- `lwjgl3/build/distributions/ISS 2025-<versione>.zip`: distribuzione desktop con script di avvio.
+
+Per scaricare una build non ufficiale generata da push o merge su `main`/`dev`, aprire la run su **GitHub Actions** e scaricare l'artifact `iss-2025-desktop-<branch>-<run>-<sha>`.
+
+Per scaricare una versione ufficiale, aprire **GitHub > Releases** e scaricare:
+
+- `viddani-vs-alieni-<versione>-desktop.zip`, consigliato per giocare.
+- `viddani-vs-alieni-<versione>-desktop.jar`, utile per avvio manuale con JDK.
+
+Dentro lo ZIP l'eseguibile si trova in:
+
+- Linux/macOS: `bin/ISS 2025`
+- Windows: `bin/ISS 2025.bat`
 
 ---
 

@@ -29,7 +29,6 @@ public final class SaveManager {
     public static void saveGame(GameState state, String fileName) throws IOException {
         File file = resolveSaveFile(fileName, true);
         MAPPER.writeValue(file, state);
-        System.out.println("Partita salvata con successo in: " + file.getAbsolutePath());
     }
 
     public static GameState loadGame(String fileName) throws IOException {

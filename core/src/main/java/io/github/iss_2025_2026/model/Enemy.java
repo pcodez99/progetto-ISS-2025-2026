@@ -1,7 +1,5 @@
 package io.github.iss_2025_2026.model;
 
-import io.github.iss_2025_2026.model.SpecialAbility;
-
 /**
  * Represents an enemy in the game (can be a standard alien or a boss).
  * Extends the abstract Character class.

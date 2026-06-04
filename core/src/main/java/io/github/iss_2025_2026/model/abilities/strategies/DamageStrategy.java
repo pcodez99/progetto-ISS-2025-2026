@@ -19,11 +19,8 @@ public class DamageStrategy implements AbilityStrategy {
         // Damage scaling formula
         int totalDamage = config.getBaseDamage() + caster.getLevel();
 
-        System.out.println(caster.getName() + " uses " + config.getName() + "!");
-
         for (Character target : context.getTargets()) {
             target.takeDamage(totalDamage);
-            System.out.println("Dealt " + totalDamage + " damage to " + target.getName());
         }
     }
 }

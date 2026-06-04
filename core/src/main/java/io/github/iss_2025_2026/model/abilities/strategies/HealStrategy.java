@@ -20,11 +20,8 @@ public class HealStrategy implements AbilityStrategy {
         // Healing scaling formula
         int totalHeal = config.getBaseHealing() + caster.getLevel();
 
-        System.out.println(caster.getName() + " uses " + config.getName() + "!");
-
         for (Character target : context.getTargets()) {
             target.heal(totalHeal);
-            System.out.println(target.getName() + " recovers " + totalHeal + " HP!");
         }
     }
 }

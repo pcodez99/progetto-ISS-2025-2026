@@ -71,7 +71,7 @@ public class NewGameConfigScreen implements Screen {
 
         Label nameLabel = new Label("Nome salvataggio", skin, GameUiTheme.LABEL_BODY);
         final TextField nameField = new TextField(configModel.getGameName(), skin, GameUiTheme.TEXT_FIELD_GAME);
-        nameField.setMessageText("Es. Difesa di Viddana");
+        nameField.setMessageText("Nuova partita");
         nameField.setAlignment(Align.center);
         float nameFieldInset = Math.max(14f, nameField.getStyle().background.getLeftWidth());
         formPanel.add(nameLabel).padLeft(nameFieldInset).padBottom(GameUiTheme.SPACE_1).row();

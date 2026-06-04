@@ -62,7 +62,7 @@ public class MainMenuScreen implements Screen {
 
         shell.add(GameUiFactory.createHeroBlock(
                 skin,
-                isRunning ? "PAUSA" : "RURAL SCI-FI RPG",
+                isRunning ? "PAUSA" : "Menù principale",
                 isRunning ? "Gioco in pausa" : "VIDDANI VS ALIENI",
                 isRunning
                         ? "Riprendi la run oppure torna al menu principale senza riaprire la configurazione della partita."
@@ -72,9 +72,6 @@ public class MainMenuScreen implements Screen {
         if (!isRunning) {
             Table chips = new Table();
             chips.left();
-            chips.add(GameUiFactory.createChip(skin, "4 personaggi")).padRight(GameUiTheme.SPACE_2);
-            chips.add(GameUiFactory.createChip(skin, "Turni locali")).padRight(GameUiTheme.SPACE_2);
-            chips.add(GameUiFactory.createChip(skin, "RPG a livelli"));
             shell.add(chips).padBottom(GameUiTheme.SPACE_5).row();
         }
 
@@ -109,11 +106,6 @@ public class MainMenuScreen implements Screen {
             updateStatusLabel();
             shell.add(statusLabel).width(520f).padTop(GameUiTheme.SPACE_2).row();
         }
-
-        Label footer = new Label("Un'interfaccia piu chiara per scegliere, configurare e combattere piu in fretta.",
-                skin, GameUiTheme.LABEL_MUTED);
-        footer.setWrap(true);
-        shell.add(footer).width(520f).padTop(GameUiTheme.SPACE_4).row();
 
         Container<Table> shellWrap = new Container<>(shell);
         shellWrap.width(760f);
