@@ -64,7 +64,7 @@ public class BattleModelAbilityCooldownTest {
 
         // Verifico il messaggio nel log
         boolean messageFound = model.getBattleLog().stream()
-            .anyMatch(s -> s.contains("L'abilità non può più essere usata per questo combattimento"));
+            .anyMatch(s -> s.contains(" EHI, dovresti sapere che posso usare l'abilità speciale una sola volta per battaglia, ora abbiamo sprecato un turno!"));
         assertTrue(messageFound, "Il log deve contenere il messaggio di abilità non disponibile");
     }
 
@@ -143,7 +143,7 @@ public class BattleModelAbilityCooldownTest {
         model.executePlayerSpecialAbility(player);
         log = model.getBattleLog().stream().collect(Collectors.toList());
         boolean failMessageFound = log.stream()
-            .anyMatch(s -> s.contains("L'abilità non può più essere usata per questo combattimento"));
+            .anyMatch(s -> s.contains(" EHI, dovresti sapere che posso usare l'abilità speciale una sola volta per battaglia, ora abbiamo sprecato un turno!"));
         assertTrue(failMessageFound, "Il log deve contenere il messaggio di impossibilità di usare l'abilità");
     }
 
