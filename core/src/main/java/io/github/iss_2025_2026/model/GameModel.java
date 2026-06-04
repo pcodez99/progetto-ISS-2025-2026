@@ -1,5 +1,7 @@
 package io.github.iss_2025_2026.model;
 
+import io.github.iss_2025_2026.model.combat.BattleModel;
+
 /**
  * Game Model (Parte del pattern MVC).
  * Rappresenta lo stato del gioco e la logica di business.
@@ -15,6 +17,7 @@ public class GameModel {
     private Player playerTwo;
     private boolean gameStarted;
     private String currentSaveFileName;
+    private BattleModel activeBattleModel;
 
     public GameModel() {
         this.gameState = new GameState();
@@ -66,6 +69,14 @@ public class GameModel {
 
     public String getCurrentSaveFileName() {
         return currentSaveFileName;
+    }
+
+    public BattleModel getActiveBattleModel() {
+        return activeBattleModel;
+    }
+
+    public void setActiveBattleModel(BattleModel activeBattleModel) {
+        this.activeBattleModel = activeBattleModel;
     }
 
     public boolean isMultiplayerGame() {

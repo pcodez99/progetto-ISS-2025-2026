@@ -21,15 +21,23 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
+import io.github.iss_2025_2026.controller.BattleController;
+import io.github.iss_2025_2026.controller.GameContext;
 import io.github.iss_2025_2026.controller.GameController;
+import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.YamlCharacterFactory;
 import io.github.iss_2025_2026.map.LevelRuntime;
 import io.github.iss_2025_2026.map.TmxLevel;
 import io.github.iss_2025_2026.model.CharacterState;
 import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
+import io.github.iss_2025_2026.model.GameState;
 import io.github.iss_2025_2026.model.Player;
+import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.physics.PhysicsFacade;
 import io.github.iss_2025_2026.service.CheckpointService;
+import io.github.iss_2025_2026.service.EnemyEncounter;
+import io.github.iss_2025_2026.service.EnemyEncounterService;
 import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
@@ -42,6 +50,10 @@ import io.github.iss_2025_2026.service.SaveResult;
  * Delega la logica di aggiornamento al Controller, la fisica a PhysicsFacade e gli asset a PlayerAssets.
  */
 public class LevelScreen implements Screen {
+    private static final float ENCOUNTER_RADIUS = 80f;
+
+    private final Main game;
+    private final GameContext gameContext;
     private final GameModel model;
     private final GameController controller;
     private final InputAdapter inputListener;
@@ -61,6 +73,7 @@ public class LevelScreen implements Screen {
     // Design Patterns delegation
     private PhysicsFacade physicsFacade;
     private CheckpointService checkpointService;
+    private EnemyEncounterService encounterService;
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
     
@@ -68,6 +81,8 @@ public class LevelScreen implements Screen {
     private CharacterState lastStateP2 = CharacterState.IDLE;
     private Rectangle mapBounds;
     private float cameraEdgePadding;
+    private boolean battleTransitionPending;
+    private float encounterCooldownTimer;
 
     private static final float DEFAULT_CAMERA_EDGE_PADDING = 320f;
 
@@ -77,7 +92,10 @@ public class LevelScreen implements Screen {
     private final float cameraZoom;
     private boolean drawObstacleDebug;
 
-    public LevelScreen(Main game, GameModel model, GameController controller, LevelRuntime levelRuntime) {
+    public LevelScreen(Main game, GameContext gameContext, GameModel model, GameController controller,
+            LevelRuntime levelRuntime) {
+        this.game = game;
+        this.gameContext = gameContext;
         this.model = model;
         this.controller = controller;
         this.levelRuntime = levelRuntime;
@@ -135,6 +153,10 @@ public class LevelScreen implements Screen {
         mapBounds = level.getGeometry().getBounds();
         cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
         
+        CharacterFactory characterFactory = new YamlCharacterFactory();
+        encounterService = new EnemyEncounterService(
+                level.enemyObjects(), characterFactory, level.getGeometry(), ENCOUNTER_RADIUS);
+
         // Inizializza la facciata fisica Box2D con le dimensioni configurate
         physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
     }
@@ -243,6 +265,7 @@ public class LevelScreen implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(inputListener);
+        battleTransitionPending = false;
         MenuMusicManager.pause();
         RunMusicManager.play();
     }
@@ -284,6 +307,21 @@ public class LevelScreen implements Screen {
 
             physicsFacade.step(delta);
             physicsFacade.syncPlayerPositions();
+        }
+
+        if (encounterCooldownTimer > 0f) {
+            encounterCooldownTimer -= delta;
+        }
+
+        if (encounterCooldownTimer <= 0f && !battleTransitionPending && encounterService != null && p1 != null) {
+            EnemyEncounter encounter = encounterService.checkEncounter(p1);
+            if (encounter == null && model.isMultiplayerGame() && p2 != null) {
+                encounter = encounterService.checkEncounter(p2);
+            }
+            if (encounter != null && !encounter.getEnemies().isEmpty()) {
+                startBattle(encounter, p1, p2);
+                return;
+            }
         }
 
         SaveResult checkpointSave = checkpointService != null
@@ -379,6 +417,21 @@ public class LevelScreen implements Screen {
         if (map != null) {
             map.dispose();
         }
+    }
+
+    public void startEncounterCooldown(float seconds) {
+        encounterCooldownTimer = Math.max(0f, seconds);
+    }
+
+    private void startBattle(EnemyEncounter encounter, Player p1, Player p2) {
+        battleTransitionPending = true;
+        Player playerTwo = model.isMultiplayerGame() ? p2 : null;
+        BattleModel battleModel = new BattleModel(p1, playerTwo, encounter.getEnemies());
+        BattleController battleController = new BattleController(battleModel);
+        model.setActiveBattleModel(battleModel);
+        model.getGameState().setPhase(GameState.Phase.COMBAT);
+        game.setScreen(new BattleScreen(game, gameContext, model, this, battleModel, battleController, encounter,
+                encounterService));
     }
 
     private float clamp(float value, float min, float max) {

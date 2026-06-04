@@ -22,13 +22,15 @@ public final class SceneController {
         ADDITIVE
     }
 
+    private final GameContext gameContext;
     private final Main game;
     private final GameModel model;
     private final GameController gameController;
     private final LevelCatalog catalog;
     private LevelRuntime activeScene;
 
-    public SceneController(Main game, GameModel model, GameController gameController) {
+    public SceneController(GameContext gameContext, Main game, GameModel model, GameController gameController) {
+        this.gameContext = gameContext;
         this.game = game;
         this.model = model;
         this.gameController = gameController;
@@ -49,7 +51,7 @@ public final class SceneController {
         LevelDefinition definition = catalog.requireLevel(levelId);
         TmxLevel level = TmxLevelLoader.load(definition);
         activeScene = new LevelRuntime(definition, level);
-        game.setScreen(new LevelScreen(game, model, gameController, activeScene));
+        game.setScreen(new LevelScreen(game, gameContext, model, gameController, activeScene));
         return activeScene;
     }
 
