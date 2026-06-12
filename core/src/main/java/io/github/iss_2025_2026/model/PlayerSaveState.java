@@ -10,6 +10,8 @@ public class PlayerSaveState {
     private int maxHp;
     private int baseDamage;
     private int level;
+    private int xp;
+    private int xpToNext;
     private int karma;
     private Backpack backpack;
     private float x;
@@ -18,6 +20,8 @@ public class PlayerSaveState {
     private CharacterState state;
 
     public PlayerSaveState() {
+        this.xp = 0;
+        this.xpToNext = 100;
     }
 
     public PlayerSaveState(String characterId, String name, int hp, int maxHp, int baseDamage, int level, int karma,
@@ -32,6 +36,8 @@ public class PlayerSaveState {
         this.backpack = backpack;
         this.direction = Direction.DOWN;
         this.state = CharacterState.IDLE;
+        this.xp = 0;
+        this.xpToNext = Math.max(1, 100 * Math.max(1, level));
     }
 
     public String getCharacterId() {
@@ -80,6 +86,22 @@ public class PlayerSaveState {
 
     public void setLevel(int level) {
         this.level = level;
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public int getXpToNext() {
+        return xpToNext;
+    }
+
+    public void setXpToNext(int xpToNext) {
+        this.xpToNext = xpToNext;
     }
 
     public int getKarma() {
