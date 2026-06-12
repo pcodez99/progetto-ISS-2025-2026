@@ -11,6 +11,10 @@ public class Player extends Character {
     private int maxHpGrowth;
     private int damageGrowth;
 
+    // Experience / leveling progression
+    private int xp = 0;
+    private int xpToNext = 100; // default required XP for next level
+
     // Flag per-player: traccia se l'abilità speciale è stata già usata in questa battaglia
     private boolean specialAbilityUsedThisBattle = false;
 
@@ -22,6 +26,8 @@ public class Player extends Character {
         this.ability = ability;
         this.maxHpGrowth = maxHpGrowth;
         this.damageGrowth = damageGrowth;
+        this.xp = 0;
+        this.xpToNext = calculateXpForLevel(level);
     }
 
     /** Convenience constructor with default growth values */
@@ -81,6 +87,52 @@ public class Player extends Character {
         setMaxHp(getMaxHp() + maxHpGrowth);
         setBaseDamage(getBaseDamage() + damageGrowth);
         setHp(getMaxHp()); // Heal on level up
+        // Recalculate XP threshold for the new level
+        this.xpToNext = calculateXpForLevel(getLevel());
+    }
+
+    /**
+     * Adds experience and handles level-ups when thresholds are reached.
+     * Any overflow XP carries over to the next level.
+     *
+     * @param amount XP to add (must be >= 0)
+     */
+    public void addXp(int amount) {
+        if (amount <= 0) {
+            return;
+        }
+        this.xp += amount;
+        // Handle multiple level-ups if XP is large
+        while (this.xp >= this.xpToNext) {
+            this.xp -= this.xpToNext;
+            levelUp();
+        }
+    }
+
+    public int getXp() {
+        return xp;
+    }
+
+    public int getXpToNext() {
+        return xpToNext;
+    }
+
+    public float getXpPercent() {
+        if (xpToNext <= 0) return 0f;
+        return Math.max(0f, Math.min(1f, (float) xp / (float) xpToNext));
+    }
+
+    public void setXp(int xp) {
+        this.xp = Math.max(0, xp);
+    }
+
+    public void setXpToNext(int xpToNext) {
+        this.xpToNext = Math.max(1, xpToNext);
+    }
+
+    private int calculateXpForLevel(int level) {
+        // Simple formula: base 100 * level (can be tuned later)
+        return Math.max(1, 100 * Math.max(1, level));
     }
 
     // GETTERS

@@ -33,6 +33,7 @@ import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.GameState;
 import io.github.iss_2025_2026.model.Player;
+import io.github.iss_2025_2026.view.PlayerHud;
 import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.physics.PhysicsFacade;
 import io.github.iss_2025_2026.service.CheckpointService;
@@ -66,17 +67,19 @@ public class LevelScreen implements Screen {
     private Table saveToast;
     private Label saveStatusLabel;
     private float saveStatusTimer;
+    private PlayerHud playerOneHud;
+    private PlayerHud playerTwoHud;
     private TmxLevel level;
     private TiledMap map;
     private IsometricTiledMapRenderer mapRenderer;
-    
+
     // Design Patterns delegation
     private PhysicsFacade physicsFacade;
     private CheckpointService checkpointService;
     private EnemyEncounterService encounterService;
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
-    
+
     private CharacterState lastStateP1 = CharacterState.IDLE;
     private CharacterState lastStateP2 = CharacterState.IDLE;
     private Rectangle mapBounds;
@@ -100,7 +103,7 @@ public class LevelScreen implements Screen {
         this.controller = controller;
         this.levelRuntime = levelRuntime;
         this.skin = GameUiTheme.loadSkin();
-        
+
         // Carica le proprietà configurabili dal file properties
         this.playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
         this.playerYOffset = this.playerSize * 0.48f;
@@ -111,7 +114,7 @@ public class LevelScreen implements Screen {
 
         Player player = model.getPlayerOne();
         this.playerAssets = new PlayerAssets(player);
-        
+
         // Sincronizza la durata dell'attacco del modello con la durata dell'animazione caricata
         if (player != null && playerAssets.getAttackAnim() != null) {
             player.setAttackDuration(playerAssets.getAttackAnim().getAnimationDuration());
@@ -152,7 +155,7 @@ public class LevelScreen implements Screen {
         mapRenderer = new IsometricTiledMapRenderer(map, 1f);
         mapBounds = level.getGeometry().getBounds();
         cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
-        
+
         CharacterFactory characterFactory = new YamlCharacterFactory();
         encounterService = new EnemyEncounterService(
                 level.enemyObjects(), characterFactory, level.getGeometry(), ENCOUNTER_RADIUS);
@@ -177,6 +180,7 @@ public class LevelScreen implements Screen {
         saveStatusLabel.setWrap(true);
         saveToast.add(saveStatusLabel).growX();
         root.add(saveToast).left().top().pad(GameUiTheme.SPACE_3).width(420f);
+        root.add().expandX().row();
 
         // Aggiungi Giocatore 1
         Player p1 = model.getPlayerOne();
@@ -202,6 +206,17 @@ public class LevelScreen implements Screen {
             }
             physicsFacade.initPlayerBody(p2);
         }
+
+        // HUD: crea e aggiungi alla UI (player1 sinistra, player2 destra)
+        if (model.getPlayerOne() != null) {
+            playerOneHud = new PlayerHud(model.getPlayerOne(), skin);
+            root.add(playerOneHud.getTable()).left().top().pad(GameUiTheme.SPACE_3);
+        }
+        root.add().expandX();
+        if (model.isMultiplayerGame() && model.getPlayerTwo() != null) {
+            playerTwoHud = new PlayerHud(model.getPlayerTwo(), skin);
+            root.add(playerTwoHud.getTable()).right().top().pad(GameUiTheme.SPACE_3);
+        }
     }
 
     private void addPlayerActor(final Player player, final PlayerAssets assets) {
@@ -225,7 +240,7 @@ public class LevelScreen implements Screen {
                         flippedFrame.flip(true, false);
                         frame = flippedFrame;
                     }
-                    
+
                     // Centra e ridimensiona l'animazione di attacco per allinearla a quella di idle
                     if ("bambino".equals(player.getCharacterId())) {
                         drawWidth = getWidth() * 0.45f;
@@ -234,8 +249,8 @@ public class LevelScreen implements Screen {
                         drawY = getY(); // Mantiene i piedi allineati al terreno
                     }
                 } else {
-                    Animation<TextureRegion> currentAnim = (state == CharacterState.WALKING) 
-                            ? assets.getWalkAnim(dir) 
+                    Animation<TextureRegion> currentAnim = (state == CharacterState.WALKING)
+                            ? assets.getWalkAnim(dir)
                             : assets.getIdleAnim(dir);
 
                     if (currentAnim != null) {
@@ -257,7 +272,7 @@ public class LevelScreen implements Screen {
                 setY(player.getY());
             }
         };
-        
+
         stage.addActor(animatedSprite);
         animatedSprite.setSize(playerSize, playerSize);
     }
@@ -283,7 +298,7 @@ public class LevelScreen implements Screen {
         if (physicsFacade != null) {
             if (p1 != null) {
                 physicsFacade.setPlayerVelocity(p1, delta);
-                
+
                 // Suono attacco Player 1
                 if (p1.getState() == CharacterState.ATTACKING && lastStateP1 != CharacterState.ATTACKING) {
                     if (playerAssets.getAttackSound() != null) {
@@ -365,13 +380,16 @@ public class LevelScreen implements Screen {
 
         mapRenderer.setView((OrthographicCamera) stage.getCamera());
         mapRenderer.render();
-        
+
         if (drawObstacleDebug && physicsFacade != null) {
             physicsFacade.drawDebug(cam);
         }
-        
+
         stage.act(delta);
         stage.draw();
+        // Aggiorna HUD prima di processare la UI
+        if (playerOneHud != null) playerOneHud.update();
+        if (playerTwoHud != null) playerTwoHud.update();
         uiStage.act(delta);
         uiStage.draw();
     }
@@ -416,6 +434,15 @@ public class LevelScreen implements Screen {
         }
         if (map != null) {
             map.dispose();
+        }
+        // Dispose HUD shared resources
+        if (playerOneHud != null) {
+            playerOneHud.dispose();
+            playerOneHud = null;
+        }
+        if (playerTwoHud != null) {
+            playerTwoHud.dispose();
+            playerTwoHud = null;
         }
     }
 

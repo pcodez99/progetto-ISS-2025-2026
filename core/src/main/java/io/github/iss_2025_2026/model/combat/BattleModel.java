@@ -213,6 +213,20 @@ public class BattleModel {
         totalXpEarned = xp;
         if (xp > 0) {
             battleLog.add("Vittoria! +" + xp + " XP guadagnati.");
+            // Distribuisci l'XP equamente tra i giocatori vivi
+            List<Player> alive = getAlivePlayers();
+            if (!alive.isEmpty()) {
+                int perPlayer = xp / alive.size();
+                int remainder = xp % alive.size();
+                for (int i = 0; i < alive.size(); i++) {
+                    Player p = alive.get(i);
+                    int grant = perPlayer + (i == 0 ? remainder : 0); // assegna il resto al primo
+                    if (grant > 0) {
+                        p.addXp(grant);
+                        battleLog.add(p.getName() + " riceve " + grant + " XP");
+                    }
+                }
+            }
         }
     }
 
