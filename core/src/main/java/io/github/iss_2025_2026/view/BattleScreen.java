@@ -226,7 +226,15 @@ public class BattleScreen implements Screen {
         }
 
         menuPanel.add(createMenuButton("Attacco", this::onAttack)).left().padBottom(GameUiTheme.SPACE_1).row();
-        menuPanel.add(createMenuButton("Abilita Speciale", this::onSpecial)).left().padBottom(GameUiTheme.SPACE_1).row();
+
+        // Crea il bottone dell'abilità speciale e lo disabilita se già usato
+        TextButton specialAbilityButton = createMenuButton("Abilita Speciale", this::onSpecial);
+        Player currentPlayer = battleModel.getCurrentTurnPlayer();
+        if (currentPlayer != null && currentPlayer.hasUsedSpecialAbilityThisBattle()) {
+            specialAbilityButton.setDisabled(true);
+        }
+        menuPanel.add(specialAbilityButton).left().padBottom(GameUiTheme.SPACE_1).row();
+
         menuPanel.add(createMenuButton("Inventario", this::onInventory)).left().row();
     }
 
