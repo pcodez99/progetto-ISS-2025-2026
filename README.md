@@ -146,42 +146,25 @@ Il file viene generato al primo avvio se non presente e può essere modificato a
 
 Il progetto utilizza **GitHub Actions** con due workflow separati:
 
-- **CI** (`.github/workflows/ci.yml`): a ogni push verso `main` o `dev`, inclusi i merge su questi branch, esegue i test e crea pacchetti desktop clickabili con `jpackage`. Lo stesso controllo di test viene eseguito anche sulle Pull Request verso `main` o `dev`.
-- **Release** (`.github/workflows/release.yml`): quando viene pubblicato un tag `v*` (es. `v1.0.0-alpha`) esegue i test, costruisce i pacchetti `jpackage` per Linux, Windows e macOS, e crea una GitHub Release.
+- **CI** (`.github/workflows/ci.yml`): a ogni push verso `main` o `dev`, inclusi i merge su questi branch, esegue `./gradlew test lwjgl3:jar lwjgl3:distZip` e pubblica un artifact scaricabile. Lo stesso controllo viene eseguito anche sulle Pull Request verso `main` o `dev`.
+- **Release** (`.github/workflows/release.yml`): quando viene pubblicato un tag `v*` (es. `v1.0.0`) esegue i test, costruisce gli artefatti desktop e crea una GitHub Release.
 
-Il comando base usato dalla pipeline e equivalente al formato:
+Gli artefatti prodotti localmente si trovano in:
 
-```bash
-jpackage \
-  --type app-image \
-  --name "Viddani VS Alieni" \
-  --input lwjgl3/build/libs \
-  --main-jar "ISS 2025-<versione>.jar" \
-  --main-class io.github.iss_2025_2026.lwjgl3.Lwjgl3Launcher
-```
+- `lwjgl3/build/libs/ISS 2025-<versione>.jar`: JAR desktop eseguibile con una JDK installata.
+- `lwjgl3/build/distributions/ISS 2025-<versione>.zip`: distribuzione desktop con script di avvio.
 
-Gli artefatti locali di partenza prodotti da Gradle si trovano in:
-
-- `lwjgl3/build/libs/ISS 2025-<versione>.jar`: JAR usato come input da `jpackage`.
-- `jpackage-output/`: cartella generata da `jpackage` con l'app clickabile e il runtime Java incluso.
-
-Per scaricare una build non ufficiale generata da push o merge su `main`/`dev`, aprire la run su **GitHub Actions** e scaricare l'artifact:
-
-- `viddani-vs-alieni-<branch>-linux-clickable`
-- `viddani-vs-alieni-<branch>-windows-clickable`
-- `viddani-vs-alieni-<branch>-macos-clickable`
+Per scaricare una build non ufficiale generata da push o merge su `main`/`dev`, aprire la run su **GitHub Actions** e scaricare l'artifact `iss-2025-desktop-<branch>-<run>-<sha>`.
 
 Per scaricare una versione ufficiale, aprire **GitHub > Releases** e scaricare:
 
-- `viddani-vs-alieni-<versione>-linux-clickable.zip`
-- `viddani-vs-alieni-<versione>-windows-clickable.zip`
-- `viddani-vs-alieni-<versione>-macos-clickable.zip`
+- `viddani-vs-alieni-<versione>-desktop.zip`, consigliato per giocare.
+- `viddani-vs-alieni-<versione>-desktop.jar`, utile per avvio manuale con JDK.
 
-Dopo aver estratto lo ZIP:
+Dentro lo ZIP l'eseguibile si trova in:
 
-- Windows: aprire `Viddani VS Alieni/Viddani VS Alieni.exe`.
-- macOS: aprire `Viddani VS Alieni.app`.
-- Linux: eseguire `Viddani VS Alieni/bin/Viddani VS Alieni`.
+- Linux/macOS: `bin/ISS 2025`
+- Windows: `bin/ISS 2025.bat`
 
 ---
 
