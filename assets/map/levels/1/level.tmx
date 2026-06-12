@@ -1468,11 +1468,10 @@
    </properties>
    <point/>
   </object>
- </objectgroup>
- <objectgroup id="16" name="Boss">
   <object id="89" name="BOSS" x="11392" y="2944">
    <properties>
-    <property name="boss_name" value=""/>
+    <property name="enemies_number" type="int" value="1"/>
+    <property name="enemy_type" value="boss_livello_1"/>
    </properties>
    <point/>
   </object>
