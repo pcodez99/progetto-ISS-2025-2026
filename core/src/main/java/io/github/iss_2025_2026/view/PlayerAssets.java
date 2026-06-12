@@ -44,130 +44,32 @@ public class PlayerAssets {
             }
         }
 
-        // 1. walkUp (Direction.UP -> ↗)
-        Animation<TextureRegion> walkUp = JsonAnimationLoader.load(basePath + "/iso_walk_northeast_right", 0.06f, loadedTextures, false);
-        if (walkUp == null) {
-            walkUp = JsonAnimationLoader.load(basePath + "/iso_walk_up_right", 0.06f, loadedTextures, false);
-            if (walkUp == null) {
-                walkUp = JsonAnimationLoader.load(basePath + "/iso_idle_up_right", 0.06f, loadedTextures, false);
-                if (walkUp == null) {
-                    walkUp = JsonAnimationLoader.load(basePath + "/iso_walk_right_right", 0.06f, loadedTextures, false);
-                    if (walkUp == null) {
-                        walkUp = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.06f, loadedTextures, false);
-                        if (walkUp == null) {
-                            walkUp = JsonAnimationLoader.load(basePath + "/idle_right", 0.06f, loadedTextures, false);
-                        }
-                    }
-                }
-            }
-        }
-
-        // 2. walkLeft (Direction.LEFT -> ↖)
-        Animation<TextureRegion> walkLeft = JsonAnimationLoader.load(basePath + "/iso_walk_northeast_right", 0.06f, loadedTextures, true);
-        if (walkLeft == null) {
-            walkLeft = JsonAnimationLoader.load(basePath + "/iso_walk_up_right", 0.06f, loadedTextures, true);
-            if (walkLeft == null) {
-                walkLeft = JsonAnimationLoader.load(basePath + "/iso_idle_up_right", 0.06f, loadedTextures, true);
-                if (walkLeft == null) {
-                    walkLeft = JsonAnimationLoader.load(basePath + "/iso_walk_right_right", 0.06f, loadedTextures, true);
-                    if (walkLeft == null) {
-                        walkLeft = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.06f, loadedTextures, true);
-                        if (walkLeft == null) {
-                            walkLeft = JsonAnimationLoader.load(basePath + "/idle_right", 0.06f, loadedTextures, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        // 3. walkDown (Direction.DOWN -> ↙)
-        Animation<TextureRegion> walkDown = JsonAnimationLoader.load(basePath + "/iso_walk_southeast_right", 0.06f, loadedTextures, true);
-        if (walkDown == null) {
-            walkDown = JsonAnimationLoader.load(basePath + "/iso_walk_down_right", 0.06f, loadedTextures, true);
-            if (walkDown == null) {
-                walkDown = JsonAnimationLoader.load(basePath + "/iso_idle_down_right", 0.06f, loadedTextures, true);
-                if (walkDown == null) {
-                    walkDown = JsonAnimationLoader.load(basePath + "/iso_walk_right_right", 0.06f, loadedTextures, true);
-                    if (walkDown == null) {
-                        walkDown = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.06f, loadedTextures, true);
-                        if (walkDown == null) {
-                            walkDown = JsonAnimationLoader.load(basePath + "/idle_right", 0.06f, loadedTextures, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        // 4. walkRight (Direction.RIGHT -> ↘)
-        Animation<TextureRegion> walkRight = JsonAnimationLoader.load(basePath + "/iso_walk_southeast_right", 0.06f, loadedTextures, false);
-        if (walkRight == null) {
-            walkRight = JsonAnimationLoader.load(basePath + "/iso_walk_down_right", 0.06f, loadedTextures, false);
-            if (walkRight == null) {
-                walkRight = JsonAnimationLoader.load(basePath + "/iso_idle_down_right", 0.06f, loadedTextures, false);
-                if (walkRight == null) {
-                    walkRight = JsonAnimationLoader.load(basePath + "/iso_walk_right_right", 0.06f, loadedTextures, false);
-                    if (walkRight == null) {
-                        walkRight = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.06f, loadedTextures, false);
-                        if (walkRight == null) {
-                            walkRight = JsonAnimationLoader.load(basePath + "/idle_right", 0.06f, loadedTextures, false);
-                        }
-                    }
-                }
-            }
-        }
+        Animation<TextureRegion> walkUp = loadFirstAvailable(
+                basePath, 0.06f, false, "iso_walk_northeast_right",
+                "iso_walk_up_right", "iso_idle_up_right",
+                "iso_walk_right_right", "iso_idle_right_right", "idle_right");
+        Animation<TextureRegion> walkLeft = loadFirstAvailable(
+                basePath, 0.06f, true, "iso_walk_northeast_right",
+                "iso_walk_up_right", "iso_idle_up_right",
+                "iso_walk_right_right", "iso_idle_right_right", "idle_right");
+        Animation<TextureRegion> walkRight = loadFirstAvailable(
+                basePath, 0.06f, false, "iso_walk_southeast_right",
+                "iso_walk_down_right", "iso_idle_down_right", "walk_right", "iso_walk_right_right",
+                "iso_idle_right_right", "idle_right");
+        Animation<TextureRegion> walkDown = loadFirstAvailable(
+                basePath, 0.06f, true, "iso_walk_southeast_right",
+                "iso_walk_down_right", "iso_idle_down_right", "walk_right", "iso_walk_right_right",
+                "iso_idle_right_right", "idle_right");
 
         if (walkRight != null) walkAnims.put(Direction.RIGHT, walkRight);
         if (walkLeft != null) walkAnims.put(Direction.LEFT, walkLeft);
         if (walkUp != null) walkAnims.put(Direction.UP, walkUp);
         if (walkDown != null) walkAnims.put(Direction.DOWN, walkDown);
 
-        // 5. idleUp
-        Animation<TextureRegion> idleUp = JsonAnimationLoader.load(basePath + "/iso_idle_up_right", 0.1f, loadedTextures, false);
-        if (idleUp == null) {
-            idleUp = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.1f, loadedTextures, false);
-            if (idleUp == null) {
-                idleUp = JsonAnimationLoader.load(basePath + "/idle_right", 0.1f, loadedTextures, false);
-            }
-        }
-
-        // 6. idleLeft
-        Animation<TextureRegion> idleLeft = JsonAnimationLoader.load(basePath + "/iso_idle_up_right", 0.1f, loadedTextures, true);
-        if (idleLeft == null) {
-            idleLeft = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.1f, loadedTextures, true);
-            if (idleLeft == null) {
-                idleLeft = JsonAnimationLoader.load(basePath + "/idle_right", 0.1f, loadedTextures, true);
-            }
-        }
-
-        // 7. idleDown
-        Animation<TextureRegion> idleDown = JsonAnimationLoader.load(basePath + "/iso_idle_down_right", 0.1f, loadedTextures, true);
-        if (idleDown == null) {
-            idleDown = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.1f, loadedTextures, true);
-            if (idleDown == null) {
-                idleDown = JsonAnimationLoader.load(basePath + "/idle_right", 0.1f, loadedTextures, true);
-            }
-        }
-
-        // 8. idleRight
-        Animation<TextureRegion> idleRight = JsonAnimationLoader.load(basePath + "/iso_idle_down_right", 0.1f, loadedTextures, false);
-        if (idleRight == null) {
-            idleRight = JsonAnimationLoader.load(basePath + "/iso_idle_right_right", 0.1f, loadedTextures, false);
-            if (idleRight == null) {
-                idleRight = JsonAnimationLoader.load(basePath + "/idle_right", 0.1f, loadedTextures, false);
-            }
-        }
-
-        if (idleRight != null) idleAnims.put(Direction.RIGHT, idleRight);
-        else setupIdleAnimation(Direction.RIGHT, walkRight);
-
-        if (idleLeft != null) idleAnims.put(Direction.LEFT, idleLeft);
-        else setupIdleAnimation(Direction.LEFT, walkLeft);
-
-        if (idleUp != null) idleAnims.put(Direction.UP, idleUp);
-        else setupIdleAnimation(Direction.UP, walkUp);
-
-        if (idleDown != null) idleAnims.put(Direction.DOWN, idleDown);
-        else setupIdleAnimation(Direction.DOWN, walkDown);
+        setupIdleAnimation(Direction.RIGHT, walkRight);
+        setupIdleAnimation(Direction.LEFT, walkLeft);
+        setupIdleAnimation(Direction.UP, walkUp);
+        setupIdleAnimation(Direction.DOWN, walkDown);
 
         // Attack animation
         attackAnim = JsonAnimationLoader.load(basePath + "/attack_right", 0.04f, loadedTextures, false);
@@ -181,6 +83,17 @@ public class PlayerAssets {
         } else {
             Gdx.app.log("PlayerAssets", "Suono di attacco non trovato al path: " + soundPath);
         }
+    }
+
+    private Animation<TextureRegion> loadFirstAvailable(
+            String basePath, float frameDuration, boolean flipX, String... animationFolders) {
+        for (String animationFolder : animationFolders) {
+            String folderPath = basePath + "/" + animationFolder;
+            if (Gdx.files.internal(folderPath + "/atlas.json").exists()) {
+                return JsonAnimationLoader.load(folderPath, frameDuration, loadedTextures, flipX);
+            }
+        }
+        return null;
     }
 
     private void setupIdleAnimation(Direction dir, Animation<TextureRegion> walkAnim) {
