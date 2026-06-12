@@ -177,7 +177,6 @@ yarn-error.log*
 *.log
 
 /bundles
-/jpackage-output/
 /saves
 /assets/saves/
 /assets/settings.json

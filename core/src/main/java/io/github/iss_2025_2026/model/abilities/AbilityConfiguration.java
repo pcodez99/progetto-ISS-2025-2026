@@ -11,8 +11,7 @@ public class AbilityConfiguration {
     private String name;
     private String description;
     private String strategy;
-    // Cooldown predefinito: 1 (ogni personaggio usa l'abilità una sola volta per battaglia)
-    private int cooldown = 1;
+    private int cooldown;
 
     private boolean aoe; // true = Area of Effect (all), false = Single target(chosen by player)
 
