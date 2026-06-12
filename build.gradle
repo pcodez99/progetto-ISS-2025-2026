@@ -73,3 +73,37 @@ project(":core"){
     useJUnitPlatform()
   }
 }
+
+tasks.register('compilePuml', JavaExec) {
+    def plantumlJar = file(".gradle/plantuml/plantuml.jar")
+    classpath = files(plantumlJar)
+    mainClass = "net.sourceforge.plantuml.Run"
+
+    doFirst {
+        def pumlDir = file("docs/diagrams")
+        if (!pumlDir.exists()) {
+            println "Creazione della cartella docs/diagrams..."
+            pumlDir.mkdirs()
+        }
+
+        if (!plantumlJar.exists()) {
+            println "Download di PlantUML in corso..."
+            plantumlJar.parentFile.mkdirs()
+            new URL("https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar").withInputStream { i ->
+                plantumlJar.withOutputStream { it << i }
+            }
+        }
+
+        def pumlFiles = fileTree(dir: 'docs/diagrams', include: '**/*.puml')
+        if (pumlFiles.isEmpty()) {
+            println "Nessun file .puml trovato in docs/diagrams."
+            // Disable execution if no files
+            enabled = false
+            return
+        }
+
+        println "Compilazione dei diagrammi PlantUML in formato SVG..."
+        args = ["-tsvg"] + pumlFiles.collect { it.absolutePath }
+    }
+}
+
