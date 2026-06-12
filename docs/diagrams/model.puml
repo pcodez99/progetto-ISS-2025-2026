@@ -1,4 +1,5 @@
 @startuml model
+!pragma layout smetana
 package io.github.iss_2025_2026.model {
 
     abstract class Character {
