@@ -5,8 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -48,7 +49,7 @@ public class BattleScreen implements Screen {
 
     private Stage stage;
     private Skin skin;
-    private ShapeRenderer shapeRenderer;
+    private Texture backgroundTexture;
     private Table root;
     private Table enemiesRow;
     private Table playersRow;
@@ -90,7 +91,7 @@ public class BattleScreen implements Screen {
     @Override
     public void show() {
         skin = GameUiTheme.loadSkin();
-        shapeRenderer = new ShapeRenderer();
+        backgroundTexture = new Texture(Gdx.files.internal("map/levels/1/Arena_level_1.png"));
         stage = new Stage(new ScreenViewport());
         InputMultiplexer multiplexer = new InputMultiplexer();
         multiplexer.addProcessor(stage);
@@ -101,6 +102,11 @@ public class BattleScreen implements Screen {
     }
 
     private void buildUi() {
+        Image backgroundImage = new Image(backgroundTexture);
+        backgroundImage.setFillParent(true);
+        backgroundImage.setScaling(Scaling.stretch);
+        stage.addActor(backgroundImage);
+
         root = new Table();
         root.setFillParent(true);
         root.top().pad(GameUiTheme.SPACE_4);
@@ -385,8 +391,7 @@ public class BattleScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0.02f, 0.03f, 0.08f, 1f);
-        drawBackground();
+        ScreenUtils.clear(0f, 0f, 0f, 1f);
 
         BattlePhase phaseBeforeUpdate = battleModel.getPhase();
         battleController.update(delta);
@@ -416,16 +421,7 @@ public class BattleScreen implements Screen {
         stage.draw();
     }
 
-    private void drawBackground() {
-        Gdx.gl.glEnable(GL20.GL_BLEND);
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(0.08f, 0.05f, 0.18f, 1f);
-        shapeRenderer.rect(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        shapeRenderer.setColor(0.12f, 0.18f, 0.35f, 0.55f);
-        shapeRenderer.rect(0, Gdx.graphics.getHeight() * 0.35f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight() * 0.65f);
-        shapeRenderer.end();
-        Gdx.gl.glDisable(GL20.GL_BLEND);
-    }
+
 
     @Override
     public void resize(int width, int height) {
@@ -453,8 +449,8 @@ public class BattleScreen implements Screen {
         if (skin != null) {
             skin.dispose();
         }
-        if (shapeRenderer != null) {
-            shapeRenderer.dispose();
+        if (backgroundTexture != null) {
+            backgroundTexture.dispose();
         }
     }
 }
