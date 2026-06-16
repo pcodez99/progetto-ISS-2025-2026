@@ -6,9 +6,13 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -32,7 +36,10 @@ import io.github.iss_2025_2026.service.EnemyEncounter;
 import io.github.iss_2025_2026.service.EnemyEncounterService;
 import io.github.iss_2025_2026.service.GameOverService;
 import io.github.iss_2025_2026.service.RunMusicManager;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Schermata di combattimento a turni in stile Final Fantasy.
@@ -50,6 +57,7 @@ public class BattleScreen implements Screen {
     private Stage stage;
     private Skin skin;
     private Texture backgroundTexture;
+    private Group combatLayer;
     private Table root;
     private Table enemiesRow;
     private Table playersRow;
@@ -60,7 +68,11 @@ public class BattleScreen implements Screen {
     private Label statusLabel;
     private BattlePhase lastRenderedPhase;
     private BattleController.MenuState lastRenderedMenuState;
+    private final Map<Enemy, EnemyBattleAssets> enemyAssets = new HashMap<>();
     private final InputAdapter inputListener;
+    private float battleTime;
+    private float enemyAttackTimer;
+    private float enemyAttackStateTime;
 
     public BattleScreen(Main game, GameContext gameContext, GameModel gameModel, LevelScreen returnScreen,
             BattleModel battleModel, BattleController battleController, EnemyEncounter encounter,
@@ -106,6 +118,11 @@ public class BattleScreen implements Screen {
         backgroundImage.setFillParent(true);
         backgroundImage.setScaling(Scaling.stretch);
         stage.addActor(backgroundImage);
+
+        combatLayer = new Group();
+        combatLayer.setBounds(0f, 0f, stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight());
+        stage.addActor(combatLayer);
+        rebuildEnemyActors();
 
         root = new Table();
         root.setFillParent(true);
@@ -161,6 +178,7 @@ public class BattleScreen implements Screen {
     }
 
     private void refreshBattleDisplay() {
+        rebuildEnemyActors();
         refreshEnemyPanels();
         refreshPlayerPanels();
         refreshLog();
@@ -172,6 +190,65 @@ public class BattleScreen implements Screen {
         panel.add(new Label(enemy.getName(), skin, GameUiTheme.LABEL_SECTION)).row();
         panel.add(new Label("HP: " + enemy.getHp() + "/" + enemy.getMaxHp(), skin, GameUiTheme.LABEL_BODY)).row();
         return panel;
+    }
+
+    private void rebuildEnemyActors() {
+        if (combatLayer == null) {
+            return;
+        }
+        disposeEnemyAssets();
+        combatLayer.clearChildren();
+
+        List<Enemy> aliveEnemies = battleModel.getAliveEnemies();
+        for (int i = 0; i < aliveEnemies.size(); i++) {
+            Enemy enemy = aliveEnemies.get(i);
+            EnemyBattleAssets assets = new EnemyBattleAssets(enemy);
+            enemyAssets.put(enemy, assets);
+            combatLayer.addActor(createEnemyActor(enemy, assets, i, aliveEnemies.size()));
+        }
+    }
+
+    private Image createEnemyActor(Enemy enemy, EnemyBattleAssets assets, int index, int enemyCount) {
+        Image sprite = new Image() {
+            @Override
+            public void draw(Batch batch, float parentAlpha) {
+                Animation<TextureRegion> animation = enemyAttackTimer > 0f && assets.getAttackAnim() != null
+                        ? assets.getAttackAnim()
+                        : assets.getIdleAnim();
+                if (animation == null) {
+                    return;
+                }
+                boolean looping = enemyAttackTimer <= 0f || animation == assets.getIdleAnim();
+                float stateTime = animation == assets.getAttackAnim() ? enemyAttackStateTime : battleTime;
+                TextureRegion frame = animation.getKeyFrame(stateTime, looping);
+                batch.draw(frame, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(), getScaleX(),
+                        getScaleY(), getRotation());
+            }
+
+            @Override
+            public void act(float delta) {
+                super.act(delta);
+                positionEnemyActor(this, assets, index, enemyCount);
+            }
+        };
+        positionEnemyActor(sprite, assets, index, enemyCount);
+        return sprite;
+    }
+
+    private void positionEnemyActor(Image sprite, EnemyBattleAssets assets, int index, int enemyCount) {
+        float worldWidth = stage.getViewport().getWorldWidth();
+        float worldHeight = stage.getViewport().getWorldHeight();
+        float size = assets.getDisplaySize();
+        int columns = Math.min(4, Math.max(1, enemyCount));
+        int column = index % columns;
+        int row = index / columns;
+        float spacingX = Math.min(128f, size * 0.58f);
+        float spacingY = Math.min(96f, size * 0.45f);
+        float startX = worldWidth * 0.62f;
+        float startY = worldHeight * 0.58f;
+
+        sprite.setSize(size, size);
+        sprite.setPosition(startX + column * spacingX, startY - row * spacingY - (column % 2) * 14f);
     }
 
     private Table createPlayerPanel(Player player) {
@@ -417,6 +494,10 @@ public class BattleScreen implements Screen {
         ScreenUtils.clear(0f, 0f, 0f, 1f);
 
         BattlePhase phaseBeforeUpdate = battleModel.getPhase();
+        if (phaseBeforeUpdate == BattlePhase.ENEMY_TURN && enemyAttackTimer <= 0f) {
+            enemyAttackTimer = EnemyBattleAssets.ATTACK_DURATION;
+            enemyAttackStateTime = 0f;
+        }
         battleController.update(delta);
         BattlePhase phaseAfterUpdate = battleModel.getPhase();
 
@@ -440,6 +521,11 @@ public class BattleScreen implements Screen {
             return;
         }
 
+        battleTime += delta;
+        if (enemyAttackTimer > 0f) {
+            enemyAttackStateTime += delta;
+        }
+        enemyAttackTimer = Math.max(0f, enemyAttackTimer - delta);
         stage.act(delta);
         stage.draw();
     }
@@ -449,6 +535,9 @@ public class BattleScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
+        if (combatLayer != null) {
+            combatLayer.setSize(stage.getViewport().getWorldWidth(), stage.getViewport().getWorldHeight());
+        }
     }
 
     @Override
@@ -474,6 +563,65 @@ public class BattleScreen implements Screen {
         }
         if (backgroundTexture != null) {
             backgroundTexture.dispose();
+        }
+        disposeEnemyAssets();
+    }
+
+    private void disposeEnemyAssets() {
+        for (EnemyBattleAssets assets : new ArrayList<>(enemyAssets.values())) {
+            assets.dispose();
+        }
+        enemyAssets.clear();
+    }
+
+    private static final class EnemyBattleAssets {
+        private static final float ATTACK_DURATION = 0.8f;
+
+        private final List<Texture> loadedTextures = new ArrayList<>();
+        private final Animation<TextureRegion> idleAnim;
+        private final Animation<TextureRegion> attackAnim;
+        private final float displaySize;
+
+        private EnemyBattleAssets(Enemy enemy) {
+            String basePath = resolveBasePath(enemy);
+            this.idleAnim = JsonAnimationLoader.load(basePath + "/idle_right", 0.1f, loadedTextures, true);
+            this.attackAnim = JsonAnimationLoader.load(basePath + "/attack_right", 0.04f, loadedTextures, true);
+            this.displaySize = basePath.endsWith("enemy-alien-1") ? 260f : 220f;
+        }
+
+        private static String resolveBasePath(Enemy enemy) {
+            if (enemy == null) {
+                return "characters/enemy-alien-2";
+            }
+            String enemyId = enemy.getEnemyId();
+            if ("alieno_guardiano".equals(enemyId)
+                    || "boss_livello_1".equals(enemyId)
+                    || "boss_livello_2".equals(enemyId)
+                    || "boss_livello_3".equals(enemyId)) {
+                return "characters/enemy-alien-1";
+            }
+            return "characters/enemy-alien-2";
+        }
+
+        private Animation<TextureRegion> getIdleAnim() {
+            return idleAnim;
+        }
+
+        private Animation<TextureRegion> getAttackAnim() {
+            return attackAnim;
+        }
+
+        private float getDisplaySize() {
+            return displaySize;
+        }
+
+        private void dispose() {
+            for (Texture texture : loadedTextures) {
+                if (texture != null) {
+                    texture.dispose();
+                }
+            }
+            loadedTextures.clear();
         }
     }
 }
