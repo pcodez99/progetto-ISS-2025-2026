@@ -245,7 +245,7 @@ public class BattleScreen implements Screen {
         float spacingX = Math.min(160f, size * 0.56f);
         float spacingY = Math.min(120f, size * 0.42f);
         float startX = worldWidth * 0.57f;
-        float startY = worldHeight * 0.38f;
+        float startY = worldHeight * 0.24f;
 
         sprite.setSize(size, size);
         sprite.setPosition(startX + column * spacingX, startY - row * spacingY - (column % 2) * 14f);
