@@ -1,0 +1,143 @@
+@startuml view
+package io.github.iss_2025_2026.view {
+
+    class LevelScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - gameContext: GameContext
+        - model: GameModel
+        - controller: GameController
+        - inputListener: InputAdapter
+        - levelRuntime: LevelRuntime
+        - stage: Stage
+        - uiStage: Stage
+        - skin: Skin
+        - map: TiledMap
+        - mapRenderer: IsometricTiledMapRenderer
+        - physicsFacade: PhysicsFacade
+        - checkpointService: CheckpointService
+        - encounterService: EnemyEncounterService
+        - playerAssets: PlayerAssets
+        - playerTwoAssets: PlayerAssets
+        + LevelScreen(game: Main, gameContext: GameContext, model: GameModel, controller: GameController, levelRuntime: LevelRuntime)
+        + render(delta: float): void
+        + show(): void
+        + hide(): void
+        + dispose(): void
+        - configureLevel(levelRuntime: LevelRuntime): void
+        - buildUI(): void
+        - addPlayerActor(player: Player, assets: PlayerAssets): void
+        - startBattle(encounter: EnemyEncounter, p1: Player, p2: Player): void
+    }
+
+    class BattleScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - context: GameContext
+        - model: GameModel
+        - levelScreen: LevelScreen
+        - battleModel: BattleModel
+        - battleController: BattleController
+        - stage: Stage
+        - skin: Skin
+        + BattleScreen(game: Main, context: GameContext, model: GameModel, levelScreen: LevelScreen, battleModel: BattleModel, battleController: BattleController, encounter: EnemyEncounter, encounterService: EnemyEncounterService)
+        + render(delta: float): void
+        + show(): void
+        + hide(): void
+        + dispose(): void
+    }
+
+    class MainMenuScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - model: GameModel
+        - controller: GameController
+        - stage: Stage
+        - skin: Skin
+        + MainMenuScreen(game: Main, model: GameModel, controller: GameController, hasActiveGame: boolean, activeLevelScreen: Screen)
+        + render(delta: float): void
+    }
+
+    class CharacterSelectionScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - model: CharacterSelectionModel
+        - controller: CharacterSelectionController
+        - stage: Stage
+        - skin: Skin
+        + CharacterSelectionScreen(game: Main, model: CharacterSelectionModel, controller: CharacterSelectionController)
+    }
+
+    class GameOverScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - model: GameModel
+        - result: GameOverResult
+        - stage: Stage
+        - skin: Skin
+        + GameOverScreen(game: Main, model: GameModel, result: GameOverResult)
+    }
+
+    class SettingsScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - stage: Stage
+        - skin: Skin
+        + SettingsScreen(game: Main, parentScreen: Screen)
+    }
+
+    class LoadGameScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - model: GameModel
+        - flowController: GameFlowController
+        - stage: Stage
+        - skin: Skin
+        + LoadGameScreen(game: Main, model: GameModel, flowController: GameFlowController)
+    }
+
+    class NewGameConfigScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - flowController: GameFlowController
+        - model: NewGameConfigModel
+        - stage: Stage
+        - skin: Skin
+        + NewGameConfigScreen(game: Main, flowController: GameFlowController)
+    }
+
+    class PlayerSelectionTransitionScreen implements com.badlogic.gdx.Screen {
+        - game: Main
+        - stage: Stage
+        - skin: Skin
+        + PlayerSelectionTransitionScreen(game: Main, gameName: String, p1Id: String, p2Id: String, mode: GameMode)
+    }
+
+    class PlayerAssets {
+        - walkAnims: Map<Direction, Animation<TextureRegion>>
+        - idleAnims: Map<Direction, Animation<TextureRegion>>
+        - attackAnim: Animation<TextureRegion>
+        - attackSound: Sound
+        + PlayerAssets(player: Player)
+        + getWalkAnim(dir: Direction): Animation<TextureRegion>
+        + getIdleAnim(dir: Direction): Animation<TextureRegion>
+        + getAttackAnim(): Animation<TextureRegion>
+        + getAttackSound(): Sound
+        + dispose(): void
+    }
+
+    class CursorHoverUtil {
+        + {static} applyPointerCursor(actor: Actor): void
+        + {static} resetDefaultCursor(): void
+    }
+
+    class JsonAnimationLoader {
+        + {static} load(folderPath: String, frameDuration: float, textureRegistry: List<Texture>, flipX: boolean): Animation<TextureRegion>
+    }
+
+    class GameUiTheme {
+        + {static} loadSkin(): Skin
+        + {static} getTitleFont(): BitmapFont
+    }
+
+    class GameUiFactory {
+        + {static} createStrongPanel(skin: Skin, padding: float): Table
+    }
+
+    LevelScreen o-- PlayerAssets : delegates assets to
+    BattleScreen o-- io.github.iss_2025_2026.model.combat.BattleModel
+    BattleScreen o-- io.github.iss_2025_2026.controller.BattleController
+}
+@enduml
