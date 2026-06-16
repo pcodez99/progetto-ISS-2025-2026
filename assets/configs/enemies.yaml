@@ -26,7 +26,7 @@ enemies:
     maxHp: 45
     baseDamage: 8
     xpReward: 15
-    isBoss: true
+    isBoss: false
     abilityId: "NONE"
     encounter:
       immediateBattle: true
