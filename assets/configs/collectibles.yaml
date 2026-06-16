@@ -1,9 +1,123 @@
+- id: "level_1_potion"
+  name: "Cavuliceddi"
+  description: "Verdura selvatica"
+  effectType: "HEAL"
+  aoe: false
+  effectValue: 20
+  visual:
+    type: "STATIC"
+    asset: "collectibles/Cavuliceddu-nobg.png"
+
+- id: "level_3_potion"
+  name: "Il Fico d'India di Proxima"
+  description: "Frutto alieno che cresce sul pianeta di Proxima"
+  effectType: "HEAL"
+  aoe: false
+  effectValue: 20
+  visual:
+    type: "STATIC"
+    asset: "collectibles/Fico-nobg.png"
+
+- id: "level_2_potion"
+  name: "Giga-Larva Nutritiva di Proxima Centauri"
+  description: "Sono delle larve giganti, cilindriche, lunghe circa 30 centimetri, mangiato dagli alieni come un salame fatto in casa"
+  effectType: "HEAL"
+  aoe: false
+  effectValue: 20
+  visual:
+    type: "STATIC"
+    asset: "collectibles/Larva-nobg.png"
+
+- id: "level_1_bomb"
+  name: "Molotov del nonno"
+  description: "Bottiglia di grappa fatta in casa,trasforma in una bomba molotov"
+  effectType: "DAMAGE"
+  aoe: true
+  effectValue: 15
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/Molotov-spritesheet.png"
+    frameWidth: 256
+    frameHeight: 256
+    frameDuration: 0.08
+    playMode: "LOOP"
+
+- id: "level_2_bomb"
+  name: "Lampadina a raggi gamma"
+  description: "Se viene tirata per terra, si frantuma rilasciando un flash accecante di radiazioni che infligge danni ai nemici"
+  effectType: "DAMAGE"
+  aoe: true
+  effectValue: 15
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/lampadina-spritesheet.png"
+    frameWidth: 256
+    frameHeight: 256
+    frameDuration: 0.08
+    playMode: "LOOP"
+
+- id: "level_3_bomb"
+  name: "Patata radioattiva"
+  description: " Patata viola brillante, pesante e fredda al tatto."
+  effectType: "DAMAGE"
+  aoe: true
+  effectValue: 15
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/Patata bomba-spritesheet.png"
+    frameWidth: 256
+    frameHeight: 256
+    frameDuration: 0.08
+    playMode: "LOOP"
+
+- id: "level_1_buff"
+  name: "Siero di latte della ricotta"
+  description: "Niente beveroni chimici da palestra, solo siero di pecora per bicipiti d'acciaio"
+  effectType: "BUFF"
+  aoe: false
+  effectValue: 20
+  visual:
+    type: "STATIC"
+    asset: "collectibles/Siero-nobg.png"
+
+- id: "level_2_buff"
+  name: "Siero sinaptico"
+  description: "Fiala di sostanze chimiche"
+  effectType: "BUFF"
+  aoe: false
+  effectValue: 20
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/Siero sinaptico-spritesheet.png"
+    frameWidth: 256
+    frameHeight: 256
+    frameDuration: 0.08
+    playMode: "LOOP"
+
+- id: "level_3_buff"
+  name: "Il Miele di Vespe Spaziali Corazzate"
+  description: "Il miele prodotto dalle vespe spaziali corazzate è uno dei prodotti più ricercati in assoluto tra i collezionisti di snack alieni"
+  effectType: "BUFF"
+  aoe: false
+  effectValue: 20
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/Miele-spritesheet.png"
+    frameWidth: 256
+    frameHeight: 256
+    frameDuration: 0.08
+    playMode: "LOOP"
+
+# ID storici usati dalle ricompense NPC e dai salvataggi esistenti.
 - id: "SMALL_POTION"
   name: "Pozione piccola"
   description: "Cura 20 HP a un alleato"
   effectType: "HEAL"
   aoe: false
   effectValue: 20
+  visual:
+    type: "STATIC"
+    asset: "collectibles/Cavuliceddu-nobg.png"
 
 - id: "SMALL_BOMB"
   name: "Bomba piccola"
@@ -11,6 +125,13 @@
   effectType: "DAMAGE"
   aoe: true
   effectValue: 15
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/Molotov-spritesheet.png"
+    frameWidth: 256
+    frameHeight: 256
+    frameDuration: 0.08
+    playMode: "LOOP"
 
 - id: "STRENGTH_ELIXIR"
   name: "Elisir della forza"
@@ -18,3 +139,6 @@
   effectType: "BUFF"
   aoe: false
   effectValue: 20
+  visual:
+    type: "STATIC"
+    asset: "collectibles/Siero-nobg.png"

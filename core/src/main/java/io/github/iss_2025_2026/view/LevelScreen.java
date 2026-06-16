@@ -5,7 +5,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -34,13 +33,17 @@ import io.github.iss_2025_2026.controller.BattleController;
 import io.github.iss_2025_2026.controller.GameContext;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.CollectibleConfigLoader;
 import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.factory.NpcFactory;
 import io.github.iss_2025_2026.factory.YamlCharacterFactory;
+import io.github.iss_2025_2026.config.CollectibleCatalog;
 import io.github.iss_2025_2026.map.LevelRuntime;
+import io.github.iss_2025_2026.map.TmxCollectibleLoader;
 import io.github.iss_2025_2026.map.TmxLevel;
 import io.github.iss_2025_2026.model.ChoiceEventType;
 import io.github.iss_2025_2026.model.CharacterState;
+import io.github.iss_2025_2026.model.CharacterSheetModel;
 import io.github.iss_2025_2026.model.DialogueSession;
 import io.github.iss_2025_2026.model.DialogueTurn;
 import io.github.iss_2025_2026.model.Direction;
@@ -69,6 +72,8 @@ import io.github.iss_2025_2026.service.NpcInteraction;
 import io.github.iss_2025_2026.service.NpcInteractionService;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SaveResult;
+import io.github.iss_2025_2026.service.CollectibleService;
+import io.github.iss_2025_2026.view.collectibles.CollectibleRenderer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,6 +134,11 @@ public class LevelScreen implements Screen {
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
     private final Map<String, NpcAssets> npcAssetsById = new HashMap<>();
+
+    private CollectibleService collectibleService;
+    private CollectibleRenderer collectibleRenderer;
+    private Label pickupPromptLabel;
+    private CharacterSheetModel characterSheetModel;
 
     private CharacterState lastStateP1 = CharacterState.IDLE;
     private CharacterState lastStateP2 = CharacterState.IDLE;
@@ -228,6 +238,14 @@ public class LevelScreen implements Screen {
                     drawObstacleDebug = !drawObstacleDebug;
                     return true;
                 }
+                // Apri la schermata personaggio — vietato durante il combattimento
+                if (keycode == Input.Keys.I) {
+                    if (characterSheetModel != null
+                            && characterSheetModel.canOpenDuringPhase(model.getGameState().getPhase())) {
+                        game.setScreen(new CharacterSheetScreen(game, characterSheetModel, LevelScreen.this));
+                    }
+                    return true;
+                }
 
                 return false;
             }
@@ -248,7 +266,8 @@ public class LevelScreen implements Screen {
         npcDialogueService = new NpcDialogueService();
         dialogueController = new NpcDialogueController();
         evolutionService = new EvolutionService();
-        CollectibleFactory collectibleFactory = new CollectibleFactory();
+        CollectibleCatalog collectibleCatalog = CollectibleConfigLoader.loadDefault();
+        CollectibleFactory collectibleFactory = new CollectibleFactory(collectibleCatalog);
         npcHelpRequestService = new NpcHelpRequestService(collectibleFactory, evolutionService);
         npcHelpRequestService.validateConfiguration(npcFactory.getAllNpcs());
         npcInteractionService = new NpcInteractionService(
@@ -256,6 +275,19 @@ public class LevelScreen implements Screen {
 
         // Inizializza la facciata fisica Box2D con le dimensioni configurate
         physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
+
+        collectibleService = new CollectibleService(
+                new TmxCollectibleLoader(collectibleFactory).load(level, levelRuntime.getId()),
+                playerSize / 2f,
+                playerYOffset);
+        collectibleRenderer = new CollectibleRenderer(collectibleCatalog.getVisualConfigs());
+        collectibleService.setPickupListener((collectible, player) ->
+                showSaveStatus(player.getName() + " ha raccolto " + collectible.getName() + "!", false));
+
+        Player playerOne = model.getPlayerOne();
+        if (playerOne != null) {
+            characterSheetModel = new CharacterSheetModel(playerOne);
+        }
 
         // Pre-carica le animazioni idle nemico per gli sprite sulla mappa
         preloadEnemyIdleAnimations();
@@ -352,6 +384,10 @@ public class LevelScreen implements Screen {
             playerTwoHud = new PlayerHud(model.getPlayerTwo(), skin);
             root.add(playerTwoHud.getTable()).right().top().pad(GameUiTheme.SPACE_3);
         }
+
+        pickupPromptLabel = new Label("Premi E per raccogliere", skin, GameUiTheme.LABEL_BODY);
+        pickupPromptLabel.setVisible(false);
+        uiStage.addActor(pickupPromptLabel);
 
         buildDialoguePanel();
     }
@@ -653,11 +689,17 @@ public class LevelScreen implements Screen {
             cam.update();
         }
 
+        handleMapInteractions(p1, p2);
+
         // 3. Rendering (View)
         ScreenUtils.clear(76f / 255f, 126f / 255f, 62f / 255f, 1f);
 
         mapRenderer.setView((OrthographicCamera) stage.getCamera());
         mapRenderer.render();
+
+        // Renderizza i collectibles a terra
+        collectibleRenderer.update(delta);
+        renderCollectibles(stage.getBatch());
 
         if (drawObstacleDebug && physicsFacade != null) {
             physicsFacade.drawDebug(cam);
@@ -677,11 +719,61 @@ public class LevelScreen implements Screen {
         uiStage.draw();
     }
 
+    private void handleMapInteractions(Player playerOne, Player playerTwo) {
+        if (pickupPromptLabel == null || playerOne == null
+                || isDialogueBlockingGameplay() || nearbyNpcInteraction != null) {
+            if (pickupPromptLabel != null) {
+                pickupPromptLabel.setVisible(false);
+            }
+            return;
+        }
+
+        CollectibleService.CollectibleOnMap collectible = collectibleService != null
+                ? collectibleService.getClosestCollectible(playerOne)
+                : null;
+        Player interactingPlayer = playerOne;
+        if (collectible == null && model.isMultiplayerGame() && playerTwo != null && collectibleService != null) {
+            collectible = collectibleService.getClosestCollectible(playerTwo);
+            interactingPlayer = playerTwo;
+        }
+
+        if (collectible != null) {
+            String prefix = interactingPlayer == playerOne ? "Premi E" : "P2: Premi ENTER";
+            showInteractionPrompt(prefix + " per raccogliere " + collectible.getCollectible().getName());
+            if (interactionKeyPressed(interactingPlayer, playerOne)) {
+                collectibleService.pickUp(interactingPlayer, collectible);
+            }
+            return;
+        }
+
+        pickupPromptLabel.setVisible(false);
+    }
+
+    private boolean interactionKeyPressed(Player interactingPlayer, Player playerOne) {
+        if (interactingPlayer == playerOne) {
+            return Gdx.input.isKeyJustPressed(Input.Keys.E);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.ENTER)
+                || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0);
+    }
+
+    private void showInteractionPrompt(String text) {
+        pickupPromptLabel.setText(text);
+        pickupPromptLabel.setVisible(true);
+        pickupPromptLabel.pack();
+        pickupPromptLabel.setPosition(
+                (stage.getViewport().getScreenWidth() - pickupPromptLabel.getWidth()) / 2f,
+                80f);
+    }
+
     @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
         uiStage.getViewport().update(width, height, true);
         updateDialoguePanelLayout();
+        if (pickupPromptLabel != null) {
+            pickupPromptLabel.setPosition((width - pickupPromptLabel.getPrefWidth()) / 2f, 80f);
+        }
     }
 
     @Override
@@ -746,6 +838,10 @@ public class LevelScreen implements Screen {
         enemySpriteTextures.clear();
         enemyIdleAnimCache.clear();
         enemySpriteActors.clear();
+        if (collectibleRenderer != null) {
+            collectibleRenderer.dispose();
+            collectibleRenderer = null;
+        }
     }
 
     public void startEncounterCooldown(float seconds) {
@@ -1189,5 +1285,14 @@ public class LevelScreen implements Screen {
         private void updatePosition() {
             setPosition(interaction.getX() - drawSize / 2f, interaction.getY() - yOffset);
         }
+    }
+
+    private void renderCollectibles(Batch batch) {
+        if (collectibleService == null || collectibleRenderer == null) {
+            return;
+        }
+
+        OrthographicCamera cam = (OrthographicCamera) stage.getCamera();
+        collectibleRenderer.render(batch, cam.combined, collectibleService.getActiveCollectibles());
     }
 }

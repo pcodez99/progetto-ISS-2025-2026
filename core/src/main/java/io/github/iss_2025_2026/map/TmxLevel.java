@@ -104,6 +104,18 @@ public final class TmxLevel {
         return Collections.unmodifiableList(objects);
     }
 
+    /** Restituisce i collectible piazzati in Tiled, senza crearne di procedurali. */
+    public List<MapObject> collectibleObjects() {
+        List<MapObject> objects = new ArrayList<>();
+        MapLayer layer = requireLayer(TmxMapContract.LAYER_COLLECTIBLES);
+        for (MapObject object : layer.getObjects()) {
+            if (object.isVisible()) {
+                objects.add(object);
+            }
+        }
+        return Collections.unmodifiableList(objects);
+    }
+
     private void addPhysicsObjects(List<MapObject> target, String layerName, boolean requireCollisionProperty) {
         MapLayer layer = map.getLayers().get(layerName);
         if (layer == null) {

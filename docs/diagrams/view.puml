@@ -1,4 +1,6 @@
 @startuml view
+!pragma layout smetana
+!pragma layout smetana
 package io.github.iss_2025_2026.view {
 
     class LevelScreen implements com.badlogic.gdx.Screen {
@@ -18,6 +20,10 @@ package io.github.iss_2025_2026.view {
         - encounterService: EnemyEncounterService
         - playerAssets: PlayerAssets
         - playerTwoAssets: PlayerAssets
+        - collectibleService: CollectibleService
+        - collectibleTextures: Map<String, TextureRegion>
+        - collectibleOriginalTextures: List<Texture>
+        - pickupPromptLabel: Label
         + LevelScreen(game: Main, gameContext: GameContext, model: GameModel, controller: GameController, levelRuntime: LevelRuntime)
         + render(delta: float): void
         + show(): void
@@ -27,6 +33,9 @@ package io.github.iss_2025_2026.view {
         - buildUI(): void
         - addPlayerActor(player: Player, assets: PlayerAssets): void
         - startBattle(encounter: EnemyEncounter, p1: Player, p2: Player): void
+        - renderCollectibles(batch: Batch): void
+        - getCollectibleRegion(collectible: Collectible): TextureRegion
+        - getAssetPath(id: String): String
     }
 
     class BattleScreen implements com.badlogic.gdx.Screen {
@@ -137,6 +146,7 @@ package io.github.iss_2025_2026.view {
     }
 
     LevelScreen o-- PlayerAssets : delegates assets to
+    LevelScreen o-- io.github.iss_2025_2026.service.CollectibleService : uses
     BattleScreen o-- io.github.iss_2025_2026.model.combat.BattleModel
     BattleScreen o-- io.github.iss_2025_2026.controller.BattleController
 }

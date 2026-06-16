@@ -297,6 +297,10 @@ public class BattleModel {
         String effectType = item.getEffectType();
         if (effectType != null && ("HEAL".equalsIgnoreCase(effectType) || "BUFF".equalsIgnoreCase(effectType))) {
             targets.add(user);
+        } else if (item.isAoe()) {
+            for (Enemy enemy : getAliveEnemies()) {
+                targets.add(enemy);
+            }
         } else if (target != null) {
             targets.add(target);
         } else {

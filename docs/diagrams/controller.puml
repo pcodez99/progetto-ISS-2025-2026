@@ -1,4 +1,6 @@
 @startuml controller
+!pragma layout smetana
+!pragma layout smetana
 package io.github.iss_2025_2026 {
     class Main extends com.badlogic.gdx.Game {
         - gameContext: GameContext
