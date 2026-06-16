@@ -363,6 +363,29 @@ public class BattleScreen implements Screen {
         }
         if (victory) {
             gameModel.setActiveBattleModel(null);
+
+            // Se era una boss battle, completa il livello e mostra la schermata di recap
+            if (battleModel.wasBossBattle()) {
+                // Salva il nome del livello completato prima che il FlowController avanzi l'ID
+                String levelName = null;
+                if (gameContext.getSceneController().getActiveScene() != null) {
+                    levelName = gameContext.getSceneController().getActiveScene().getName();
+                }
+
+                gameModel.setMessage("Boss sconfitto! Livello completato!");
+                gameContext.getFlowController().completeCurrentLevel();
+
+                // Dispose della vecchia LevelScreen (risorse native: mappa, fisica, sprite)
+                if (returnScreen != null) {
+                    returnScreen.dispose();
+                }
+
+                boolean isGameCompleted = gameModel.getGameState().getPhase() == GameState.Phase.GAME_COMPLETED;
+                game.setScreen(new LevelCompletedScreen(
+                        game, gameContext, isGameCompleted, battleModel, levelName));
+                return;
+            }
+
             gameModel.getGameState().setPhase(GameState.Phase.PLAYING);
             gameModel.setMessage("Vittoria! +" + battleModel.getTotalXpEarned() + " XP");
             game.setScreen(returnScreen);

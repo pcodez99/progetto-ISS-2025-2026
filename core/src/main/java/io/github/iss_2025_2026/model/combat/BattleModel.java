@@ -238,6 +238,19 @@ public class BattleModel {
         return Collections.unmodifiableList(enemies);
     }
 
+    /**
+     * Verifica se la battaglia includeva almeno un boss.
+     * Utilizzato per determinare se la vittoria deve innescare il completamento del livello.
+     */
+    public boolean wasBossBattle() {
+        for (Enemy enemy : enemies) {
+            if (enemy.isBoss()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Player getPlayerOne() {
         return playerOne;
     }

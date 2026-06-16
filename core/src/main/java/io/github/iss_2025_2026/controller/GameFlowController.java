@@ -36,7 +36,6 @@ public final class GameFlowController {
     public void completeCurrentLevel() {
         int completedLevelId = gameState.getCurrentLevelId();
         gameState.addCompletedLevelId(completedLevelId);
-        gameState.setPhase(GameState.Phase.LEVEL_COMPLETED);
 
         int nextLevelId = completedLevelId + 1;
         if (!sceneController.hasLevel(nextLevelId)) {
@@ -45,6 +44,8 @@ public final class GameFlowController {
         }
 
         gameState.setCurrentLevelId(nextLevelId);
-        startCurrentLevel();
+        gameState.setPhase(GameState.Phase.LEVEL_COMPLETED);
+        // Il caricamento effettivo del livello successivo avviene quando
+        // la LevelCompletedScreen chiama startCurrentLevel()
     }
 }
