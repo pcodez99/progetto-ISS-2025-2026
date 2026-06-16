@@ -508,8 +508,11 @@ public class BattleScreen implements Screen {
         addActionButton(createMenuButton("Attacco", this::onAttack));
 
         // Crea il bottone dell'abilità speciale e lo disabilita se già usato
-        TextButton specialAbilityButton = createMenuButton("Abilita speciale", this::onSpecial);
         Player currentPlayer = battleModel.getCurrentTurnPlayer();
+        String specialLabel = currentPlayer != null && currentPlayer.getAbility() != null
+                ? currentPlayer.getAbility().getName()
+                : "Abilita speciale";
+        TextButton specialAbilityButton = createMenuButton(specialLabel, this::onSpecial);
         if (currentPlayer != null && currentPlayer.hasUsedSpecialAbilityThisBattle()) {
             specialAbilityButton.setDisabled(true);
         }

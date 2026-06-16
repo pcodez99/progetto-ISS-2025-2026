@@ -1,0 +1,53 @@
+characters:
+  nonno:
+    abilities:
+      base: "WHEELCHAIR_JUMP"
+      altruistic: "NONNO_GUARDIAN_STANCE"
+      egoistic: "NONNO_RAMMING_CHARGE"
+    unlockRules:
+      altruistic:
+        altruismMin: 24
+        helpedNpcsMin: 2
+      egoistic:
+        egoismMin: 18
+        negativeChoicesMin: 2
+
+  papa:
+    abilities:
+      base: "VIDDANO_THROW"
+      altruistic: "PAPA_GUARDIAN_THROW"
+      egoistic: "PAPA_HEAVY_HIT"
+    unlockRules:
+      altruistic:
+        altruismMin: 22
+        helpedNpcsMin: 2
+      egoistic:
+        egoismMin: 20
+        negativeChoicesMin: 2
+
+  mamma:
+    abilities:
+      base: "GROUP_HEAL"
+      altruistic: "MAMMA_PURIFYING_CARE"
+      egoistic: "MAMMA_SLIPPER_STUN"
+    unlockRules:
+      altruistic:
+        altruismMin: 22
+        helpedNpcsMin: 2
+      egoistic:
+        egoismMin: 16
+        stolenItemsMin: 1
+
+  bambino:
+    abilities:
+      base: "STONE_RAIN"
+      altruistic: "BAMBINO_DISTRACTION_SHOT"
+      egoistic: "BAMBINO_CRITICAL_BARRAGE"
+    unlockRules:
+      altruistic:
+        altruismMin: 18
+        helpedNpcsMin: 1
+        sparedAliensMin: 1
+      egoistic:
+        egoismMin: 16
+        negativeChoicesMin: 2

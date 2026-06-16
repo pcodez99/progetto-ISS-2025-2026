@@ -1,0 +1,7 @@
+id: "PAPA_GUARDIAN_THROW"
+name: "Lancio Protettivo"
+description: "Attacco altruista controllato: colpisce i nemici mentre mantiene il fronte stabile."
+strategy: "DAMAGE"
+cooldown: 3
+aoe: true
+baseDamage: 22

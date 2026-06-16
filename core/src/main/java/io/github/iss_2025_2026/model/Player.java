@@ -1,11 +1,17 @@
 package io.github.iss_2025_2026.model;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+
 /** Represents a character selectable by the player */
 public class Player extends Character {
     private String characterId;
     private int karma; // from -50 to +50 (egoism and altruism)
     private Backpack backpack;
     private SpecialAbility ability;
+    private final Map<AbilitySlot, SpecialAbility> abilitiesBySlot = new EnumMap<>(AbilitySlot.class);
+    private PlayerEvolutionState evolutionState;
 
     // Growth parameters for leveling up
     private int maxHpGrowth;
@@ -24,6 +30,8 @@ public class Player extends Character {
         this.karma = 0;
         this.backpack = new Backpack(10);
         this.ability = ability;
+        this.evolutionState = new PlayerEvolutionState();
+        setAbilitySlot(AbilitySlot.BASE, ability);
         this.maxHpGrowth = maxHpGrowth;
         this.damageGrowth = damageGrowth;
         this.xp = 0;
@@ -53,8 +61,9 @@ public class Player extends Character {
      * Uses the character's special ability
      */
     public void useSpecialAbility(Character target) {
-        if (this.ability != null) {
-            this.ability.perform(this, target, getLevel());
+        SpecialAbility selectedAbility = getAbility();
+        if (selectedAbility != null) {
+            selectedAbility.perform(this, target, getLevel());
         }
     }
 
@@ -149,7 +158,73 @@ public class Player extends Character {
     }
 
     public SpecialAbility getAbility() {
-        return ability;
+        AbilitySlot selectedSlot = getSelectedAbilitySlot();
+        SpecialAbility selectedAbility = getAbility(selectedSlot);
+        if (selectedAbility != null && isAbilitySlotUnlocked(selectedSlot)) {
+            return selectedAbility;
+        }
+        return getAbility(AbilitySlot.BASE);
+    }
+
+    public SpecialAbility getAbility(AbilitySlot slot) {
+        AbilitySlot resolvedSlot = slot != null ? slot : AbilitySlot.BASE;
+        SpecialAbility slotAbility = abilitiesBySlot.get(resolvedSlot);
+        if (slotAbility != null) {
+            return slotAbility;
+        }
+        return resolvedSlot == AbilitySlot.BASE ? ability : null;
+    }
+
+    public Map<AbilitySlot, SpecialAbility> getAbilitiesBySlot() {
+        return Collections.unmodifiableMap(abilitiesBySlot);
+    }
+
+    public AbilitySlot getSelectedAbilitySlot() {
+        return getEvolutionState().getSelectedAbilitySlot();
+    }
+
+    public boolean selectAbilitySlot(AbilitySlot slot) {
+        if (slot == null || !isAbilitySlotUnlocked(slot) || getAbility(slot) == null) {
+            return false;
+        }
+        getEvolutionState().setSelectedAbilitySlot(slot);
+        return true;
+    }
+
+    public boolean isAbilitySlotUnlocked(AbilitySlot slot) {
+        return getEvolutionState().isAbilitySlotUnlocked(slot);
+    }
+
+    public void unlockAbilitySlot(AbilitySlot slot) {
+        getEvolutionState().unlockAbilitySlot(slot);
+    }
+
+    public void setAbilitySlot(AbilitySlot slot, SpecialAbility ability) {
+        AbilitySlot resolvedSlot = slot != null ? slot : AbilitySlot.BASE;
+        if (ability == null) {
+            abilitiesBySlot.remove(resolvedSlot);
+            if (resolvedSlot == AbilitySlot.BASE) {
+                this.ability = null;
+            }
+            return;
+        }
+        abilitiesBySlot.put(resolvedSlot, ability);
+        if (resolvedSlot == AbilitySlot.BASE) {
+            this.ability = ability;
+            unlockAbilitySlot(AbilitySlot.BASE);
+        }
+    }
+
+    public void setAbilitiesBySlot(Map<AbilitySlot, SpecialAbility> abilities) {
+        abilitiesBySlot.clear();
+        if (abilities != null) {
+            for (Map.Entry<AbilitySlot, SpecialAbility> entry : abilities.entrySet()) {
+                setAbilitySlot(entry.getKey(), entry.getValue());
+            }
+        }
+        if (!abilitiesBySlot.containsKey(AbilitySlot.BASE) && ability != null) {
+            setAbilitySlot(AbilitySlot.BASE, ability);
+        }
     }
 
     public int getMaxHpGrowth() {
@@ -170,6 +245,22 @@ public class Player extends Character {
 
     public void setBackpack(Backpack backpack) {
         this.backpack = backpack;
+    }
+
+    public PlayerEvolutionState getEvolutionState() {
+        if (evolutionState == null) {
+            evolutionState = new PlayerEvolutionState();
+        }
+        return evolutionState;
+    }
+
+    public void setEvolutionState(PlayerEvolutionState evolutionState) {
+        this.evolutionState = evolutionState != null ? evolutionState : new PlayerEvolutionState();
+        this.evolutionState.unlockAbilitySlot(AbilitySlot.BASE);
+        if (getAbility(this.evolutionState.getSelectedAbilitySlot()) == null
+                || !this.evolutionState.isAbilitySlotUnlocked(this.evolutionState.getSelectedAbilitySlot())) {
+            this.evolutionState.setSelectedAbilitySlot(AbilitySlot.BASE);
+        }
     }
 
     public void restoreState(String name, int hp, int maxHp, int baseDamage, int level, int karma, Backpack backpack) {

@@ -7,6 +7,10 @@ characters:
     maxHpGrowth: 15
     damageGrowth: 3
     abilityId: "WHEELCHAIR_JUMP"
+    abilities:
+      base: "WHEELCHAIR_JUMP"
+      altruistic: "NONNO_GUARDIAN_STANCE"
+      egoistic: "NONNO_RAMMING_CHARGE"
     traits:
       - "Resistente"
       - "Controllo dell'area"
@@ -19,6 +23,10 @@ characters:
     maxHpGrowth: 10
     damageGrowth: 5
     abilityId: "VIDDANO_THROW"
+    abilities:
+      base: "VIDDANO_THROW"
+      altruistic: "PAPA_GUARDIAN_THROW"
+      egoistic: "PAPA_HEAVY_HIT"
     traits:
       - "Alta tenuta"
       - "Danni costanti"
@@ -31,6 +39,10 @@ characters:
     maxHpGrowth: 12
     damageGrowth: 4
     abilityId: "GROUP_HEAL"
+    abilities:
+      base: "GROUP_HEAL"
+      altruistic: "MAMMA_PURIFYING_CARE"
+      egoistic: "MAMMA_SLIPPER_STUN"
     traits:
       - "Supporto"
       - "Recupero del team"
@@ -43,6 +55,10 @@ characters:
     maxHpGrowth: 20
     damageGrowth: 6
     abilityId: "STONE_RAIN"
+    abilities:
+      base: "STONE_RAIN"
+      altruistic: "BAMBINO_DISTRACTION_SHOT"
+      egoistic: "BAMBINO_CRITICAL_BARRAGE"
     traits:
       - "Crescita esplosiva"
       - "Picchi di danno"

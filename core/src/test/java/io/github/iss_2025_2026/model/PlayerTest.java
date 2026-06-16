@@ -54,4 +54,19 @@ public class PlayerTest {
         p.useSpecialAbility(null);
         assertTrue(ability.used);
     }
+
+    @Test
+    public void testAbilitySlotsRespectUnlocks() {
+        MockAbility base = new MockAbility();
+        MockAbility altruistic = new MockAbility();
+        Player p = new Player("Hero", 100, 10, base, 10, 2, 1);
+        p.setAbilitySlot(AbilitySlot.ALTRUISTIC, altruistic);
+
+        assertEquals(base, p.getAbility());
+        assertFalse(p.selectAbilitySlot(AbilitySlot.ALTRUISTIC));
+
+        p.unlockAbilitySlot(AbilitySlot.ALTRUISTIC);
+        assertTrue(p.selectAbilitySlot(AbilitySlot.ALTRUISTIC));
+        assertEquals(altruistic, p.getAbility());
+    }
 }

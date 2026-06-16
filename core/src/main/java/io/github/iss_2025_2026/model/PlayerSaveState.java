@@ -14,6 +14,7 @@ public class PlayerSaveState {
     private int xpToNext;
     private int karma;
     private Backpack backpack;
+    private PlayerEvolutionState evolutionState;
     private float x;
     private float y;
     private Direction direction;
@@ -34,6 +35,7 @@ public class PlayerSaveState {
         this.level = level;
         this.karma = karma;
         this.backpack = backpack;
+        this.evolutionState = new PlayerEvolutionState();
         this.direction = Direction.DOWN;
         this.state = CharacterState.IDLE;
         this.xp = 0;
@@ -118,6 +120,17 @@ public class PlayerSaveState {
 
     public void setBackpack(Backpack backpack) {
         this.backpack = backpack;
+    }
+
+    public PlayerEvolutionState getEvolutionState() {
+        if (evolutionState == null) {
+            evolutionState = new PlayerEvolutionState();
+        }
+        return evolutionState;
+    }
+
+    public void setEvolutionState(PlayerEvolutionState evolutionState) {
+        this.evolutionState = evolutionState != null ? evolutionState : new PlayerEvolutionState();
     }
 
     public float getX() {

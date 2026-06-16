@@ -37,6 +37,28 @@ package io.github.iss_2025_2026.factory {
         + {static} createCollectible(id: String): Collectible
     }
 
+    class NpcFactory {
+        - npcCatalog: Map<String, Npc>
+        + NpcFactory()
+        + getNpc(id: String): Npc
+        + findNpc(id: String): Optional<Npc>
+        + requireNpc(id: String): Npc
+        + getAllNpcs(): List<Npc>
+        + getNpcsForLevel(levelId: String): List<Npc>
+    }
+
+    class EvolutionRuleFactory {
+        - rulesByCharacterId: Map<String, CharacterEvolutionRules>
+        + EvolutionRuleFactory()
+        + getRulesForCharacter(characterId: String): CharacterEvolutionRules
+    }
+
+    class DialogueProfileFactory {
+        - profiles: Map<EvolutionPath, DialogueProfile>
+        + DialogueProfileFactory()
+        + getProfile(path: EvolutionPath): DialogueProfile
+    }
+
     class EnemyFactory {
         + {static} createEnemy(id: String): Enemy
     }
@@ -181,6 +203,17 @@ package io.github.iss_2025_2026.persistence {
 }
 
 package io.github.iss_2025_2026.service {
+    class EvolutionService {
+        - ruleFactory: EvolutionRuleFactory
+        + applyChoice(player: Player, event: PlayerChoiceEvent): EvolutionResult
+        + applyNpcChoice(player: Player, npc: Npc, type: ChoiceEventType): EvolutionResult
+    }
+
+    class DialogueProfileService {
+        - profileFactory: DialogueProfileFactory
+        + buildPrompt(player: Player, npc: Npc): DialoguePrompt
+    }
+
     class CheckpointService {
         - model: GameModel
         - levelRuntime: LevelRuntime

@@ -99,6 +99,12 @@ Durante i livelli il giocatore incontra NPC con cui può interagire. I dialoghi 
 - Gli NPC possono regalare oggetti.
 - Alcuni NPC possono proporre missioni secondarie o richiedere oggetti specifici.
 - Il giocatore può anche scegliere di **rubare** gli oggetti, con possibili conseguenze sulla barra del carattere.
+- Il catalogo NPC è data-driven in `assets/configs/npcs.yaml` e viene caricato tramite `NpcFactory`, così dialoghi, ricompense e conseguenze morali restano configurabili senza hardcodare i personaggi.
+- La scheda narrativa completa degli NPC è in `docs/npcs.md`; il catalogo runtime attuale include gli NPC già pronti per il livello 1.
+
+NPC configurati:
+
+- **Livello 1 - La Campagna:** Zio Toto, Zia Pina, Zyrko l'Ingegnere di Proxima, Turiddu.
 
 ### ❤️ Barra Carattere: Altruismo vs Egoismo
 
@@ -111,12 +117,22 @@ Il gioco include una barra `Carattere` che cambia colore in base al livello, ind
 - Se la barra `Carattere` sale **sopra i 50 punti**, diventa **blu**. Più il livello è alto, più il colore vira da un **blu scuro** verso un **celeste chiaro**
 - Le scelte dei giocatori (aiutare, cooperare, rubare, ecc.) influenzano direttamente il valore della barra.
 
+### Evoluzione dei personaggi e abilita
+
+Ogni personaggio ha tre slot abilita configurati in `assets/configs/characters.yaml`:
+
+- `base`: abilita disponibile dall'inizio.
+- `altruistic`: abilita sbloccata aiutando NPC, completando missioni e facendo scelte cooperative.
+- `egoistic`: abilita sbloccata rubando, mentendo, minacciando o scegliendo ricompense egoiste.
+
+Le soglie di sblocco sono in `assets/configs/evolution_rules.yaml`. Lo stato evolutivo e salvabile per ogni giocatore, quindi in multiplayer ogni personaggio puo crescere in modo diverso. I profili dialogo in `assets/configs/dialogue_profiles.yaml` cambiano tono e temperatura del modello in base al percorso dominante: bilanciato, altruista o egoista.
+
 ---
 
 ## 🎒 Oggetti trovabili
 
 Il sistema oggetti includerà consumabili, potenziamenti, equipaggiamenti e ricompense rare legate all'esplorazione e alle interazioni con NPC.
-La lista completa degli oggetti verrà definita nelle prossime milestone di progettazione.
+Le ricompense narrative già associate agli NPC includono Gasolio Benedetto, Cannolo Rinforzante, Cassata Mistica, Metallo Alieno Forgiato, Pagnotta Spaziale, Siero Anti-Proxima, Benedizione Viddana, Cristallo di Proxima, Seme della Terra e Stella Spezzata.
 
 ---
 

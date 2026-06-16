@@ -169,6 +169,7 @@ public final class GameSaveService {
         state.setY(player.getY());
         state.setDirection(player.getDirection());
         state.setState(player.getState());
+        state.setEvolutionState(player.getEvolutionState());
         // Persist XP progress
         state.setXp(player.getXp());
         state.setXpToNext(player.getXpToNext());
@@ -195,6 +196,7 @@ public final class GameSaveService {
         if (playerState.getXpToNext() > 0) {
             player.setXpToNext(playerState.getXpToNext());
         }
+        player.setEvolutionState(playerState.getEvolutionState());
         player.setX(playerState.getX());
         player.setY(playerState.getY());
         player.setDirection(playerState.getDirection());
