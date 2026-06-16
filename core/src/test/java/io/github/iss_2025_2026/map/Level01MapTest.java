@@ -38,6 +38,7 @@ public class Level01MapTest {
         assertNotNull(layer(document, "terreno"));
         assertNotNull(objectGroup(document, TmxMapContract.LAYER_SPAWN));
         assertNotNull(objectGroup(document, TmxMapContract.LAYER_OBSTACLES));
+        assertNotNull(objectGroup(document, TmxMapContract.LAYER_NPCS));
     }
 
     @Test

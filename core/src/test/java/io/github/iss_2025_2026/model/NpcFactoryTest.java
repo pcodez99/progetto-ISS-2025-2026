@@ -49,6 +49,16 @@ public class NpcFactoryTest {
     }
 
     @Test
+    public void testNpcPerLivelloMantieneOrdineYaml() {
+        List<Npc> levelOneNpcs = factory.getNpcsForLevel("level_1_campaign");
+
+        assertEquals("zio_toto", levelOneNpcs.get(0).getId());
+        assertEquals("zia_pina", levelOneNpcs.get(1).getId());
+        assertEquals("zyrko_ingegnere_alieno", levelOneNpcs.get(2).getId());
+        assertEquals("turiddu_spaventapasseri", levelOneNpcs.get(3).getId());
+    }
+
+    @Test
     public void testFactoryRestituisceCopieIndipendenti() {
         Npc first = factory.getNpc("zia_pina");
         Npc second = factory.getNpc("zia_pina");

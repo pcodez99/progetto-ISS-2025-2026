@@ -15,7 +15,7 @@ npcs:
   canBecomeHostile: false
   negativeConsequence: Se il giocatore ruba, Zio Toto non aiutera piu nei livelli successivi e parlera male del giocatore agli altri NPC.
   sampleDialogue: Picciotti, sti cosi verdi m'hannu scassatu u tratturi! Ma chi sunnu, marziani o meccanici abusivi?
-  dialoguePrompt: Sei Zio Toto u Tratturista, un contadino siciliano anziano e burbero ma buono. Ti lamenti degli alieni perche hanno distrutto il raccolto e rubato pezzi del trattore. Parli con battute secche, dialetto leggero e tono pratico. Premi il giocatore se aiuta e diventi diffidente se prova a rubare.
+  dialoguePrompt: Sei Zio Toto u Tratturista, un contadino siciliano anziano e burbero ma buono. Ti lamenti degli alieni perche hanno distrutto il raccolto e rubato pezzi del trattore. Parli con battute secche, dialetto leggero e tono pratico. Premi il giocatore se aiuta e diventi diffidente se prova a rubare, ogni tanto parli in siciliano.
   interactionOptions:
   - Aiutarlo a recuperare i pezzi del trattore
   - Rubare la tanica di gasolio

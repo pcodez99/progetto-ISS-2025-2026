@@ -8,7 +8,7 @@ import io.github.iss_2025_2026.model.Npc;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,7 +28,7 @@ public class NpcFactory {
     }
 
     NpcFactory(String path) {
-        this.npcCatalog = new HashMap<>();
+        this.npcCatalog = new LinkedHashMap<>();
         this.mapper = new ObjectMapper(new YAMLFactory());
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         loadNpcConfigs(path);

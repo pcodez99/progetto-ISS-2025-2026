@@ -38,6 +38,19 @@ public class DialogueProfileServiceTest {
         assertTrue(prompt.getPrompt().contains("diffidente"));
     }
 
+    @Test
+    public void promptIncludesPlayableCharacterIdentity() {
+        Player player = new Player("Nonno", 120, 20, null);
+        player.setCharacterId("nonno");
+
+        DialoguePrompt prompt = service.buildPrompt(player, createNpc());
+
+        assertTrue(prompt.getPrompt().contains("Personaggio giocante con cui stai parlando: Nonno"));
+        assertTrue(prompt.getPrompt().contains("characterId=nonno"));
+        assertTrue(prompt.getPrompt().contains("carrozzina"));
+        assertTrue(prompt.getPrompt().contains("non chiamarlo giovane, ragazzo o giovanotto"));
+    }
+
     private Npc createNpc() {
         Npc npc = new Npc();
         npc.setId("zia_pina");

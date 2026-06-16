@@ -154,8 +154,22 @@ Il gioco utilizza un file di configurazione **`game.properties`** nella root del
 - `default_player_speed`: velocità base dei personaggi (default `200.0`).
 - `draw_physics_debug`: visualizzare o nascondere il debug Box2D (default `true`).
 - `music_volume` e `sfx_volume`: volumi audio (default `0.5`).
+- `ai_enabled`: abilita o disabilita i dialoghi generati con IA locale.
+- `ai_base_url`, `ai_chat_endpoint`, `ai_model`: configurano Ollama e il modello da usare.
+- `ai_connect_timeout_ms`, `ai_read_timeout_ms`: timeout REST per evitare blocchi lunghi.
+- `ai_default_temperature`, `ai_max_prompt_chars`, `ai_fallback_to_static_dialogue`: controllano creativita, dimensione prompt e fallback sui dialoghi statici degli NPC.
 
 Il file viene generato al primo avvio se non presente e può essere modificato a caldo; le modifiche vengono salvate automaticamente su disco. Per personalizzare il comportamento di gioco, editare `game.properties` e riavviare il gioco.
+
+### Servizio AI locale
+
+I dialoghi NPC possono passare da Ollama tramite `AiService`, un Singleton configurabile con:
+
+- `AiService.getAi()`
+- `AiService.setAi(...)`
+- `AiService.resetAi()`
+
+`NpcDialogueService` usa `DialogueProfileService` per costruire prompt e temperatura in base al percorso morale del giocatore, poi invia la richiesta a Ollama. Se il servizio non risponde e il fallback e attivo, viene usato `sampleDialogue` dell'NPC.
 
 
 ## 🛠️ Pipeline CI/CD

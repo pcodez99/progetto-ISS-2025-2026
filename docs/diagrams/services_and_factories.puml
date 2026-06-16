@@ -214,6 +214,14 @@ package io.github.iss_2025_2026.service {
         + buildPrompt(player: Player, npc: Npc): DialoguePrompt
     }
 
+    class NpcDialogueService {
+        - dialogueProfileService: DialogueProfileService
+        + getDialogues(player: Player, npc: Npc): List<String>
+        + getDialogues(player: Player, npc: Npc, history: List<String>): List<String>
+        + getOpeningDialogue(player: Player, npc: Npc): String
+        + getReactionDialogue(player: Player, npc: Npc, choiceType: ChoiceEventType): String
+    }
+
     class CheckpointService {
         - model: GameModel
         - levelRuntime: LevelRuntime
@@ -294,9 +302,57 @@ package io.github.iss_2025_2026.service {
     }
 }
 
+package io.github.iss_2025_2026.service.ai {
+    class AiService {
+        - {static} ai: AiService
+        - config: AiConfig
+        - client: AiClient
+        + {static} getAi(): AiService
+        + {static} setAi(replacement: AiService): void
+        + {static} resetAi(): void
+        + chat(request: AiRequest): AiResponse
+    }
+
+    class AiConfig {
+        - baseUrl: String
+        - model: String
+        - chatEndpoint: String
+        - defaultTemperature: float
+        + {static} fromGameProperties(): AiConfig
+        + getChatUrl(): String
+    }
+
+    interface AiClient {
+        + chat(request: AiRequest, config: AiConfig): AiResponse
+        + isAvailable(config: AiConfig): boolean
+    }
+
+    class OllamaAiClient implements AiClient {
+        + chat(request: AiRequest, config: AiConfig): AiResponse
+        + isAvailable(config: AiConfig): boolean
+    }
+
+    class AiRequest {
+        - model: String
+        - messages: List<AiMessage>
+        - temperature: Float
+        + withDefaults(config: AiConfig): AiRequest
+    }
+
+    class AiResponse {
+        - content: String
+        - model: String
+        - rawResponse: String
+    }
+}
+
 YamlCharacterFactory o-- AbilityRegistry : uses
 EnemyEncounterService o-- io.github.iss_2025_2026.factory.CharacterFactory : uses
 CheckpointService o-- io.github.iss_2025_2026.model.GameModel : uses
 GameOverService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
 GameSaveService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
+NpcDialogueService o-- DialogueProfileService : uses
+NpcDialogueService o-- io.github.iss_2025_2026.service.ai.AiService : uses
+AiService o-- io.github.iss_2025_2026.service.ai.AiClient : delegates to
+AiService o-- io.github.iss_2025_2026.service.ai.AiConfig : configured by
 @enduml
