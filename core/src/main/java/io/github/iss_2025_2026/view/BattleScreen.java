@@ -242,10 +242,10 @@ public class BattleScreen implements Screen {
         int columns = Math.min(4, Math.max(1, enemyCount));
         int column = index % columns;
         int row = index / columns;
-        float spacingX = Math.min(128f, size * 0.58f);
-        float spacingY = Math.min(96f, size * 0.45f);
-        float startX = worldWidth * 0.62f;
-        float startY = worldHeight * 0.58f;
+        float spacingX = Math.min(160f, size * 0.56f);
+        float spacingY = Math.min(120f, size * 0.42f);
+        float startX = worldWidth * 0.57f;
+        float startY = worldHeight * 0.38f;
 
         sprite.setSize(size, size);
         sprite.setPosition(startX + column * spacingX, startY - row * spacingY - (column % 2) * 14f);
@@ -586,7 +586,7 @@ public class BattleScreen implements Screen {
             String basePath = resolveBasePath(enemy);
             this.idleAnim = JsonAnimationLoader.load(basePath + "/idle_right", 0.1f, loadedTextures, true);
             this.attackAnim = JsonAnimationLoader.load(basePath + "/attack_right", 0.04f, loadedTextures, true);
-            this.displaySize = basePath.endsWith("enemy-alien-1") ? 260f : 220f;
+            this.displaySize = basePath.endsWith("enemy-alien-1") ? 390f : 330f;
         }
 
         private static String resolveBasePath(Enemy enemy) {
