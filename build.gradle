@@ -97,13 +97,22 @@ tasks.register('compilePuml', JavaExec) {
         def pumlFiles = fileTree(dir: 'docs/diagrams', include: '**/*.puml')
         if (pumlFiles.isEmpty()) {
             println "Nessun file .puml trovato in docs/diagrams."
-            // Disable execution if no files
-            enabled = false
-            return
+            throw new org.gradle.api.tasks.StopExecutionException("Nessun diagramma PlantUML da compilare.")
+        }
+
+        def dotPath = ["sh", "-c", "command -v dot || true"].execute().text.trim()
+        if (!dotPath) {
+            dotPath = ["/opt/homebrew/bin/dot", "/usr/local/bin/dot", "/opt/local/bin/dot"]
+                    .find { file(it).exists() }
+        }
+        if (!dotPath) {
+            println "Graphviz non trovato: salto la compilazione dei diagrammi PlantUML."
+            println "Installa Graphviz per rigenerarli, ad esempio: brew install graphviz"
+            throw new org.gradle.api.tasks.StopExecutionException("Graphviz non disponibile.")
         }
 
         println "Compilazione dei diagrammi PlantUML in formato SVG..."
+        environment "GRAPHVIZ_DOT", dotPath
         args = ["-tsvg"] + pumlFiles.collect { it.absolutePath }
     }
 }
-
