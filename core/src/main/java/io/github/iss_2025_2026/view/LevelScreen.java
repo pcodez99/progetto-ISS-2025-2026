@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -43,6 +44,10 @@ import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SaveResult;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Game View (Parte del pattern MVC).
@@ -86,6 +91,12 @@ public class LevelScreen implements Screen {
     private float cameraEdgePadding;
     private boolean battleTransitionPending;
     private float encounterCooldownTimer;
+
+    // Enemy sprites on the overworld map
+    private float enemySpriteTime;
+    private final Map<String, Animation<TextureRegion>> enemyIdleAnimCache = new HashMap<>();
+    private final List<Texture> enemySpriteTextures = new ArrayList<>();
+    private final List<Image> enemySpriteActors = new ArrayList<>();
 
     private static final float DEFAULT_CAMERA_EDGE_PADDING = 320f;
 
@@ -162,6 +173,42 @@ public class LevelScreen implements Screen {
 
         // Inizializza la facciata fisica Box2D con le dimensioni configurate
         physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
+
+        // Pre-carica le animazioni idle nemico per gli sprite sulla mappa
+        preloadEnemyIdleAnimations();
+    }
+
+    /**
+     * Pre-carica le animazioni idle per ogni tipo di nemico presente nei punti di spawn attivi.
+     */
+    private void preloadEnemyIdleAnimations() {
+        if (encounterService == null) {
+            return;
+        }
+        for (EnemyEncounterService.EnemyEncounterInfo info : encounterService.getAllEncounterInfo()) {
+            String enemyType = info.getEnemyType();
+            if (!enemyIdleAnimCache.containsKey(enemyType)) {
+                String spritePath = resolveOverworldEnemyPath(enemyType);
+                Animation<TextureRegion> anim = JsonAnimationLoader.load(
+                        spritePath + "/idle_right", 0.1f, enemySpriteTextures, true);
+                if (anim != null) {
+                    enemyIdleAnimCache.put(enemyType, anim);
+                }
+            }
+        }
+    }
+
+    /**
+     * Mappa l'ID del tipo nemico al percorso della cartella sprite overworld corrispondente.
+     */
+    private static String resolveOverworldEnemyPath(String enemyType) {
+        if ("alieno_guardiano".equals(enemyType)
+                || "boss_livello_1".equals(enemyType)
+                || "boss_livello_2".equals(enemyType)) {
+            return "characters/enemy-alien-1";
+        }
+        // Default: alieno_sciame, alieno_base, boss_livello_3, ecc.
+        return "characters/enemy-alien-2";
     }
 
     private void buildUI() {
@@ -207,6 +254,9 @@ public class LevelScreen implements Screen {
             physicsFacade.initPlayerBody(p2);
         }
 
+        // Aggiungi sprite idle nemici ai punti di spawn
+        addEnemySpritesToMap();
+
         // HUD: crea e aggiungi alla UI (player1 sinistra, player2 destra)
         if (model.getPlayerOne() != null) {
             playerOneHud = new PlayerHud(model.getPlayerOne(), skin);
@@ -216,6 +266,40 @@ public class LevelScreen implements Screen {
         if (model.isMultiplayerGame() && model.getPlayerTwo() != null) {
             playerTwoHud = new PlayerHud(model.getPlayerTwo(), skin);
             root.add(playerTwoHud.getTable()).right().top().pad(GameUiTheme.SPACE_3);
+        }
+    }
+
+    /**
+     * Crea e aggiunge gli attori sprite animati dei nemici ai loro punti di spawn sulla mappa.
+     */
+    private void addEnemySpritesToMap() {
+        if (encounterService == null) {
+            return;
+        }
+        float enemySpriteSize = playerSize * 0.75f;
+        for (EnemyEncounterService.EnemyEncounterInfo info : encounterService.getAllEncounterInfo()) {
+            Animation<TextureRegion> idleAnim = enemyIdleAnimCache.get(info.getEnemyType());
+            if (idleAnim == null) {
+                continue;
+            }
+            final float spawnX = info.getX() - enemySpriteSize / 2f;
+            final float spawnY = info.getY() - enemySpriteSize * 0.48f;
+            final Animation<TextureRegion> anim = idleAnim;
+
+            Image enemySprite = new Image() {
+                @Override
+                public void draw(Batch batch, float parentAlpha) {
+                    TextureRegion frame = anim.getKeyFrame(enemySpriteTime, true);
+                    if (frame != null) {
+                        batch.draw(frame, getX(), getY(), getOriginX(), getOriginY(),
+                                getWidth(), getHeight(), getScaleX(), getScaleY(), getRotation());
+                    }
+                }
+            };
+            enemySprite.setPosition(spawnX, spawnY);
+            enemySprite.setSize(enemySpriteSize, enemySpriteSize);
+            stage.addActor(enemySprite);
+            enemySpriteActors.add(enemySprite);
         }
     }
 
@@ -385,6 +469,10 @@ public class LevelScreen implements Screen {
             physicsFacade.drawDebug(cam);
         }
 
+        // Aggiorna il timer animazione degli sprite nemici e la loro visibilità
+        enemySpriteTime += delta;
+        updateEnemySpriteVisibility();
+
         stage.act(delta);
         stage.draw();
         // Aggiorna HUD prima di processare la UI
@@ -444,6 +532,15 @@ public class LevelScreen implements Screen {
             playerTwoHud.dispose();
             playerTwoHud = null;
         }
+        // Dispose enemy sprite textures
+        for (Texture texture : enemySpriteTextures) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+        enemySpriteTextures.clear();
+        enemyIdleAnimCache.clear();
+        enemySpriteActors.clear();
     }
 
     public void startEncounterCooldown(float seconds) {
@@ -499,6 +596,20 @@ public class LevelScreen implements Screen {
         saveStatusTimer -= delta;
         if (saveStatusTimer <= 0f) {
             saveToast.setVisible(false);
+        }
+    }
+
+    /**
+     * Aggiorna la visibilità degli sprite nemici in base allo stato degli encounter point.
+     * Nasconde gli sprite corrispondenti a encounter già sconfitti.
+     */
+    private void updateEnemySpriteVisibility() {
+        if (encounterService == null || enemySpriteActors.isEmpty()) {
+            return;
+        }
+        List<EnemyEncounterService.EnemyEncounterInfo> allInfos = encounterService.getAllEncounterInfo();
+        for (int i = 0; i < enemySpriteActors.size() && i < allInfos.size(); i++) {
+            enemySpriteActors.get(i).setVisible(allInfos.get(i).isActive());
         }
     }
 }
