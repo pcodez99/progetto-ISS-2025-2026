@@ -22,6 +22,8 @@ public class GameProperties {
     public static final String KEY_MAX_PLAYER_DISTANCE = "max_player_distance";
     public static final String KEY_CAMERA_ZOOM = "camera_zoom";
     public static final String KEY_PLAYER_SIZE = "player_size";
+    public static final String KEY_ENEMY_ENCOUNTER_RADIUS = "enemy_encounter_radius";
+    public static final String KEY_NPC_INTERACTION_RADIUS = "npc_interaction_radius";
     public static final String KEY_DEFAULT_PLAYER_SPEED = "default_player_speed";
     public static final String KEY_DRAW_PHYSICS_DEBUG = "draw_physics_debug";
     public static final String KEY_MUSIC_VOLUME = "music_volume";
@@ -43,6 +45,8 @@ public class GameProperties {
         properties.setProperty(KEY_MAX_PLAYER_DISTANCE, "400.0");
         properties.setProperty(KEY_CAMERA_ZOOM, "0.72");
         properties.setProperty(KEY_PLAYER_SIZE, "160.0");
+        properties.setProperty(KEY_ENEMY_ENCOUNTER_RADIUS, "130.0");
+        properties.setProperty(KEY_NPC_INTERACTION_RADIUS, "190.0");
         properties.setProperty(KEY_DEFAULT_PLAYER_SPEED, "200.0");
         properties.setProperty(KEY_DRAW_PHYSICS_DEBUG, "true");
         properties.setProperty(KEY_MUSIC_VOLUME, "0.5");

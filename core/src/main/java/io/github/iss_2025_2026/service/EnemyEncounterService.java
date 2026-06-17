@@ -48,6 +48,40 @@ public class EnemyEncounterService {
         return new EnemyEncounterService(points, new TestCharacterFactory(), encounterRadius);
     }
 
+    /**
+     * Restituisce le informazioni su tutti gli encounter point (attivi e non)
+     * per il rendering degli sprite idle sulla mappa isometrica.
+     */
+    public List<EnemyEncounterInfo> getAllEncounterInfo() {
+        List<EnemyEncounterInfo> result = new ArrayList<>();
+        for (EncounterPoint point : encounterPoints) {
+            result.add(new EnemyEncounterInfo(point.getX(), point.getY(), point.getEnemyType(), point.isActive()));
+        }
+        return result;
+    }
+
+    /**
+     * Dati di un singolo punto di spawn nemico, usato dalla view per disegnare lo sprite idle.
+     */
+    public static final class EnemyEncounterInfo {
+        private final float x;
+        private final float y;
+        private final String enemyType;
+        private final boolean active;
+
+        private EnemyEncounterInfo(float x, float y, String enemyType, boolean active) {
+            this.x = x;
+            this.y = y;
+            this.enemyType = enemyType;
+            this.active = active;
+        }
+
+        public float getX() { return x; }
+        public float getY() { return y; }
+        public String getEnemyType() { return enemyType; }
+        public boolean isActive() { return active; }
+    }
+
     public EnemyEncounter checkEncounter(Player player) {
         if (player == null) {
             return null;
