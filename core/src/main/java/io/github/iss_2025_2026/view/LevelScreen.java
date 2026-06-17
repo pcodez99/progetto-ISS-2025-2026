@@ -14,6 +14,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.IsometricTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -60,6 +61,9 @@ import io.github.iss_2025_2026.service.NpcInteraction;
 import io.github.iss_2025_2026.service.NpcInteractionService;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SaveResult;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -73,6 +77,7 @@ public class LevelScreen implements Screen {
     private static final Logger LOGGER = Logger.getLogger(LevelScreen.class.getName());
     private static final float ENCOUNTER_RADIUS = 80f;
     private static final float NPC_INTERACTION_RADIUS = 120f;
+    private static final String KEY_NPC_SIZE = "npc_size";
 
     private final Main game;
     private final GameContext gameContext;
@@ -111,6 +116,7 @@ public class LevelScreen implements Screen {
     private EvolutionService evolutionService;
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
+    private final Map<String, NpcAssets> npcAssetsById = new HashMap<>();
 
     private CharacterState lastStateP1 = CharacterState.IDLE;
     private CharacterState lastStateP2 = CharacterState.IDLE;
@@ -126,6 +132,8 @@ public class LevelScreen implements Screen {
     // Configurable game properties
     private final float playerSize;
     private final float playerYOffset;
+    private final float npcSize;
+    private final float npcYOffset;
     private final float cameraZoom;
     private boolean drawObstacleDebug;
 
@@ -141,6 +149,8 @@ public class LevelScreen implements Screen {
         // Carica le proprietà configurabili dal file properties
         this.playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
         this.playerYOffset = this.playerSize * 0.48f;
+        this.npcSize = GameProperties.getFloat(KEY_NPC_SIZE, 150f);
+        this.npcYOffset = this.npcSize * 0.48f;
         this.cameraZoom = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM, 0.72f);
         this.drawObstacleDebug = GameProperties.getBoolean(GameProperties.KEY_DRAW_PHYSICS_DEBUG, true);
 
@@ -255,6 +265,8 @@ public class LevelScreen implements Screen {
             }
             physicsFacade.initPlayerBody(p2);
         }
+
+        addNpcActors();
 
         // HUD: crea e aggiungi alla UI (player1 sinistra, player2 destra)
         if (model.getPlayerOne() != null) {
@@ -380,6 +392,31 @@ public class LevelScreen implements Screen {
         animatedSprite.setSize(playerSize, playerSize);
     }
 
+    private void addNpcActors() {
+        if (npcInteractionService == null) {
+            return;
+        }
+        List<NpcInteraction> interactions = npcInteractionService.getInteractions();
+        for (NpcInteraction interaction : interactions) {
+            if (interaction == null || interaction.getNpc() == null || interaction.getNpc().getId() == null) {
+                continue;
+            }
+
+            Npc npc = interaction.getNpc();
+            NpcAssets assets = npcAssetsById.get(npc.getId());
+            if (assets == null) {
+                assets = new NpcAssets(npc);
+                npcAssetsById.put(npc.getId(), assets);
+            }
+            if (!assets.isAvailable()) {
+                LOGGER.warning("[NPC UI] Sprite NPC non trovato per npcId=" + npc.getId());
+                continue;
+            }
+
+            stage.addActor(new NpcWorldActor(interaction, assets, npcSize, npcYOffset));
+        }
+    }
+
     @Override
     public void show() {
         InputMultiplexer multiplexer = new InputMultiplexer();
@@ -498,6 +535,7 @@ public class LevelScreen implements Screen {
         }
 
         stage.act(delta);
+        sortWorldActorsByDepth();
         stage.draw();
         // Aggiorna HUD prima di processare la UI
         if (playerOneHud != null) playerOneHud.update();
@@ -539,6 +577,12 @@ public class LevelScreen implements Screen {
         if (playerTwoAssets != null) {
             playerTwoAssets.dispose();
         }
+        for (NpcAssets assets : npcAssetsById.values()) {
+            if (assets != null) {
+                assets.dispose();
+            }
+        }
+        npcAssetsById.clear();
         if (physicsFacade != null) {
             physicsFacade.dispose();
         }
@@ -791,6 +835,13 @@ public class LevelScreen implements Screen {
         return dialogueController != null && dialogueController.isActive();
     }
 
+    private void sortWorldActorsByDepth() {
+        if (stage == null) {
+            return;
+        }
+        stage.getActors().sort((first, second) -> Float.compare(second.getY(), first.getY()));
+    }
+
     private void refreshDialogueSessionPanel(String hint) {
         DialogueSession session = dialogueController != null ? dialogueController.getActiveSession() : null;
         if (session == null) {
@@ -890,6 +941,46 @@ public class LevelScreen implements Screen {
         saveStatusTimer -= delta;
         if (saveStatusTimer <= 0f) {
             saveToast.setVisible(false);
+        }
+    }
+
+    private static final class NpcWorldActor extends Actor {
+        private final NpcInteraction interaction;
+        private final NpcAssets assets;
+        private final float drawSize;
+        private final float yOffset;
+        private float stateTime;
+
+        private NpcWorldActor(NpcInteraction interaction, NpcAssets assets, float drawSize, float yOffset) {
+            this.interaction = interaction;
+            this.assets = assets;
+            this.drawSize = drawSize;
+            this.yOffset = yOffset;
+            setSize(drawSize, drawSize);
+            updatePosition();
+        }
+
+        @Override
+        public void act(float delta) {
+            super.act(delta);
+            stateTime += delta;
+            updatePosition();
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            Animation<TextureRegion> animation = assets.getIdleSouthwestAnimation();
+            if (animation == null) {
+                return;
+            }
+            TextureRegion frame = animation.getKeyFrame(stateTime, true);
+            if (frame != null) {
+                batch.draw(frame, getX(), getY(), getWidth(), getHeight());
+            }
+        }
+
+        private void updatePosition() {
+            setPosition(interaction.getX() - drawSize / 2f, interaction.getY() - yOffset);
         }
     }
 }

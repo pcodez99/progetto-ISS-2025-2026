@@ -87,11 +87,23 @@ public class NpcInteractionService {
         if (nearestPoint == null) {
             return null;
         }
-        return new NpcInteraction(nearestPoint.getMapObject(), nearestPoint.getNpc().copy());
+        return toInteraction(nearestPoint);
+    }
+
+    public List<NpcInteraction> getInteractions() {
+        List<NpcInteraction> interactions = new ArrayList<>();
+        for (InteractionPoint point : interactionPoints) {
+            interactions.add(toInteraction(point));
+        }
+        return interactions;
     }
 
     public int size() {
         return interactionPoints.size();
+    }
+
+    private NpcInteraction toInteraction(InteractionPoint point) {
+        return new NpcInteraction(point.getMapObject(), point.getNpc().copy(), point.getX(), point.getY());
     }
 
     public static String levelCatalogId(int levelId) {
