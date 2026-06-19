@@ -8,14 +8,24 @@ import java.util.List;
 public class CollectibleUseContext {
     private final Character user;
     private final List<Character> targets;
+    private final int currentLevelId;
 
     public CollectibleUseContext(Character user, List<Character> targets) {
+        this(user, targets, 1);
+    }
+
+    public CollectibleUseContext(Character user, List<Character> targets, int currentLevelId) {
         this.user = user;
         this.targets = sanitizeTargets(targets);
+        this.currentLevelId = currentLevelId;
     }
 
     public Character getUser() {
         return user;
+    }
+
+    public int getCurrentLevelId() {
+        return currentLevelId;
     }
 
     public List<Character> getTargets(boolean aoe) {

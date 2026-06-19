@@ -43,6 +43,14 @@ import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SaveResult;
+import io.github.iss_2025_2026.service.CollectibleService;
+import io.github.iss_2025_2026.factory.CollectibleFactory;
+import io.github.iss_2025_2026.model.Collectible;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.audio.Sound;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Arrays;
 
 /**
  * Game View (Parte del pattern MVC).
@@ -79,6 +87,11 @@ public class LevelScreen implements Screen {
     private EnemyEncounterService encounterService;
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
+
+    private CollectibleService collectibleService;
+    private final Map<String, TextureRegion> collectibleTextures = new HashMap<>();
+    private final java.util.List<Texture> collectibleOriginalTextures = new java.util.ArrayList<>();
+    private Label pickupPromptLabel;
 
     private CharacterState lastStateP1 = CharacterState.IDLE;
     private CharacterState lastStateP2 = CharacterState.IDLE;
@@ -162,6 +175,12 @@ public class LevelScreen implements Screen {
 
         // Inizializza la facciata fisica Box2D con le dimensioni configurate
         physicsFacade = new PhysicsFacade(level, playerSize, playerYOffset);
+
+        CollectibleFactory collectibleFactory = new CollectibleFactory();
+        collectibleService = new CollectibleService(collectibleFactory);
+        collectibleService.setPickupListener((collectible, player) -> {
+            showSaveStatus(player.getName() + " ha raccolto " + collectible.getName() + "!", false);
+        });
     }
 
     private void buildUI() {
@@ -217,6 +236,10 @@ public class LevelScreen implements Screen {
             playerTwoHud = new PlayerHud(model.getPlayerTwo(), skin);
             root.add(playerTwoHud.getTable()).right().top().pad(GameUiTheme.SPACE_3);
         }
+
+        pickupPromptLabel = new Label("Premi E per raccogliere", skin, GameUiTheme.LABEL_BODY);
+        pickupPromptLabel.setVisible(false);
+        uiStage.addActor(pickupPromptLabel);
     }
 
     private void addPlayerActor(final Player player, final PlayerAssets assets) {
@@ -375,11 +398,58 @@ public class LevelScreen implements Screen {
             cam.update();
         }
 
+        if (collectibleService != null && p1 != null) {
+            float zoom = cam.zoom;
+            float viewportWidth = stage.getViewport().getWorldWidth() * zoom;
+            float viewportHeight = stage.getViewport().getWorldHeight() * zoom;
+            Rectangle viewportBounds = new Rectangle(
+                    cam.position.x - viewportWidth / 2f,
+                    cam.position.y - viewportHeight / 2f,
+                    viewportWidth,
+                    viewportHeight
+            );
+            collectibleService.update(delta, Arrays.asList(p1, p2), viewportBounds, levelRuntime.getId());
+
+            CollectibleService.CollectibleOnMap closestP1 = collectibleService.getClosestCollectible(p1, 60f);
+            CollectibleService.CollectibleOnMap closest = closestP1;
+            Player picker = p1;
+            if (closest == null && model.isMultiplayerGame() && p2 != null) {
+                closest = collectibleService.getClosestCollectible(p2, 60f);
+                picker = p2;
+            }
+
+            if (closest != null) {
+                if (picker == p1) {
+                    pickupPromptLabel.setText("Premi E per raccogliere " + closest.getCollectible().getName());
+                } else {
+                    pickupPromptLabel.setText("P2: Premi ENTER per raccogliere " + closest.getCollectible().getName());
+                }
+                pickupPromptLabel.setVisible(true);
+                pickupPromptLabel.pack(); // update layout size
+                pickupPromptLabel.setPosition((stage.getViewport().getScreenWidth() - pickupPromptLabel.getWidth()) / 2f, 80f);
+
+                if (picker == p1 && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+                    collectibleService.pickUp(p1, closest);
+                } else if (picker == p2 && (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0))) {
+                    collectibleService.pickUp(p2, closest);
+                }
+            } else {
+                pickupPromptLabel.setVisible(false);
+            }
+        } else {
+            if (pickupPromptLabel != null) {
+                pickupPromptLabel.setVisible(false);
+            }
+        }
+
         // 3. Rendering (View)
         ScreenUtils.clear(76f / 255f, 126f / 255f, 62f / 255f, 1f);
 
         mapRenderer.setView((OrthographicCamera) stage.getCamera());
         mapRenderer.render();
+
+        // Renderizza i collectibles a terra
+        renderCollectibles(stage.getBatch());
 
         if (drawObstacleDebug && physicsFacade != null) {
             physicsFacade.drawDebug(cam);
@@ -398,6 +468,9 @@ public class LevelScreen implements Screen {
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
         uiStage.getViewport().update(width, height, true);
+        if (pickupPromptLabel != null) {
+            pickupPromptLabel.setPosition((width - pickupPromptLabel.getPrefWidth()) / 2f, 80f);
+        }
     }
 
     @Override
@@ -444,6 +517,13 @@ public class LevelScreen implements Screen {
             playerTwoHud.dispose();
             playerTwoHud = null;
         }
+        for (Texture texture : collectibleOriginalTextures) {
+            if (texture != null) {
+                texture.dispose();
+            }
+        }
+        collectibleOriginalTextures.clear();
+        collectibleTextures.clear();
     }
 
     public void startEncounterCooldown(float seconds) {
@@ -500,5 +580,67 @@ public class LevelScreen implements Screen {
         if (saveStatusTimer <= 0f) {
             saveToast.setVisible(false);
         }
+    }
+
+    private void renderCollectibles(Batch batch) {
+        if (collectibleService == null) {
+            return;
+        }
+
+        OrthographicCamera cam = (OrthographicCamera) stage.getCamera();
+        batch.setProjectionMatrix(cam.combined);
+        batch.begin();
+        for (CollectibleService.CollectibleOnMap item : collectibleService.getActiveCollectibles()) {
+            TextureRegion region = getCollectibleRegion(item.getCollectible());
+            if (region != null) {
+                // Render collectible with a nice default size (e.g. 64x64) centered at its position
+                float size = 64f;
+                batch.draw(region, item.getX() - size / 2f, item.getY() - size / 2f, size, size);
+            }
+        }
+        batch.end();
+    }
+
+    private TextureRegion getCollectibleRegion(Collectible collectible) {
+        String id = collectible.getId();
+        if (collectibleTextures.containsKey(id)) {
+            return collectibleTextures.get(id);
+        }
+
+        String path = getAssetPath(id);
+        if (path == null) {
+            return null;
+        }
+
+        if (Gdx.files.internal(path).exists()) {
+            Texture texture = new Texture(Gdx.files.internal(path));
+            collectibleOriginalTextures.add(texture);
+            TextureRegion region;
+            if (path.contains("spritesheet")) {
+                int frameSize = texture.getHeight();
+                TextureRegion[][] tmp = TextureRegion.split(texture, frameSize, frameSize);
+                region = tmp[0][0]; // default to first frame
+            } else {
+                region = new TextureRegion(texture);
+            }
+            collectibleTextures.put(id, region);
+            return region;
+        } else {
+            Gdx.app.error("LevelScreen", "Asset collectible non trovato: " + path);
+        }
+        return null;
+    }
+
+    private String getAssetPath(String id) {
+        if ("level_1_potion".equals(id)) return "collectibles/Cavuliceddu-nobg.png";
+        if ("level_3_potion".equals(id)) return "collectibles/Fico-nobg.png";
+        if ("level_2_potion".equals(id)) return "collectibles/Larva-nobg.png";
+        if ("level_3_buff".equals(id)) return "collectibles/Miele-spritesheet.png";
+        if ("level_1_bomb".equals(id)) return "collectibles/Molotov-spritesheet.png";
+        if ("level_3_bomb".equals(id)) return "collectibles/Patata bomba-spritesheet.png";
+        if ("level_2_buff".equals(id)) return "collectibles/Siero sinaptico-spritesheet.png";
+        if ("level_1_buff".equals(id)) return "collectibles/Siero-nobg.png";
+        if ("level_2_bomb".equals(id)) return "collectibles/lampadina-spritesheet.png";
+        return null;
     }
 }

@@ -68,8 +68,14 @@ package io.github.iss_2025_2026.model {
         - id: String
         - name: String
         - description: String
-        - effectStrategy: CollectibleEffectStrategy
+        - effectType: String
+        - aoe: boolean
+        - effectValue: int
+        + Collectible()
+        + Collectible(id: String, name: String, description: String, effectType: String, aoe: boolean, effectValue: int)
         + use(context: CollectibleUseContext): void
+        + canBeUsedInLevel(levelId: int): boolean
+        + copy(): Collectible
     }
 
     interface SpecialAbility {
@@ -257,9 +263,13 @@ package io.github.iss_2025_2026.model.collectibles {
     }
     class CollectibleUseContext {
         - user: Character
-        - target: Character
-        - gameModel: GameModel
-        + CollectibleUseContext(user: Character, target: Character, gameModel: GameModel)
+        - targets: List<Character>
+        - currentLevelId: int
+        + CollectibleUseContext(user: Character, targets: List<Character>)
+        + CollectibleUseContext(user: Character, targets: List<Character>, currentLevelId: int)
+        + getUser(): Character
+        + getCurrentLevelId(): int
+        + getTargets(aoe: boolean): List<Character>
     }
     class CollectibleEffectFactory {
         + {static} getStrategy(effectType: String, parameters: Map<String, Object>): CollectibleEffectStrategy
