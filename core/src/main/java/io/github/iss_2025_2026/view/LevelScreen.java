@@ -46,6 +46,7 @@ import io.github.iss_2025_2026.service.SaveResult;
 import io.github.iss_2025_2026.service.CollectibleService;
 import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.model.Collectible;
+import io.github.iss_2025_2026.model.CharacterSheetModel;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.audio.Sound;
 import java.util.HashMap;
@@ -92,6 +93,7 @@ public class LevelScreen implements Screen {
     private final Map<String, TextureRegion> collectibleTextures = new HashMap<>();
     private final java.util.List<Texture> collectibleOriginalTextures = new java.util.ArrayList<>();
     private Label pickupPromptLabel;
+    private CharacterSheetModel characterSheetModel;
 
     private CharacterState lastStateP1 = CharacterState.IDLE;
     private CharacterState lastStateP2 = CharacterState.IDLE;
@@ -156,6 +158,14 @@ public class LevelScreen implements Screen {
                     drawObstacleDebug = !drawObstacleDebug;
                     return true;
                 }
+                // Apri la schermata personaggio — vietato durante il combattimento
+                if (keycode == Input.Keys.I) {
+                    if (characterSheetModel != null
+                            && characterSheetModel.canOpenDuringPhase(model.getGameState().getPhase())) {
+                        game.setScreen(new CharacterSheetScreen(game, characterSheetModel, LevelScreen.this));
+                    }
+                    return true;
+                }
 
                 return false;
             }
@@ -181,6 +191,12 @@ public class LevelScreen implements Screen {
         collectibleService.setPickupListener((collectible, player) -> {
             showSaveStatus(player.getName() + " ha raccolto " + collectible.getName() + "!", false);
         });
+
+        // Inizializza il model della schermata personaggio (aggiornamento live dal player)
+        Player p1 = model.getPlayerOne();
+        if (p1 != null) {
+            characterSheetModel = new CharacterSheetModel(p1);
+        }
     }
 
     private void buildUI() {
