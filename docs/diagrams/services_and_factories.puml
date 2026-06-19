@@ -35,7 +35,8 @@ package io.github.iss_2025_2026.factory {
     }
 
     class CollectibleFactory {
-        + {static} createCollectible(id: String): Collectible
+        + getAllCollectibles(): List<Collectible>
+        + createCollectible(id: String): Collectible
     }
 
     class EnemyFactory {
@@ -255,6 +256,36 @@ package io.github.iss_2025_2026.service {
         + {static} validate(state: GameState): boolean
     }
 
+    class CollectibleService {
+        - collectibleFactory: CollectibleFactory
+        - spawnInterval: float
+        - maxCollectibles: int
+        - activeCollectibles: List<CollectibleOnMap>
+        - spawnTimer: float
+        - pickupListener: PickupListener
+        + CollectibleService(collectibleFactory: CollectibleFactory, spawnInterval: float, maxCollectibles: int)
+        + CollectibleService(collectibleFactory: CollectibleFactory)
+        + setPickupListener(listener: PickupListener): void
+        + getActiveCollectibles(): List<CollectibleOnMap>
+        + update(delta: float, players: List<Player>, viewportBounds: Rectangle, levelId: int): void
+        + getClosestCollectible(player: Player, maxDistance: float): CollectibleOnMap
+        + pickUp(player: Player, item: CollectibleOnMap): boolean
+    }
+
+    class "CollectibleService.CollectibleOnMap" as CollectibleOnMap {
+        - collectible: Collectible
+        - x: float
+        - y: float
+        + CollectibleOnMap(collectible: Collectible, x: float, y: float)
+        + getCollectible(): Collectible
+        + getX(): float
+        + getY(): float
+    }
+
+    interface "CollectibleService.PickupListener" as PickupListener {
+        + onPickup(collectible: Collectible, player: Player): void
+    }
+
     class SettingsManager {
         - {static} SETTINGS_FILE: String
         + {static} loadSettings(): GameSettings
@@ -267,4 +298,7 @@ EnemyEncounterService o-- io.github.iss_2025_2026.factory.CharacterFactory : use
 CheckpointService o-- io.github.iss_2025_2026.model.GameModel : uses
 GameOverService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
 GameSaveService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
+CollectibleService o-- io.github.iss_2025_2026.factory.CollectibleFactory : uses
+CollectibleService +-- CollectibleOnMap : contains
+CollectibleService +-- PickupListener : defines
 @enduml
