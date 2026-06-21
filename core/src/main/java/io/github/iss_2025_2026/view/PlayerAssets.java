@@ -1,7 +1,6 @@
 package io.github.iss_2025_2026.view;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -19,8 +18,6 @@ import java.util.Map;
 public class PlayerAssets {
     private final Map<Direction, Animation<TextureRegion>> idleAnims;
     private final Map<Direction, Animation<TextureRegion>> walkAnims;
-    private Animation<TextureRegion> attackAnim;
-    private Sound attackSound;
     private final List<Texture> loadedTextures;
 
     public PlayerAssets(Player player) {
@@ -71,18 +68,6 @@ public class PlayerAssets {
         setupIdleAnimation(Direction.UP, walkUp);
         setupIdleAnimation(Direction.DOWN, walkDown);
 
-        // Attack animation
-        attackAnim = JsonAnimationLoader.load(basePath + "/attack_right", 0.04f, loadedTextures, false);
-
-        // Sound loading
-        String characterId = player != null ? player.getCharacterId() : "bambino";
-        String soundSuffix = getSoundSuffix(characterId);
-        String soundPath = basePath + "/attack_right/attack_" + soundSuffix + ".mp3";
-        if (Gdx.files.internal(soundPath).exists()) {
-            attackSound = Gdx.audio.newSound(Gdx.files.internal(soundPath));
-        } else {
-            Gdx.app.log("PlayerAssets", "Suono di attacco non trovato al path: " + soundPath);
-        }
     }
 
     private Animation<TextureRegion> loadFirstAvailable(
@@ -105,28 +90,12 @@ public class PlayerAssets {
         }
     }
 
-    private String getSoundSuffix(String characterId) {
-        if ("papa".equals(characterId)) return "father";
-        if ("bambino".equals(characterId)) return "child";
-        if ("mamma".equals(characterId)) return "mom";
-        if ("nonno".equals(characterId)) return "nonno";
-        return "child";
-    }
-
     public Animation<TextureRegion> getIdleAnim(Direction dir) {
         return idleAnims.get(dir);
     }
 
     public Animation<TextureRegion> getWalkAnim(Direction dir) {
         return walkAnims.get(dir);
-    }
-
-    public Animation<TextureRegion> getAttackAnim() {
-        return attackAnim;
-    }
-
-    public Sound getAttackSound() {
-        return attackSound;
     }
 
     public void dispose() {
@@ -137,8 +106,5 @@ public class PlayerAssets {
         }
         loadedTextures.clear();
 
-        if (attackSound != null) {
-            attackSound.dispose();
-        }
     }
 }

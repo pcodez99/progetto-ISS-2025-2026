@@ -10,11 +10,14 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import io.github.iss_2025_2026.map.TmxLevel;
 import io.github.iss_2025_2026.map.TmxMapContract;
+import io.github.iss_2025_2026.model.CharacterState;
 import io.github.iss_2025_2026.model.Player;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class PhysicsIntegrationTest {
+    private static final float PLAYER_SIZE = 160f;
+    private static final float PLAYER_Y_OFFSET = PLAYER_SIZE * 0.48f;
 
     @BeforeAll
     public static void init() {
@@ -110,5 +113,131 @@ public class PhysicsIntegrationTest {
 
         physicsFacade.dispose();
         map.dispose();
+    }
+
+    @Test
+    public void multiplayerBodiesStopTogetherInsteadOfPushingEachOther() {
+        TiledMap map = emptyMap();
+        PhysicsFacade physicsFacade = new PhysicsFacade(new TmxLevel(map), PLAYER_SIZE, PLAYER_Y_OFFSET);
+        Player playerOne = playerAt(0f, 0f);
+        Player playerTwo = playerAt(60f, 0f);
+        physicsFacade.initPlayerBody(playerOne);
+        physicsFacade.initPlayerBody(playerTwo);
+
+        playerTwo.setX(20f);
+        playerTwo.setState(CharacterState.WALKING);
+        physicsFacade.setMultiplayerVelocities(playerOne, playerTwo, 0.016f);
+        physicsFacade.step(0.016f);
+        physicsFacade.syncPlayerPositions();
+
+        assertEquals(0f, playerOne.getX(), 0.01f);
+        assertEquals(60f, playerTwo.getX(), 0.01f);
+        assertEquals(CharacterState.IDLE, playerTwo.getState());
+
+        physicsFacade.dispose();
+        map.dispose();
+    }
+
+    @Test
+    public void multiplayerBodiesCanMoveAwayFromEachOther() {
+        TiledMap map = emptyMap();
+        PhysicsFacade physicsFacade = new PhysicsFacade(new TmxLevel(map), PLAYER_SIZE, PLAYER_Y_OFFSET);
+        Player playerOne = playerAt(0f, 0f);
+        Player playerTwo = playerAt(40f, 0f);
+        physicsFacade.initPlayerBody(playerOne);
+        physicsFacade.initPlayerBody(playerTwo);
+
+        playerOne.setX(-10f);
+        playerTwo.setX(50f);
+        physicsFacade.setMultiplayerVelocities(playerOne, playerTwo, 0.016f);
+        physicsFacade.step(0.016f);
+        physicsFacade.syncPlayerPositions();
+
+        assertTrue(playerOne.getX() < 0f);
+        assertTrue(playerTwo.getX() > 40f);
+
+        physicsFacade.dispose();
+        map.dispose();
+    }
+
+    @Test
+    public void playerOneCannotPushPlayerTwo() {
+        TiledMap map = emptyMap();
+        PhysicsFacade physicsFacade = new PhysicsFacade(new TmxLevel(map), PLAYER_SIZE, PLAYER_Y_OFFSET);
+        Player playerOne = playerAt(0f, 0f);
+        Player playerTwo = playerAt(60f, 0f);
+        physicsFacade.initPlayerBody(playerOne);
+        physicsFacade.initPlayerBody(playerTwo);
+
+        playerOne.setX(40f);
+        physicsFacade.setMultiplayerVelocities(playerOne, playerTwo, 0.016f);
+        physicsFacade.step(0.016f);
+        physicsFacade.syncPlayerPositions();
+
+        assertEquals(0f, playerOne.getX(), 0.01f);
+        assertEquals(60f, playerTwo.getX(), 0.01f);
+
+        physicsFacade.dispose();
+        map.dispose();
+    }
+
+    @Test
+    public void multiplayerBodiesCanMoveTogetherInTheSameDirection() {
+        TiledMap map = emptyMap();
+        PhysicsFacade physicsFacade = new PhysicsFacade(new TmxLevel(map), PLAYER_SIZE, PLAYER_Y_OFFSET);
+        Player playerOne = playerAt(0f, 0f);
+        Player playerTwo = playerAt(60f, 0f);
+        physicsFacade.initPlayerBody(playerOne);
+        physicsFacade.initPlayerBody(playerTwo);
+
+        playerOne.setX(10f);
+        playerTwo.setX(70f);
+        physicsFacade.setMultiplayerVelocities(playerOne, playerTwo, 0.016f);
+        physicsFacade.step(0.016f);
+        physicsFacade.syncPlayerPositions();
+
+        assertEquals(10f, playerOne.getX(), 0.01f);
+        assertEquals(70f, playerTwo.getX(), 0.01f);
+
+        physicsFacade.dispose();
+        map.dispose();
+    }
+
+    @Test
+    public void multiplayerBodiesCannotCrossThroughEachOtherInOneFrame() {
+        TiledMap map = emptyMap();
+        PhysicsFacade physicsFacade = new PhysicsFacade(new TmxLevel(map), PLAYER_SIZE, PLAYER_Y_OFFSET);
+        Player playerOne = playerAt(0f, 0f);
+        Player playerTwo = playerAt(100f, 0f);
+        physicsFacade.initPlayerBody(playerOne);
+        physicsFacade.initPlayerBody(playerTwo);
+
+        playerOne.setX(100f);
+        playerTwo.setX(0f);
+        physicsFacade.setMultiplayerVelocities(playerOne, playerTwo, 0.016f);
+        physicsFacade.step(0.016f);
+        physicsFacade.syncPlayerPositions();
+
+        assertEquals(0f, playerOne.getX(), 0.01f);
+        assertEquals(100f, playerTwo.getX(), 0.01f);
+
+        physicsFacade.dispose();
+        map.dispose();
+    }
+
+    private static TiledMap emptyMap() {
+        TiledMap map = new TiledMap();
+        map.getProperties().put("width", 10);
+        map.getProperties().put("height", 10);
+        map.getProperties().put("tilewidth", 256);
+        map.getProperties().put("tileheight", 128);
+        return map;
+    }
+
+    private static Player playerAt(float x, float y) {
+        Player player = new Player("TestHero", 100, 10, null);
+        player.setX(x);
+        player.setY(y);
+        return player;
     }
 }

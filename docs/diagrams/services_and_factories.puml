@@ -202,6 +202,7 @@ package io.github.iss_2025_2026.physics {
         + PhysicsFacade(level: TmxLevel, playerSize: float, playerYOffset: float)
         + initPlayerBody(player: Player): void
         + setPlayerVelocity(player: Player, delta: float): void
+        + setMultiplayerVelocities(first: Player, second: Player, delta: float): void
         + step(delta: float): void
         + syncPlayerPositions(): void
         + drawDebug(cam: OrthographicCamera): void

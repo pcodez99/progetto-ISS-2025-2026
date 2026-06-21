@@ -141,8 +141,6 @@ public class LevelScreen implements Screen {
     private Label pickupPromptLabel;
     private CharacterSheetModel characterSheetModel;
 
-    private CharacterState lastStateP1 = CharacterState.IDLE;
-    private CharacterState lastStateP2 = CharacterState.IDLE;
     private Rectangle mapBounds;
     private float cameraEdgePadding;
     private boolean battleTransitionPending;
@@ -194,17 +192,9 @@ public class LevelScreen implements Screen {
         Player player = model.getPlayerOne();
         this.playerAssets = new PlayerAssets(player);
 
-        // Sincronizza la durata dell'attacco del modello con la durata dell'animazione caricata
-        if (player != null && playerAssets.getAttackAnim() != null) {
-            player.setAttackDuration(playerAssets.getAttackAnim().getAnimationDuration());
-        }
-
         Player playerTwo = model.getPlayerTwo();
         if (model.isMultiplayerGame() && playerTwo != null) {
             this.playerTwoAssets = new PlayerAssets(playerTwo);
-            if (playerTwoAssets.getAttackAnim() != null) {
-                playerTwo.setAttackDuration(playerTwoAssets.getAttackAnim().getAnimationDuration());
-            }
         }
 
         buildUI();
@@ -510,39 +500,17 @@ public class LevelScreen implements Screen {
                 CharacterState state = player.getState();
                 TextureRegion frame = null;
 
-                float drawX = getX();
-                float drawY = getY();
-                float drawWidth = getWidth();
-                float drawHeight = getHeight();
+                Animation<TextureRegion> currentAnim = (state == CharacterState.WALKING)
+                        ? assets.getWalkAnim(dir)
+                        : assets.getIdleAnim(dir);
 
-                if (state == CharacterState.ATTACKING && assets.getAttackAnim() != null) {
-                    frame = assets.getAttackAnim().getKeyFrame(player.getStateTime(), false);
-                    if (dir == Direction.LEFT) {
-                        TextureRegion flippedFrame = new TextureRegion(frame);
-                        flippedFrame.flip(true, false);
-                        frame = flippedFrame;
-                    }
-
-                    // Centra e ridimensiona l'animazione di attacco per allinearla a quella di idle
-                    if ("bambino".equals(player.getCharacterId())) {
-                        drawWidth = getWidth() * 0.45f;
-                        drawHeight = getHeight() * 0.45f;
-                        drawX = getX() + (getWidth() - drawWidth) / 2f;
-                        drawY = getY(); // Mantiene i piedi allineati al terreno
-                    }
-                } else {
-                    Animation<TextureRegion> currentAnim = (state == CharacterState.WALKING)
-                            ? assets.getWalkAnim(dir)
-                            : assets.getIdleAnim(dir);
-
-                    if (currentAnim != null) {
-                        frame = currentAnim.getKeyFrame(player.getStateTime(), true);
-                    }
+                if (currentAnim != null) {
+                    frame = currentAnim.getKeyFrame(player.getStateTime(), true);
                 }
 
                 if (frame != null) {
-                    batch.draw(frame, drawX, drawY, getOriginX(), getOriginY(), drawWidth, drawHeight, getScaleX(),
-                            getScaleY(), getRotation());
+                    batch.draw(frame, getX(), getY(), getOriginX(), getOriginY(), getWidth(), getHeight(),
+                            getScaleX(), getScaleY(), getRotation());
                 }
             }
 
@@ -610,28 +578,10 @@ public class LevelScreen implements Screen {
 
         // 2. Aggiorna la simulazione fisica (Fisica)
         if (physicsFacade != null) {
-            if (p1 != null) {
+            if (p1 != null && model.isMultiplayerGame() && p2 != null) {
+                physicsFacade.setMultiplayerVelocities(p1, p2, delta);
+            } else if (p1 != null) {
                 physicsFacade.setPlayerVelocity(p1, delta);
-
-                // Suono attacco Player 1
-                if (p1.getState() == CharacterState.ATTACKING && lastStateP1 != CharacterState.ATTACKING) {
-                    if (playerAssets.getAttackSound() != null) {
-                        playerAssets.getAttackSound().play();
-                    }
-                }
-                lastStateP1 = p1.getState();
-            }
-
-            if (model.isMultiplayerGame() && p2 != null) {
-                physicsFacade.setPlayerVelocity(p2, delta);
-
-                // Suono attacco Player 2
-                if (p2.getState() == CharacterState.ATTACKING && lastStateP2 != CharacterState.ATTACKING) {
-                    if (playerTwoAssets != null && playerTwoAssets.getAttackSound() != null) {
-                        playerTwoAssets.getAttackSound().play();
-                    }
-                }
-                lastStateP2 = p2.getState();
             }
 
             physicsFacade.step(delta);

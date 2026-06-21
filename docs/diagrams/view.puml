@@ -117,13 +117,9 @@ package io.github.iss_2025_2026.view {
     class PlayerAssets {
         - walkAnims: Map<Direction, Animation<TextureRegion>>
         - idleAnims: Map<Direction, Animation<TextureRegion>>
-        - attackAnim: Animation<TextureRegion>
-        - attackSound: Sound
         + PlayerAssets(player: Player)
         + getWalkAnim(dir: Direction): Animation<TextureRegion>
         + getIdleAnim(dir: Direction): Animation<TextureRegion>
-        + getAttackAnim(): Animation<TextureRegion>
-        + getAttackSound(): Sound
         + dispose(): void
     }
 

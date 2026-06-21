@@ -15,11 +15,16 @@ package io.github.iss_2025_2026.controller {
     class GameController {
         + {static} MAX_PLAYER_DISTANCE: float
         - model: GameModel
+        - multiplayerMovementConstraint: MultiplayerMovementConstraint
         + GameController(model: GameModel)
         + update(delta: float): void
         ~ handlePlayerMovement(delta: float, player: Player): void
-        ~ handlePlayerMovement(delta: float, player: Player, upPressed: boolean, downPressed: boolean, leftPressed: boolean, rightPressed: boolean, attackPressed: boolean): void
-        ~ clampPlayerDistance(firstPlayer: Player, secondPlayer: Player, maxDistance: float): void
+        ~ handlePlayerMovement(delta: float, player: Player, upPressed: boolean, downPressed: boolean, leftPressed: boolean, rightPressed: boolean): void
+    }
+
+    class MultiplayerMovementConstraint <<Constraint>> {
+        ~ normalizeInitialDistance(first: Player, second: Player, maxDistance: float): void
+        ~ rollbackIfExceeded(first: Player, second: Player, previousPositions..., maxDistance: float): boolean
     }
 
     class BattleController {
@@ -99,6 +104,7 @@ package io.github.iss_2025_2026.controller {
 
     io.github.iss_2025_2026.Main "1" *-- "1" GameContext : contains
     GameController "1" o-- "1" io.github.iss_2025_2026.model.GameModel
+    GameController "1" *-- "1" MultiplayerMovementConstraint
     BattleController "1" o-- "1" io.github.iss_2025_2026.model.combat.BattleModel
     GameContext "1" o-- "1" GameController
     GameContext "1" o-- "1" SceneController
