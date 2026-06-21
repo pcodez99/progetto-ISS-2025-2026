@@ -3,7 +3,7 @@ package io.github.iss_2025_2026.model.abilities.strategies;
 import io.github.iss_2025_2026.model.abilities.AbilityStrategy;
 import io.github.iss_2025_2026.model.abilities.AbilityContext;
 import io.github.iss_2025_2026.model.abilities.AbilityConfiguration;
-import io.github.iss_2025_2026.model.Character;
+import io.github.iss_2025_2026.model.Characters;
 
 /**
  * Implementa l'interfaccia AbilityStrategy e contiene le formule matematiche
@@ -15,12 +15,12 @@ public class HealStrategy implements AbilityStrategy {
 
     @Override
     public void execute(AbilityContext context, AbilityConfiguration config) {
-        Character caster = context.getCaster();
+        Characters caster = context.getCaster();
 
         // Healing scaling formula
         int totalHeal = config.getBaseHealing() + caster.getLevel();
 
-        for (Character target : context.getTargets()) {
+        for (Characters target : context.getTargets()) {
             target.heal(totalHeal);
         }
     }

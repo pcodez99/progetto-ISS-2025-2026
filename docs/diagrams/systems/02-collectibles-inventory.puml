@@ -1,108 +1,28 @@
 @startuml 02-collectibles-inventory
 !pragma layout smetana
-title Collectible e inventario — Prototype con effetti Strategy
+title Collectible e inventario - Prototype
 
+left to right direction
 skinparam classAttributeIconSize 0
 hide empty members
+hide circle
 
-class "configs/collectibles.yaml" as CollectiblesYaml <<YAML>>
-class "level.tmx / layer Object" as TmxObjects <<TMX>>
+class "collectibles.yaml" as CollectiblesYaml <<asset>>
+class "level.tmx" as LevelTmx <<asset>>
+class CollectibleFactory <<Prototype Factory>>
+class Collectible <<Prototype>>
+class TmxCollectibleLoader <<Loader>>
+class CollectibleService <<Service>>
+class Backpack
 
-package "Configurazione" {
-  class CollectibleConfigLoader <<Loader>> {
-    + loadDefault(): CollectibleCatalog
-  }
-  class CollectibleCatalog <<Catalog>>
-  class CollectibleDefinition <<DTO>>
-  class CollectibleVisualConfig <<DTO>>
-  enum CollectibleVisualType
-}
-
-package "Creazione" {
-  class CollectibleFactory <<Prototype Factory>> {
-    + findCollectible(id): Optional<Collectible>
-    + requireCollectible(id): Collectible
-    + getAllCollectibles(): List<Collectible>
-  }
-  class CollectibleEffectFactory <<Strategy Registry>> {
-    + getStrategy(effectType): CollectibleEffectStrategy
-  }
-  class CollectibleVisualFactory <<Factory Method>> {
-    + create(id, config): CollectibleVisual
-  }
-}
-
-package "Dominio" {
-  class Collectible <<Prototype>> {
-    + copy(): Collectible
-    + use(context): void
-  }
-  class Backpack {
-    + addItem(item): boolean
-    + removeItem(item): boolean
-  }
-  class CollectibleUseContext
-  interface CollectibleEffectStrategy <<Strategy>>
-  class HealCollectibleStrategy
-  class DamageCollectibleStrategy
-  class BuffCollectibleStrategy
-}
-
-package "Runtime mappa" {
-  class TmxCollectibleLoader <<Loader>> {
-    + load(level, levelId): List<CollectibleOnMap>
-  }
-  class TmxLevel <<external>>
-  class CollectibleService <<Service>> {
-    + getClosestCollectible(player): CollectibleOnMap
-    + pickUp(player, item): boolean
-  }
-  class "CollectibleService.CollectibleOnMap" as CollectibleOnMap
-  class CollectibleRenderer <<Service>>
-  interface CollectibleVisual
-  class StaticCollectibleVisual
-  class AnimatedCollectibleVisual
-}
-
-CollectiblesYaml --> CollectibleConfigLoader
-CollectibleConfigLoader --> CollectibleCatalog
-CollectibleConfigLoader ..> CollectibleDefinition : deserializza e valida
-CollectibleCatalog ..> CollectibleDefinition : costruisce da
-CollectibleCatalog o-- Collectible : prototipi
-CollectibleCatalog o-- CollectibleVisualConfig : configurazioni visuali
-CollectibleDefinition *-- CollectibleVisualConfig
-CollectibleVisualConfig --> CollectibleVisualType
-CollectibleCatalog --> CollectibleFactory : prototipi validati
-CollectibleFactory o-- "1..*" Collectible : copie degli archetipi
-
-Collectible --> CollectibleEffectFactory
-CollectibleEffectFactory o-- CollectibleEffectStrategy
-CollectibleEffectStrategy <|.. HealCollectibleStrategy
-CollectibleEffectStrategy <|.. DamageCollectibleStrategy
-CollectibleEffectStrategy <|.. BuffCollectibleStrategy
-CollectibleEffectStrategy --> CollectibleUseContext
-Backpack o-- "0..*" Collectible
-
-TmxObjects --> TmxLevel
-TmxCollectibleLoader --> TmxLevel
+CollectiblesYaml --> CollectibleFactory
+CollectibleFactory o-- Collectible : prototipi
+LevelTmx --> TmxCollectibleLoader
 TmxCollectibleLoader --> CollectibleFactory : copy per id
-TmxCollectibleLoader ..> CollectibleOnMap : crea
-CollectibleService *-- CollectibleOnMap
-CollectibleOnMap --> Collectible
-CollectibleService --> Backpack : raccolta
-
-CollectibleVisualFactory ..> StaticCollectibleVisual
-CollectibleVisualFactory ..> AnimatedCollectibleVisual
-CollectibleVisual <|.. StaticCollectibleVisual
-CollectibleVisual <|.. AnimatedCollectibleVisual
-CollectibleRenderer o-- CollectibleVisual
-CollectibleRenderer --> CollectibleOnMap
+TmxCollectibleLoader --> CollectibleService
+CollectibleService --> Backpack : pickup
 
 note bottom of CollectibleFactory
-Pattern principale: Prototype.
-Molte istanze runtime derivano dallo stesso archetipo YAML.
-Strategy è secondario e separa HEAL, DAMAGE e BUFF.
-Builder non è principale: Collectible ha pochi campi obbligatori
-e nasce da una Definition già validata.
+Minimo: la factory clona collectible configurati e il service li mette nello zaino.
 end note
 @enduml

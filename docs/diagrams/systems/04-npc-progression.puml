@@ -1,89 +1,30 @@
 @startuml 04-npc-progression
 !pragma layout smetana
-title NPC e progressione — Factory configurate e regole evolutive
+title NPC e progressione - Factory
 
+left to right direction
 skinparam classAttributeIconSize 0
 hide empty members
+hide circle
 
-class "configs/npcs.yaml" as NpcYaml <<YAML>>
-class "configs/evolution_rules.yaml" as EvolutionYaml <<YAML>>
-class "configs/dialogue_profiles.yaml" as ProfileYaml <<YAML>>
-
-package "Creazione da configurazione" {
-  class NpcFactory <<Factory>> {
-    + findNpc(id): Optional<Npc>
-    + requireNpc(id): Npc
-    + getNpcsForLevel(levelId): List<Npc>
-  }
-  class EvolutionRuleFactory <<Factory>> {
-    + getRulesForCharacter(id): CharacterEvolutionRules
-  }
-  class DialogueProfileFactory <<Factory>> {
-    + getProfile(path): DialogueProfile
-  }
-}
-
-package "Modello" {
-  class Npc <<Prototype>> {
-    + copy(): Npc
-  }
-  enum NpcType
-  class NpcHelpRequest
-  class CharacterEvolutionRules
-  class EvolutionUnlockRule
-  class DialogueProfile
-  enum EvolutionPath
-  enum AbilitySlot
-  class Player
-  class PlayerEvolutionState
-  class PlayerChoiceEvent
-  class EvolutionResult
-}
-
-package "Orchestrazione" {
-  class NpcHelpRequestService <<Service>> {
-    + validateConfiguration(npcs): void
-    + resolve(player, npc, choice): NpcHelpRequestResult
-  }
-  class EvolutionService <<Service>> {
-    + applyChoice(player, event): EvolutionResult
-    + applyNpcChoice(player, npc, type): EvolutionResult
-  }
-  class CollectibleFactory <<external>>
-  class NpcHelpRequestResult <<DTO>>
-}
+class "npcs.yaml" as NpcYaml <<asset>>
+class "evolution_rules.yaml" as EvolutionYaml <<asset>>
+class NpcFactory <<Factory>>
+class Npc <<Prototype>>
+class NpcHelpRequestService <<Service>>
+class CollectibleFactory <<external>>
+class EvolutionService <<Service>>
+class EvolutionRuleFactory <<Factory>>
 
 NpcYaml --> NpcFactory
-EvolutionYaml --> EvolutionRuleFactory
-ProfileYaml --> DialogueProfileFactory
-
-NpcFactory o-- "1..*" Npc : catalogo/prototipi
-Npc --> NpcType
-Npc *-- NpcHelpRequest
-EvolutionRuleFactory o-- CharacterEvolutionRules
-CharacterEvolutionRules o-- EvolutionUnlockRule
-CharacterEvolutionRules --> AbilitySlot
-DialogueProfileFactory o-- DialogueProfile
-DialogueProfile --> EvolutionPath
-
-NpcHelpRequestService --> CollectibleFactory : ricompensa
-NpcHelpRequestService --> EvolutionService : scelta
+NpcFactory o-- Npc : copie
 NpcHelpRequestService --> Npc
-NpcHelpRequestService ..> NpcHelpRequestResult
+NpcHelpRequestService --> CollectibleFactory : reward
+NpcHelpRequestService --> EvolutionService : scelta
+EvolutionYaml --> EvolutionRuleFactory
 EvolutionService --> EvolutionRuleFactory
-EvolutionService --> PlayerChoiceEvent
-EvolutionService --> Player
-EvolutionService --> Npc
-EvolutionService ..> EvolutionResult
-Player *-- PlayerEvolutionState
-PlayerEvolutionState --> EvolutionPath
-PlayerEvolutionState --> AbilitySlot
 
-note bottom of NpcFactory
-Pattern principale: Factory.
-NPC, regole e profili provengono da cataloghi YAML distinti.
-Non uso Abstract Factory come pattern principale perché questi
-prodotti non formano una famiglia che deve essere creata insieme.
-Npc.copy() supporta istanze isolate, ma Prototype resta secondario.
+note bottom of NpcHelpRequestService
+Minimo: una scelta NPC aggiorna reward, karma ed evoluzione.
 end note
 @enduml

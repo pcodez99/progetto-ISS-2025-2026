@@ -3,10 +3,10 @@ package io.github.iss_2025_2026.controller;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.iss_2025_2026.model.Collectible;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
-import io.github.iss_2025_2026.model.Character;
 import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.model.combat.BattlePhase;
 import java.util.Arrays;
@@ -30,7 +30,7 @@ public class BattleControllerTest {
         SpecialAbility dummyAbility = new SpecialAbility() {
             @Override public String getName() { return "Test"; }
             @Override public String getDescription() { return "Abilita test"; }
-            @Override public void perform(Character user, Character target, int level) {
+            @Override public void perform(Characters user, Characters target, int level) {
                 target.takeDamage(20);
             }
         };

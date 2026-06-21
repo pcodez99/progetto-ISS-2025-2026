@@ -3,12 +3,12 @@ package io.github.iss_2025_2026.model.combat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.iss_2025_2026.model.Collectible;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import io.github.iss_2025_2026.model.abilities.AbilityConfiguration;
 import io.github.iss_2025_2026.model.abilities.DataDrivenAbility;
-import io.github.iss_2025_2026.model.Character;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ public class BattleModelTest {
         dummyAbility = new SpecialAbility() {
             @Override public String getName() { return "Test Ability"; }
             @Override public String getDescription() { return "Abilita di test"; }
-            @Override public void perform(Character user, Character target, int userLevel) {
+            @Override public void perform(Characters user, Characters target, int userLevel) {
                 target.takeDamage(15);
             }
         };

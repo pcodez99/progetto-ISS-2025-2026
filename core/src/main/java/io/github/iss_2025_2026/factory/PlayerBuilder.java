@@ -2,14 +2,18 @@ package io.github.iss_2025_2026.factory;
 
 import com.badlogic.gdx.Gdx;
 import io.github.iss_2025_2026.model.AbilitySlot;
+import io.github.iss_2025_2026.model.BambinoPlayer;
 import io.github.iss_2025_2026.model.Backpack;
+import io.github.iss_2025_2026.model.MammaPlayer;
+import io.github.iss_2025_2026.model.NonnoPlayer;
+import io.github.iss_2025_2026.model.PapaPlayer;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import java.util.EnumMap;
 import java.util.Map;
 
 public class PlayerBuilder {
-    private static final String TAG = "CharacterFactory";
+    private static final String TAG = "PlayerBuilder";
 
     private String id;
     private String name = "Unknown";
@@ -112,12 +116,28 @@ public class PlayerBuilder {
     }
 
     public Player build() {
-        Player player = new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, level);
+        Player player = createPlayer();
         player.setAbilitiesBySlot(abilitiesBySlot);
         player.setCharacterId(id);
         player.setKarma(karma);
         player.setBackpack(backpack != null ? backpack : new Backpack(10));
         return player;
+    }
+
+    private Player createPlayer() {
+        if ("nonno".equals(id)) {
+            return new NonnoPlayer(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, level);
+        }
+        if ("papa".equals(id)) {
+            return new PapaPlayer(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, level);
+        }
+        if ("mamma".equals(id)) {
+            return new MammaPlayer(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, level);
+        }
+        if ("bambino".equals(id)) {
+            return new BambinoPlayer(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, level);
+        }
+        return new Player(name, maxHp, baseDamage, ability, maxHpGrowth, damageGrowth, level);
     }
 
     private static SpecialAbility resolveAbility(AbilityRegistry abilityRegistry, String abilityId, String characterId) {

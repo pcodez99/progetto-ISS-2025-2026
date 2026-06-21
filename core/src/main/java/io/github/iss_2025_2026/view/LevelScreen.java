@@ -32,11 +32,10 @@ import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.BattleController;
 import io.github.iss_2025_2026.controller.GameContext;
 import io.github.iss_2025_2026.controller.GameController;
-import io.github.iss_2025_2026.factory.CharacterFactory;
 import io.github.iss_2025_2026.factory.CollectibleConfigLoader;
 import io.github.iss_2025_2026.factory.CollectibleFactory;
+import io.github.iss_2025_2026.factory.EnemyFactory;
 import io.github.iss_2025_2026.factory.NpcFactory;
-import io.github.iss_2025_2026.factory.YamlCharacterFactory;
 import io.github.iss_2025_2026.config.CollectibleCatalog;
 import io.github.iss_2025_2026.map.LevelRuntime;
 import io.github.iss_2025_2026.map.TmxCollectibleLoader;
@@ -261,9 +260,9 @@ public class LevelScreen implements Screen {
         mapBounds = level.getGeometry().getBounds();
         cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
 
-        CharacterFactory characterFactory = new YamlCharacterFactory();
+        EnemyFactory enemyFactory = new EnemyFactory();
         encounterService = new EnemyEncounterService(
-                level.enemyObjects(), characterFactory, level.getGeometry(), encounterRadius);
+                level.enemyObjects(), enemyFactory, level.getGeometry(), encounterRadius);
         NpcFactory npcFactory = new NpcFactory();
         npcDialogueService = new NpcDialogueService();
         dialogueController = new NpcDialogueController();

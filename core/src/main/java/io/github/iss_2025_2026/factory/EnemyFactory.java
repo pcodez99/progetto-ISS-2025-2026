@@ -5,16 +5,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class EnemyFactory implements CharacterTypeFactory<Enemy> {
+public class EnemyFactory {
+    private static final String ENEMIES_CONFIG_PATH = "configs/enemies.yaml";
+    private static final String ENEMIES_ROOT_KEY = "enemies";
+
     private final Map<String, Map<String, Object>> enemyData;
     private final Map<String, Enemy> prototypes;
+
+    public EnemyFactory() {
+        this(new CharacterConfigLoader().loadIndexedList(ENEMIES_CONFIG_PATH, ENEMIES_ROOT_KEY),
+                AbilityRegistry.loadDefault());
+    }
 
     EnemyFactory(Map<String, Map<String, Object>> enemyData, AbilityRegistry abilityRegistry) {
         this.enemyData = enemyData;
         this.prototypes = buildPrototypes(enemyData, abilityRegistry);
     }
 
-    @Override
     public Enemy create(String id) {
         Enemy prototype = prototypes.get(id);
         if (prototype == null) {
@@ -23,7 +30,7 @@ public class EnemyFactory implements CharacterTypeFactory<Enemy> {
         return prototype.copy();
     }
 
-    Map<String, Map<String, Object>> getEnemyData() {
+    public Map<String, Map<String, Object>> getEnemyData() {
         return enemyData;
     }
 

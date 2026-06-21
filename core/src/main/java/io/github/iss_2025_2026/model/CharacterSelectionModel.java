@@ -1,6 +1,6 @@
 package io.github.iss_2025_2026.model;
 
-import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.PlayerFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -10,7 +10,7 @@ public class CharacterSelectionModel {
     private final List<CharacterSelectionOption> characters;
     private int selectedIndex;
 
-    public CharacterSelectionModel(CharacterFactory factory) {
+    public CharacterSelectionModel(PlayerFactory factory) {
         this.characters = new ArrayList<>();
         for (Map<String, Object> characterData : factory.getCharacterData().values()) {
             characters.add(toSelectionOption(characterData, factory));
@@ -19,7 +19,7 @@ public class CharacterSelectionModel {
         this.selectedIndex = 0;
     }
 
-    private CharacterSelectionOption toSelectionOption(Map<String, Object> characterData, CharacterFactory factory) {
+    private CharacterSelectionOption toSelectionOption(Map<String, Object> characterData, PlayerFactory factory) {
         String abilityId = getString(characterData, "abilityId", "");
         SpecialAbility ability = factory.getAbility(abilityId);
 

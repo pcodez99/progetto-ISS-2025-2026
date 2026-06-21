@@ -1,6 +1,6 @@
 package io.github.iss_2025_2026.model.combat;
 
-import io.github.iss_2025_2026.model.Character;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
@@ -89,7 +89,7 @@ public class BattleModel {
             return;
         }
 
-        List<Character> targets = resolveSpecialAbilityTargets(attacker);
+        List<Characters> targets = resolveSpecialAbilityTargets(attacker);
         if (targets.isEmpty()) {
             resolveAfterPlayerAction(attacker);
             return;
@@ -98,7 +98,7 @@ public class BattleModel {
         if (ability instanceof DataDrivenAbility) {
             ((DataDrivenAbility) ability).performOnTargets(attacker, targets, attacker.getLevel());
         } else {
-            for (Character target : targets) {
+            for (Characters target : targets) {
                 ability.perform(attacker, target, attacker.getLevel());
             }
         }
@@ -116,7 +116,7 @@ public class BattleModel {
             return;
         }
 
-        List<Character> targets = buildItemTargets(user, item, target);
+        List<Characters> targets = buildItemTargets(user, item, target);
         item.use(new CollectibleUseContext(user, targets));
         user.getBackpack().removeItem(item);
         battleLog.add(user.getName() + " usa " + item.getName());
@@ -292,8 +292,8 @@ public class BattleModel {
         return !enemies.isEmpty();
     }
 
-    private List<Character> buildItemTargets(Player user, Collectible item, Enemy target) {
-        List<Character> targets = new ArrayList<>();
+    private List<Characters> buildItemTargets(Player user, Collectible item, Enemy target) {
+        List<Characters> targets = new ArrayList<>();
         String effectType = item.getEffectType();
         if (effectType != null && ("HEAL".equalsIgnoreCase(effectType) || "BUFF".equalsIgnoreCase(effectType))) {
             targets.add(user);
@@ -309,7 +309,7 @@ public class BattleModel {
         return targets;
     }
 
-    private List<Character> resolveSpecialAbilityTargets(Player attacker) {
+    private List<Characters> resolveSpecialAbilityTargets(Player attacker) {
         SpecialAbility ability = attacker.getAbility();
         if (ability == null) {
             return Collections.emptyList();
@@ -318,14 +318,14 @@ public class BattleModel {
         if (ability instanceof DataDrivenAbility) {
             String strategy = ((DataDrivenAbility) ability).getConfig().getStrategy();
             if ("HEAL".equalsIgnoreCase(strategy)) {
-                return new ArrayList<Character>(getAlivePlayers());
+                return new ArrayList<Characters>(getAlivePlayers());
             }
             if ("DAMAGE".equalsIgnoreCase(strategy)) {
-                return new ArrayList<Character>(getAliveEnemies());
+                return new ArrayList<Characters>(getAliveEnemies());
             }
         }
 
-        List<Character> enemyTargets = new ArrayList<>();
+        List<Characters> enemyTargets = new ArrayList<>();
         for (Enemy enemy : getAliveEnemies()) {
             enemyTargets.add(enemy);
         }

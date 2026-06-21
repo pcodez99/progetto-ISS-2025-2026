@@ -1,95 +1,29 @@
 @startuml 01-character-creation
 !pragma layout smetana
-title Creazione dei personaggi — Abstract Factory, Builder e Prototype
+title Creazione personaggi - Abstract Factory
 
+left to right direction
 skinparam classAttributeIconSize 0
 hide empty members
+hide circle
 
-class "configs/characters.yaml" as CharactersYaml <<YAML>>
-class "configs/enemies.yaml" as EnemiesYaml <<YAML>>
-class "configs/abilities/*.yaml" as AbilitiesYaml <<YAML>>
+class "characters.yaml\nenemies.yaml" as CharacterYaml <<asset>>
+interface CharacterFactory <<Abstract Factory>>
+class YamlCharacterFactory <<Concrete Factory>>
+class AbilityRegistry <<Registry>>
+abstract class Character
+class Player
+class Enemy <<Prototype>>
 
-package "Configurazione" {
-  class CharacterConfigLoader <<Loader>> {
-    ~ loadIndexedList(path, listKey): Map
-  }
-  class AbilityRegistry <<Registry>> {
-    ~ loadDefault(): AbilityRegistry
-    ~ get(abilityId): SpecialAbility
-  }
-}
-
-package "Creazione" {
-  interface CharacterFactory <<Abstract Factory>> {
-    + createPlayer(id): Player
-    + createEnemy(id): Enemy
-    + getAbility(id): SpecialAbility
-  }
-
-  interface "CharacterTypeFactory<T>" as CharacterTypeFactory <<Factory Method>> {
-    + create(id): T
-  }
-
-  class YamlCharacterFactory <<Concrete Factory>>
-  class PlayerFactory <<Factory Method>>
-  class EnemyFactory <<Factory Method>> {
-    - prototypes: Map<String, Enemy>
-  }
-  class PlayerBuilder <<Builder>> {
-    + fromConfig(data, registry): PlayerBuilder
-    + build(): Player
-  }
-  class EnemyBuilder <<Builder>> {
-    + fromConfig(data, registry): EnemyBuilder
-    + build(): Enemy
-  }
-}
-
-package "Modello runtime" {
-  abstract class Character
-  class Player
-  class Enemy <<Prototype>> {
-    + copy(): Enemy
-  }
-  interface "CharacterPrototype<T>" as CharacterPrototype <<Prototype>> {
-    + copy(): T
-  }
-  interface SpecialAbility
-  class Backpack
-}
-
-CharactersYaml --> CharacterConfigLoader
-EnemiesYaml --> CharacterConfigLoader
-AbilitiesYaml --> AbilityRegistry
-
+CharacterYaml --> YamlCharacterFactory
 CharacterFactory <|.. YamlCharacterFactory
-CharacterTypeFactory <|.. PlayerFactory
-CharacterTypeFactory <|.. EnemyFactory
-YamlCharacterFactory *-- PlayerFactory
-YamlCharacterFactory *-- EnemyFactory
-YamlCharacterFactory *-- AbilityRegistry
-YamlCharacterFactory ..> CharacterConfigLoader : carica dati indicizzati
-
-PlayerFactory ..> PlayerBuilder : configura
-EnemyFactory ..> EnemyBuilder : crea prototipi
-PlayerBuilder ..> Player : build
-PlayerBuilder ..> Backpack
-PlayerBuilder --> AbilityRegistry
-EnemyBuilder ..> Enemy : build
-EnemyBuilder --> AbilityRegistry
-AbilityRegistry o-- SpecialAbility
-EnemyFactory o-- "1..*" Enemy : prototipi validati
-
+YamlCharacterFactory --> AbilityRegistry
+YamlCharacterFactory --> Player : createPlayer
+YamlCharacterFactory --> Enemy : createEnemy/copy
 Character <|-- Player
 Character <|-- Enemy
-CharacterPrototype <|.. Enemy
 
 note bottom of CharacterFactory
-Pattern principale: Abstract Factory.
-La force è creare una famiglia coerente Player/Enemy
-senza esporre loader YAML e costruttori ai chiamanti.
-Builder gestisce i molti campi configurati.
-Prototype è usato per i numerosi Enemy runtime,
-non per Player che viene creato solo una o due volte.
+Minimo: una factory crea Player ed Enemy nascondendo gli YAML.
 end note
 @enduml

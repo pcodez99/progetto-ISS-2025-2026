@@ -1,77 +1,28 @@
 @startuml 03-abilities-combat
 !pragma layout smetana
-title Abilità e combattimento — Strategy data-driven
+title Abilità e combattimento - Strategy
 
+left to right direction
 skinparam classAttributeIconSize 0
 hide empty members
+hide circle
 
-class "configs/abilities/*.yaml" as AbilityYaml <<YAML>>
-
-package "Configurazione e creazione" {
-  class AbilityLoader <<Loader>> {
-    + loadAbility(stream): AbilityConfiguration
-  }
-  class AbilityConfiguration <<DTO>>
-  class AbilityFactory <<Strategy Registry>> {
-    + {static} getStrategy(key): AbilityStrategy
-  }
-}
-
-package "Abilità runtime" {
-  interface SpecialAbility
-  class DataDrivenAbility {
-    - config: AbilityConfiguration
-    - strategy: AbilityStrategy
-    + perform(user, target, level): void
-  }
-  interface AbilityStrategy <<Strategy>> {
-    + execute(context, config): void
-  }
-  class DamageStrategy
-  class HealStrategy
-  class AbilityContext
-}
-
-package "Combattimento" {
-  class BattleController <<Controller>>
-  class BattleModel <<Service>> {
-    + executePlayerAttack(attacker, target): void
-    + executePlayerSpecialAbility(attacker): void
-    + executeUseItem(user, item, target): void
-    + executeEnemyTurn(): void
-  }
-  enum BattlePhase <<Lifecycle State>>
-  class Player <<external>>
-  class Enemy <<external>>
-  class Collectible <<external>>
-  class BattleScreen <<Boundary>>
-}
+class "abilities/*.yaml" as AbilityYaml <<asset>>
+class AbilityLoader <<Loader>>
+class DataDrivenAbility
+class AbilityFactory <<Registry>>
+interface AbilityStrategy <<Strategy>>
+class "DamageStrategy\nHealStrategy" as Strategies
+class BattleModel <<Model>>
 
 AbilityYaml --> AbilityLoader
-AbilityLoader --> AbilityConfiguration
-AbilityFactory o-- AbilityStrategy
-DataDrivenAbility --> AbilityFactory : seleziona per chiave
-DataDrivenAbility *-- AbilityConfiguration
-DataDrivenAbility --> AbilityStrategy
-SpecialAbility <|.. DataDrivenAbility
-AbilityStrategy <|.. DamageStrategy
-AbilityStrategy <|.. HealStrategy
-AbilityStrategy --> AbilityContext
-
-BattleController --> BattleModel
-BattleScreen --> BattleController
-BattleScreen --> BattleModel
-BattleModel --> BattlePhase
-BattleModel o-- "1..2" Player
-BattleModel o-- "1..*" Enemy
-BattleModel --> SpecialAbility
-BattleModel --> Collectible
+AbilityLoader --> DataDrivenAbility
+DataDrivenAbility --> AbilityFactory
+AbilityFactory --> AbilityStrategy
+AbilityStrategy <|.. Strategies
+BattleModel --> DataDrivenAbility : usa abilità
 
 note bottom of AbilityStrategy
-Pattern principale: Strategy.
-La force è sostituire l'algoritmo di effetto senza cambiare
-DataDrivenAbility o BattleModel.
-BattlePhase rende esplicito il lifecycle, ma non è un GoF State
-polimorfico: resta un enum controllato dal modello.
+Minimo: lo YAML sceglie una strategia eseguita in battaglia.
 end note
 @enduml

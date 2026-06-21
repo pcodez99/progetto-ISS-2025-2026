@@ -1,82 +1,30 @@
 @startuml 07-save-game-flow
 !pragma layout smetana
-title Salvataggio e flusso di gioco — Memento
+title Salvataggio - Memento
 
+left to right direction
 skinparam classAttributeIconSize 0
 hide empty members
+hide circle
 
-class "saves/*.json" as SaveFiles <<JSON>>
+class GameModel <<Originator>>
+class GameState <<Memento>>
+class PlayerSaveState <<Memento>>
+class GameSaveService <<Mapper>>
+class SaveManager <<JSON Repository>>
+class "saves/*.json" as SaveFiles <<asset>>
+class CheckpointService <<Service>>
+class GameOverService <<Service>>
 
-package "Runtime" {
-  class GameModel <<Originator>>
-  class Player <<external>>
-  class Backpack <<external>>
-  class GameFlowController <<Service>> {
-    + startNewRun(): void
-    + startCurrentLevel(): void
-    + completeCurrentLevel(): void
-  }
-  class SceneController <<external>>
-}
-
-package "Snapshot" {
-  class GameState <<Memento>>
-  class PlayerSaveState <<Memento>>
-  enum "GameState.Phase" as GamePhase <<Lifecycle State>>
-  enum "GameState.SaveType" as SaveType
-}
-
-package "Persistenza" {
-  class GameSaveService <<Memento Mapper>> {
-    + saveManual(model): SaveResult
-    + saveAutoAtCheckpoint(model, checkpoint): SaveResult
-    + loadGameIntoModel(model, fileName): void
-    + toGameState(model): GameState
-  }
-  class SaveValidator <<Validator>>
-  class SaveManager <<Caretaker>> {
-    + saveGame(state, fileName): void
-    + loadGame(fileName): GameState
-  }
-  class SaveResult <<DTO>>
-  class CheckpointService <<Service>>
-  class CheckpointDefinition <<external>>
-}
-
-package "Ripristino e Game Over" {
-  class GameOverService <<Service>>
-  class GameOverController <<Controller>>
-  class GameOverResult <<DTO>>
-}
-
-GameModel *-- GameState : stato corrente
-GameModel o-- Player
-Player *-- Backpack
-GameState *-- "1..2" PlayerSaveState
-GameState --> GamePhase
-GameState --> SaveType
-
-GameSaveService --> GameModel : cattura/ripristina
-GameSaveService ..> GameState : crea snapshot
-GameSaveService --> SaveValidator
+GameModel --> GameSaveService : save/load
+GameSaveService --> GameState : snapshot
+GameState *-- PlayerSaveState
 GameSaveService --> SaveManager
-GameSaveService ..> SaveResult
 SaveManager --> SaveFiles
-CheckpointService --> CheckpointDefinition
 CheckpointService --> GameSaveService : autosave
-
-GameFlowController --> GameState
-GameFlowController --> SceneController
-GameOverController --> GameOverService
-GameOverService --> GameSaveService
-GameOverService --> GameModel
-GameOverService ..> GameOverResult
+GameOverService --> GameSaveService : restore
 
 note bottom of GameState
-Pattern principale: Memento.
-GameState e PlayerSaveState sono snapshot serializzabili;
-SaveManager li conserva senza conoscere il runtime del gioco.
-State è secondario e descrive le fasi della partita,
-mentre Factory non risolve la pressione di ripristino storico.
+Minimo: GameState è lo snapshot serializzato su JSON.
 end note
 @enduml

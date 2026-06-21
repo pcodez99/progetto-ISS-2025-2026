@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class AbilityRegistry {
-    private static final String TAG = "CharacterFactory";
+    private static final String TAG = "AbilityRegistry";
     private static final String[] DEFAULT_ABILITIES = {
             "group_heal",
             "mamma_purifying_care",

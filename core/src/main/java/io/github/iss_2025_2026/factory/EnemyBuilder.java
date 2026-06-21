@@ -1,12 +1,18 @@
 package io.github.iss_2025_2026.factory;
 
 import com.badlogic.gdx.Gdx;
+import io.github.iss_2025_2026.model.AlienoGuardiano;
+import io.github.iss_2025_2026.model.AlienoInvasore;
+import io.github.iss_2025_2026.model.AlienoSciame;
+import io.github.iss_2025_2026.model.BossLivello1;
+import io.github.iss_2025_2026.model.BossLivello2;
+import io.github.iss_2025_2026.model.BossLivello3;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import java.util.Map;
 
 public class EnemyBuilder {
-    private static final String TAG = "CharacterFactory";
+    private static final String TAG = "EnemyBuilder";
 
     private String id;
     private String name = "Unknown Enemy";
@@ -14,6 +20,7 @@ public class EnemyBuilder {
     private int baseDamage = 5;
     private int xpReward = 15;
     private boolean boss;
+    private String enemyClass;
     private SpecialAbility specialAbility;
 
     static EnemyBuilder fromConfig(Map<String, Object> data, AbilityRegistry abilityRegistry) {
@@ -23,7 +30,8 @@ public class EnemyBuilder {
                 .maxHp(getInt(data, "maxHp", 50))
                 .baseDamage(getInt(data, "baseDamage", 5))
                 .xpReward(getInt(data, "xpReward", 15))
-                .boss(getBoolean(data, "isBoss", false));
+                .boss(getBoolean(data, "isBoss", false))
+                .enemyClass(getString(data, "enemyClass", null));
 
         String abilityId = getString(data, "abilityId", null);
         if (abilityId != null && !"NONE".equalsIgnoreCase(abilityId)) {
@@ -66,15 +74,46 @@ public class EnemyBuilder {
         return this;
     }
 
+    public EnemyBuilder enemyClass(String enemyClass) {
+        this.enemyClass = enemyClass;
+        return this;
+    }
+
     public EnemyBuilder specialAbility(SpecialAbility specialAbility) {
         this.specialAbility = specialAbility;
         return this;
     }
 
     public Enemy build() {
-        Enemy enemy = new Enemy(name, id, maxHp, baseDamage, xpReward, boss);
+        Enemy enemy = createEnemy();
         enemy.setSpecialAbility(specialAbility);
         return enemy;
+    }
+
+    private Enemy createEnemy() {
+        if (boss) {
+            if ("boss_livello_1".equals(id)) {
+                return new BossLivello1(name, id, maxHp, baseDamage, xpReward);
+            }
+            if ("boss_livello_2".equals(id)) {
+                return new BossLivello2(name, id, maxHp, baseDamage, xpReward);
+            }
+            if ("boss_livello_3".equals(id)) {
+                return new BossLivello3(name, id, maxHp, baseDamage, xpReward);
+            }
+            return new Enemy(name, id, maxHp, baseDamage, xpReward, true);
+        }
+
+        if ("SCIAME".equalsIgnoreCase(enemyClass)) {
+            return new AlienoSciame(name, id, maxHp, baseDamage, xpReward);
+        }
+        if ("INVASORE".equalsIgnoreCase(enemyClass)) {
+            return new AlienoInvasore(name, id, maxHp, baseDamage, xpReward);
+        }
+        if ("GUARDIANO".equalsIgnoreCase(enemyClass)) {
+            return new AlienoGuardiano(name, id, maxHp, baseDamage, xpReward);
+        }
+        return new Enemy(name, id, maxHp, baseDamage, xpReward, false);
     }
 
     private static String getString(Map<String, Object> data, String key, String fallback) {

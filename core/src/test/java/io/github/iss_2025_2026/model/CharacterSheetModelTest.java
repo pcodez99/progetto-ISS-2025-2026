@@ -22,7 +22,7 @@ public class CharacterSheetModelTest {
         @Override
         public String getDescription() { return "Test"; }
         @Override
-        public void perform(Character user, Character target, int userLevel) {}
+        public void perform(Characters user, Characters target, int userLevel) {}
     };
 
     @BeforeEach

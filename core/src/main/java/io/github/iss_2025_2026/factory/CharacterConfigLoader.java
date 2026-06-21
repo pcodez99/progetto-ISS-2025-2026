@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 final class CharacterConfigLoader {
-    private static final String TAG = "CharacterFactory";
+    private static final String TAG = "CharacterConfigLoader";
 
     private final ObjectMapper mapper;
 

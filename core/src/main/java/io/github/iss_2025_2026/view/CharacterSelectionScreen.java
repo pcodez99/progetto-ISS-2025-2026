@@ -14,8 +14,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.CharacterSelectionController;
 import io.github.iss_2025_2026.controller.GameController;
-import io.github.iss_2025_2026.factory.CharacterFactory;
-import io.github.iss_2025_2026.factory.YamlCharacterFactory;
+import io.github.iss_2025_2026.factory.PlayerFactory;
 import io.github.iss_2025_2026.model.CharacterSelectionModel;
 import io.github.iss_2025_2026.model.CharacterSelectionOption;
 import io.github.iss_2025_2026.model.GameModel;
@@ -87,10 +86,10 @@ public class CharacterSelectionScreen implements Screen {
         this.gameController = gameController;
         this.config = config;
         this.currentPlayerIndex = currentPlayerIndex;
-        CharacterFactory factory = new YamlCharacterFactory();
-        this.selectionModel = new CharacterSelectionModel(factory);
+        PlayerFactory playerFactory = new PlayerFactory();
+        this.selectionModel = new CharacterSelectionModel(playerFactory);
         this.selectionController = new CharacterSelectionController(game, gameModel, gameController, selectionModel,
-                factory, config, currentPlayerIndex);
+                playerFactory, config, currentPlayerIndex);
 
         this.skin = GameUiTheme.loadSkin();
 
