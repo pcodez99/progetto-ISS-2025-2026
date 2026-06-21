@@ -23,14 +23,15 @@ package io.github.iss_2025_2026.controller {
     }
 
     class BattleController {
-        - gameController: GameFlowController
-        - battleModel: BattleModel
-        - battleScreen: BattleScreen
-        + BattleController(gameController: GameFlowController, battleModel: BattleModel, battleScreen: BattleScreen)
-        + handlePlayerAction(actionIndex: int): void
-        + handleItemUse(itemIndex: int): void
-        + handleEscape(): void
-        + handleNextCombatantTurn(): void
+        - model: BattleModel
+        - menuState: MenuState
+        + BattleController(model: BattleModel)
+        + onAttackSelected(): void
+        + onTargetSelected(target: Enemy): void
+        + onSpecialAbilitySelected(): void
+        + onInventorySelected(): void
+        + onItemSelected(item: Collectible, target: Enemy): ItemUseResult
+        + update(delta: float): void
     }
 
     class GameContext {
@@ -98,7 +99,7 @@ package io.github.iss_2025_2026.controller {
 
     io.github.iss_2025_2026.Main "1" *-- "1" GameContext : contains
     GameController "1" o-- "1" io.github.iss_2025_2026.model.GameModel
-    BattleController "1" o-- "1" GameFlowController
+    BattleController "1" o-- "1" io.github.iss_2025_2026.model.combat.BattleModel
     GameContext "1" o-- "1" GameController
     GameContext "1" o-- "1" SceneController
     GameFlowController "1" o-- "1" io.github.iss_2025_2026.model.GameModel

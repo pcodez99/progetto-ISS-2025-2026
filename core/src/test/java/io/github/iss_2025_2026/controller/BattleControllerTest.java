@@ -9,6 +9,7 @@ import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.model.combat.BattlePhase;
+import io.github.iss_2025_2026.model.combat.ItemUseResult;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,18 +96,36 @@ public class BattleControllerTest {
     }
 
     @Test
-    public void testOnItemSelectedUsesItemAndTransitionsToEnemyTurn() {
+    public void testOnItemSelectedUsesItemAndKeepsPlayerTurn() {
         Collectible pozione = new Collectible("pozione", "Pozione", "Cura 20 HP", "HEAL", false, 20);
         playerOne.getBackpack().addItem(pozione);
         playerOne.takeDamage(30); // HP = 70
         int hpBefore = playerOne.getHp();
 
         controller.onInventorySelected();
-        controller.onItemSelected(pozione, enemyOne);
+        ItemUseResult result = controller.onItemSelected(pozione, enemyOne);
 
+        assertEquals(ItemUseResult.USED, result);
         assertTrue(playerOne.getHp() > hpBefore, "L'oggetto di cura deve aumentare gli HP");
-        assertEquals(BattlePhase.ENEMY_TURN, model.getPhase());
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase());
         assertEquals(BattleController.MenuState.MAIN_MENU, controller.getMenuState());
+
+        controller.onAttackSelected();
+        controller.onTargetSelected(enemyOne);
+        assertEquals(BattlePhase.ENEMY_TURN, model.getPhase());
+    }
+
+    @Test
+    public void testInventoryCannotBeOpenedAgainAfterItemUseInSameTurn() {
+        Collectible pozione = new Collectible("pozione", "Pozione", "Cura 20 HP", "HEAL", false, 20);
+        playerOne.getBackpack().addItem(pozione);
+
+        controller.onInventorySelected();
+        controller.onItemSelected(pozione, enemyOne);
+        controller.onInventorySelected();
+
+        assertEquals(BattleController.MenuState.MAIN_MENU, controller.getMenuState());
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase());
     }
 
     // -------------------------------------------------------------------------

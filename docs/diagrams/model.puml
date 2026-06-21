@@ -357,20 +357,32 @@ package io.github.iss_2025_2026.model.combat {
         - playerOne: Player
         - playerTwo: Player
         - enemies: List<Enemy>
-        - combatants: List<Character>
-        - currentTurnIndex: int
         - phase: BattlePhase
+        - itemUsedThisTurn: boolean
         + BattleModel(p1: Player, p2: Player, enemies: List<Enemy>)
-        + nextTurn(): void
+        + executePlayerAttack(attacker: Player, target: Enemy): void
+        + executePlayerSpecialAbility(attacker: Player): void
+        + executeUseItem(user: Player, item: Collectible, target: Enemy): ItemUseResult
+        + canCurrentPlayerUseItem(): boolean
     }
     enum BattlePhase {
-        START
-        PLAYER_TURN
+        PLAYER_ONE_TURN
+        PLAYER_TWO_TURN
         ENEMY_TURN
         VICTORY
         DEFEAT
+        FLED
+    }
+    enum ItemUseResult {
+        USED
+        INVALID_TURN
+        INVALID_ITEM
+        NOT_OWNED
+        ALREADY_USED
     }
 }
 
 Collectible o-- CollectibleEffectStrategy : delegates to
+BattleModel --> ItemUseResult : returns
+BattleModel --> Collectible : uses without ending turn
 @enduml

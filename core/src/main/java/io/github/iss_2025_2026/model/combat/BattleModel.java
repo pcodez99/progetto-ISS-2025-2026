@@ -24,6 +24,7 @@ public class BattleModel {
     private BattlePhase phase;
     private float fleeTimer;
     private int totalXpEarned;
+    private boolean itemUsedThisTurn;
     private final List<String> battleLog;
     private final Random random;
 
@@ -34,6 +35,7 @@ public class BattleModel {
         this.phase = BattlePhase.PLAYER_ONE_TURN;
         this.fleeTimer = INITIAL_FLEE_TIMER;
         this.totalXpEarned = 0;
+        this.itemUsedThisTurn = false;
         this.battleLog = new ArrayList<>();
         this.random = new Random();
         // Resetta l'uso delle abilità speciali per la nuova battaglia
@@ -111,17 +113,25 @@ public class BattleModel {
         resolveAfterPlayerAction(attacker);
     }
 
-    public void executeUseItem(Player user, Collectible item, Enemy target) {
-        if (user == null || item == null) {
-            return;
+    public ItemUseResult executeUseItem(Player user, Collectible item, Enemy target) {
+        ItemUseResult validationResult = validateItemUse(user, item);
+        if (validationResult != ItemUseResult.USED) {
+            battleLog.add(validationResult.getMessage());
+            return validationResult;
         }
 
         List<Characters> targets = buildItemTargets(user, item, target);
         item.use(new CollectibleUseContext(user, targets));
         user.getBackpack().removeItem(item);
         battleLog.add(user.getName() + " usa " + item.getName());
+        itemUsedThisTurn = true;
 
-        resolveAfterPlayerAction(user);
+        updateEndState();
+        return ItemUseResult.USED;
+    }
+
+    public boolean canCurrentPlayerUseItem() {
+        return isPlayerTurn() && !itemUsedThisTurn;
     }
 
     public void executeEnemyTurn() {
@@ -146,6 +156,7 @@ public class BattleModel {
             return;
         }
 
+        itemUsedThisTurn = false;
         phase = BattlePhase.PLAYER_ONE_TURN;
     }
 
@@ -264,6 +275,7 @@ public class BattleModel {
             return;
         }
 
+        itemUsedThisTurn = false;
         if (actingPlayer == playerOne && playerTwo != null && playerTwo.isAlive()) {
             phase = BattlePhase.PLAYER_TWO_TURN;
         } else {
@@ -281,6 +293,26 @@ public class BattleModel {
             return true;
         }
         return false;
+    }
+
+    private ItemUseResult validateItemUse(Player user, Collectible item) {
+        if (user == null || !isPlayerTurn() || user != getCurrentTurnPlayer()) {
+            return ItemUseResult.INVALID_TURN;
+        }
+        if (item == null) {
+            return ItemUseResult.INVALID_ITEM;
+        }
+        if (!user.getBackpack().getItems().contains(item)) {
+            return ItemUseResult.NOT_OWNED;
+        }
+        if (itemUsedThisTurn) {
+            return ItemUseResult.ALREADY_USED;
+        }
+        return ItemUseResult.USED;
+    }
+
+    private boolean isPlayerTurn() {
+        return phase == BattlePhase.PLAYER_ONE_TURN || phase == BattlePhase.PLAYER_TWO_TURN;
     }
 
     private boolean allEnemiesDefeated() {

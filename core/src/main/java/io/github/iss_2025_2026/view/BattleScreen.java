@@ -38,6 +38,7 @@ import io.github.iss_2025_2026.model.GameState;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.model.combat.BattlePhase;
+import io.github.iss_2025_2026.model.combat.ItemUseResult;
 import io.github.iss_2025_2026.service.EnemyEncounter;
 import io.github.iss_2025_2026.service.EnemyEncounterService;
 import io.github.iss_2025_2026.service.GameOverService;
@@ -520,7 +521,9 @@ public class BattleScreen implements Screen {
         }
         addActionButton(specialAbilityButton);
 
-        addActionButton(createMenuButton("Inventario", this::onInventory));
+        TextButton inventoryButton = createMenuButton("Inventario", this::onInventory);
+        inventoryButton.setDisabled(!battleModel.canCurrentPlayerUseItem());
+        addActionButton(inventoryButton);
         addFleeButton();
     }
 
@@ -583,8 +586,8 @@ public class BattleScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 Enemy fallbackTarget = firstAliveEnemy();
-                battleController.onItemSelected(item, fallbackTarget);
-                afterPlayerAction();
+                ItemUseResult result = battleController.onItemSelected(item, fallbackTarget);
+                afterItemUse(result);
             }
         });
         return button;
@@ -658,6 +661,15 @@ public class BattleScreen implements Screen {
             return;
         }
         scheduleEnemyCounterDelayIfNeeded();
+        refreshMenuIfNeeded(true);
+    }
+
+    private void afterItemUse(ItemUseResult result) {
+        refreshBattleDisplay();
+        if (battleModel.isBattleOver()) {
+            finishBattle(battleModel.isVictory());
+            return;
+        }
         refreshMenuIfNeeded(true);
     }
 
