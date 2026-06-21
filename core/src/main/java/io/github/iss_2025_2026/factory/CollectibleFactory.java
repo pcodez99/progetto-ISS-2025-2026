@@ -1,19 +1,14 @@
 package io.github.iss_2025_2026.factory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.github.iss_2025_2026.config.CollectibleCatalog;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.collectibles.CollectibleEffectFactory;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class CollectibleFactory {
@@ -24,8 +19,11 @@ public class CollectibleFactory {
     private final Map<String, Collectible> collectibleCatalog;
 
     public CollectibleFactory() {
-        this.collectibleCatalog = new HashMap<>();
-        loadCollectibleConfigs();
+        this(CollectibleConfigLoader.loadDefault());
+    }
+
+    public CollectibleFactory(CollectibleCatalog catalog) {
+        this(catalog.getCollectibles());
     }
 
     /**
@@ -35,31 +33,6 @@ public class CollectibleFactory {
     public CollectibleFactory(List<Collectible> collectibles) {
         this.collectibleCatalog = new HashMap<>();
         registerCollectibles(collectibles);
-    }
-
-    private void loadCollectibleConfigs() {
-        String path = "configs/collectibles.yaml";
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        // TRY-WITH-RESOURCES: Apre il file e lo CHIUDE IN AUTOMATICO alla fine del blocco
-        try (InputStream is = CollectibleFactory.class.getClassLoader().getResourceAsStream(path)) {
-
-            if (is == null) {
-                LOGGER.severe("CRITICAL ERROR: File " + path + " non trovato nel Classpath/Test Resources!");
-                return;
-            }
-
-            // DESERIALIZZAZIONE DIRETTA: Jackson legge il file e crea direttamente gli oggetti!
-            List<Collectible> dataList = mapper.readValue(is, new TypeReference<List<Collectible>>() {});
-
-            registerCollectibles(dataList);
-            LOGGER.info(collectibleCatalog.size() + " oggetti caricati con successo dallo YAML!");
-
-        } catch (Exception e) {
-            //Logger stampa l'errore di rosso insieme a tutta la scia di dettagli tecnici (Stacktrace)
-            LOGGER.log(Level.SEVERE, "Errore durante il parsing del file YAML: " + path, e);
-        }
     }
 
     private void registerCollectibles(List<Collectible> collectibles) {

@@ -91,9 +91,96 @@ public class LevelAssetValidator {
         if (!hasObjectGroup(document, TmxMapContract.LAYER_OBSTACLES)) {
             errors.add(label + ": object layer obbligatorio mancante: " + TmxMapContract.LAYER_OBSTACLES + ".");
         }
+        if (!hasObjectGroup(document, TmxMapContract.LAYER_COLLECTIBLES)) {
+            errors.add(label + ": object layer obbligatorio mancante: " + TmxMapContract.LAYER_COLLECTIBLES + ".");
+        } else {
+            validateCollectibleObjects(document, label, errors);
+        }
         if (!hasVisibleSpawn(document)) {
             errors.add(label + ": object layer '" + TmxMapContract.LAYER_SPAWN
                     + "' deve contenere un oggetto visibile chiamato '" + TmxMapContract.SPAWN_OBJECT_NAME + "'.");
+        }
+    }
+
+    private void validateCollectibleObjects(Document document, String label, List<String> errors) {
+        NodeList groups = document.getElementsByTagName("objectgroup");
+        for (int i = 0; i < groups.getLength(); i++) {
+            Element group = (Element) groups.item(i);
+            if (!TmxMapContract.LAYER_COLLECTIBLES.equals(group.getAttribute("name"))) {
+                continue;
+            }
+            NodeList objects = group.getElementsByTagName("object");
+            for (int j = 0; j < objects.getLength(); j++) {
+                Element object = (Element) objects.item(j);
+                if ("0".equals(object.getAttribute("visible"))) {
+                    continue;
+                }
+                if (!hasNonEmptyProperty(object, TmxMapContract.PROPERTY_COLLECTIBLE_ID)) {
+                    String name = object.getAttribute("name");
+                    errors.add(label + ": collectible TMX '" + (name.isEmpty() ? "senza nome" : name)
+                            + "' senza proprieta '" + TmxMapContract.PROPERTY_COLLECTIBLE_ID + "'.");
+                }
+            }
+        }
+        validateInteractionRadii(
+                document,
+                TmxMapContract.LAYER_COLLECTIBLES,
+                "collectible",
+                label,
+                errors);
+    }
+
+    private void validateInteractionRadii(Document document, String groupName, String objectType,
+            String label, List<String> errors) {
+        NodeList groups = document.getElementsByTagName("objectgroup");
+        for (int i = 0; i < groups.getLength(); i++) {
+            Element group = (Element) groups.item(i);
+            if (!groupName.equals(group.getAttribute("name"))) {
+                continue;
+            }
+            NodeList objects = group.getElementsByTagName("object");
+            for (int j = 0; j < objects.getLength(); j++) {
+                Element object = (Element) objects.item(j);
+                if ("0".equals(object.getAttribute("visible"))) {
+                    continue;
+                }
+                String radius = propertyValue(object, TmxMapContract.PROPERTY_INTERACTION_RADIUS);
+                if (!isPositiveFloat(radius)) {
+                    String name = object.getAttribute("name");
+                    errors.add(label + ": " + objectType + " TMX '"
+                            + (name.isEmpty() ? "senza nome" : name) + "' con proprieta '"
+                            + TmxMapContract.PROPERTY_INTERACTION_RADIUS + "' mancante o non positiva.");
+                }
+            }
+        }
+    }
+
+    private boolean hasNonEmptyProperty(Element object, String propertyName) {
+        String value = propertyValue(object, propertyName);
+        return value != null && !value.trim().isEmpty();
+    }
+
+    private String propertyValue(Element object, String propertyName) {
+        NodeList properties = object.getElementsByTagName("property");
+        for (int i = 0; i < properties.getLength(); i++) {
+            Element property = (Element) properties.item(i);
+            if (propertyName.equals(property.getAttribute("name"))) {
+                return property.hasAttribute("value")
+                        ? property.getAttribute("value")
+                        : property.getTextContent();
+            }
+        }
+        return null;
+    }
+
+    private boolean isPositiveFloat(String value) {
+        if (value == null) {
+            return false;
+        }
+        try {
+            return Float.parseFloat(value.trim()) > 0f;
+        } catch (NumberFormatException exception) {
+            return false;
         }
     }
 

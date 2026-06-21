@@ -1,6 +1,5 @@
 package io.github.iss_2025_2026.service;
 
-import com.badlogic.gdx.math.Rectangle;
 import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Player;
@@ -15,6 +14,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CollectibleServiceTest {
+    private static final float PLAYER_OFFSET_X = 80f;
+    private static final float PLAYER_OFFSET_Y = 76.8f;
 
     private CollectibleFactory factory;
     private CollectibleService service;
@@ -26,8 +27,13 @@ public class CollectibleServiceTest {
         Collectible l1Bomb = new Collectible("level_1_bomb", "Molotov", "Bomba", "DAMAGE", true, 15);
 
         factory = new CollectibleFactory(Arrays.asList(l1Potion, l2Potion, l1Bomb));
-        // Crea il servizio con spawn interval = 1.0 secondi e cap = 3
-        service = new CollectibleService(factory, 1.0f, 3);
+        service = new CollectibleService(Arrays.asList(
+                new CollectibleService.CollectibleOnMap(
+                        "cavulicieddi1", factory.requireCollectible("level_1_potion"), 150f, 150f, 60f),
+                new CollectibleService.CollectibleOnMap(
+                        "molotov1", factory.requireCollectible("level_1_bomb"), 350f, 250f, 60f)),
+                PLAYER_OFFSET_X,
+                PLAYER_OFFSET_Y);
     }
 
     @Test
@@ -48,48 +54,53 @@ public class CollectibleServiceTest {
     }
 
     @Test
-    void testSpawningOnlyForCurrentLevel() {
-        Rectangle pov = new Rectangle(100, 100, 400, 300);
-        Player player = new Player("Player 1", 100, 10, null);
-        player.setX(150);
-        player.setY(150);
-
-        // Nel livello 1, spawniamo un oggetto (attiva lo spawn dopo 1.1s > spawnInterval)
-        service.update(1.1f, Arrays.asList(player), pov, 1);
-
+    void testUsesOnlyMapConfiguredCollectibles() {
         List<CollectibleService.CollectibleOnMap> active = service.getActiveCollectibles();
-        assertEquals(1, active.size());
-        assertTrue(active.get(0).getCollectible().getId().startsWith("level_1_"));
-        
-        // Verifica che sia spawnato entro il POV
-        float x = active.get(0).getX();
-        float y = active.get(0).getY();
-        assertTrue(pov.contains(x, y));
+        assertEquals(2, active.size());
+        assertEquals("cavulicieddi1", active.get(0).getPlacementId());
+        assertEquals("level_1_potion", active.get(0).getCollectible().getId());
+        assertEquals(150f, active.get(0).getX());
+        assertEquals(150f, active.get(0).getY());
+        assertEquals(60f, active.get(0).getInteractionRadius());
+    }
+
+    @Test
+    void testInteractionRadiusWorksFromEverySide() {
+        Player player = new Player("Player 1", 100, 10, null);
+        float[][] positionsInsideRadius = {
+                {209f, 150f},
+                {91f, 150f},
+                {150f, 209f},
+                {150f, 91f}
+        };
+
+        for (float[] position : positionsInsideRadius) {
+            player.setX(position[0] - PLAYER_OFFSET_X);
+            player.setY(position[1] - PLAYER_OFFSET_Y);
+            assertEquals("cavulicieddi1", service.getClosestCollectible(player).getPlacementId());
+        }
     }
 
     @Test
     void testCollectiblePickup() {
-        Rectangle pov = new Rectangle(100, 100, 400, 300);
         Player player = new Player("Player 1", 100, 10, null);
         // Imposta zaino vuoto
         player.getBackpack().setCapacity(5);
         player.getBackpack().setItems(new java.util.ArrayList<>());
 
-        // Forza spawn di un collectible
-        service.update(1.1f, Arrays.asList(player), pov, 1);
-        assertEquals(1, service.getActiveCollectibles().size());
+        assertEquals(2, service.getActiveCollectibles().size());
 
         CollectibleService.CollectibleOnMap spawned = service.getActiveCollectibles().get(0);
         
         // Sposta il giocatore lontano: non deve trovare alcun collectible vicino
-        player.setX(spawned.getX() + 200f);
-        player.setY(spawned.getY() + 200f);
-        assertNull(service.getClosestCollectible(player, 60f));
+        player.setX(spawned.getX() + 200f - PLAYER_OFFSET_X);
+        player.setY(spawned.getY() + 200f - PLAYER_OFFSET_Y);
+        assertNull(service.getClosestCollectible(player));
 
         // Sposta il giocatore vicino: deve rilevarlo
-        player.setX(spawned.getX() + 10f);
-        player.setY(spawned.getY() + 10f);
-        CollectibleService.CollectibleOnMap closest = service.getClosestCollectible(player, 60f);
+        player.setX(spawned.getX() + 10f - PLAYER_OFFSET_X);
+        player.setY(spawned.getY() + 10f - PLAYER_OFFSET_Y);
+        CollectibleService.CollectibleOnMap closest = service.getClosestCollectible(player);
         assertNotNull(closest);
         assertEquals(spawned, closest);
 
@@ -102,7 +113,7 @@ public class CollectibleServiceTest {
 
         // Esegue la raccolta esplicita
         assertTrue(service.pickUp(player, closest));
-        assertEquals(0, service.getActiveCollectibles().size());
+        assertEquals(1, service.getActiveCollectibles().size());
         assertEquals(1, player.getBackpack().getSize());
         assertTrue(notified[0]);
     }
