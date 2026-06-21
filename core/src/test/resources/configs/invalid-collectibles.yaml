@@ -1,0 +1,13 @@
+- id: "invalid_animated"
+  name: "Oggetto non valido"
+  description: "Usato per verificare la validazione"
+  effectType: "HEAL"
+  aoe: false
+  effectValue: 1
+  visual:
+    type: "ANIMATED"
+    asset: "collectibles/Cavuliceddu-nobg.png"
+    frameWidth: 0
+    frameHeight: 0
+    frameDuration: 0
+    playMode: "LOOP"
