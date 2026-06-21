@@ -57,13 +57,9 @@ public class Enemy extends Character implements Characters, CharacterPrototype<E
 
     @Override
     public Enemy copy() {
-        Enemy copy = createCopy(getName(), enemyId, getMaxHp(), getBaseDamage(), xpReward, isBoss);
+        Enemy copy = new Enemy(getName(), enemyId, getMaxHp(), getBaseDamage(), xpReward, isBoss);
         copy.setSpecialAbility(specialAbility);
         copyRuntimeStateTo(copy);
         return copy;
-    }
-
-    protected Enemy createCopy(String name, String enemyId, int maxHp, int baseDamage, int xpReward, boolean isBoss) {
-        return new Enemy(name, enemyId, maxHp, baseDamage, xpReward, isBoss);
     }
 }

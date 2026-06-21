@@ -1,6 +1,6 @@
 @startuml 01-character-creation
 !pragma layout smetana
-title Creazione personaggi - Abstract Factory
+title Creazione personaggi - Factory Method e Builder
 
 left to right direction
 skinparam classAttributeIconSize 0
@@ -8,22 +8,37 @@ hide empty members
 hide circle
 
 class "characters.yaml\nenemies.yaml" as CharacterYaml <<asset>>
-interface CharacterFactory <<Abstract Factory>>
-class YamlCharacterFactory <<Concrete Factory>>
-class AbilityRegistry <<Registry>>
+abstract class PlayerFactory <<Creator>>
+class YamlPlayerFactory <<Concrete Creator>>
+abstract class EnemyFactory <<Creator>>
+class YamlEnemyFactory <<Concrete Creator>>
+interface CharacterBuilder <<Builder>>
+class CharacterBuildDirector <<Director>>
+class PlayerBuilder <<Concrete Builder>>
+class EnemyBuilder <<Concrete Builder>>
 abstract class Character
 class Player
 class Enemy <<Prototype>>
 
-CharacterYaml --> YamlCharacterFactory
-CharacterFactory <|.. YamlCharacterFactory
-YamlCharacterFactory --> AbilityRegistry
-YamlCharacterFactory --> Player : createPlayer
-YamlCharacterFactory --> Enemy : createEnemy/copy
+PlayerFactory <|-- YamlPlayerFactory
+EnemyFactory <|-- YamlEnemyFactory
+CharacterYaml --> YamlPlayerFactory
+CharacterYaml --> YamlEnemyFactory
+YamlPlayerFactory --> PlayerBuilder
+YamlEnemyFactory --> EnemyBuilder
+YamlPlayerFactory --> CharacterBuildDirector
+YamlEnemyFactory --> CharacterBuildDirector
+CharacterBuildDirector --> CharacterBuilder : ordina i passi
+CharacterBuilder <|.. PlayerBuilder
+CharacterBuilder <|.. EnemyBuilder
+PlayerBuilder --> Player : build
+EnemyBuilder --> Enemy : build
 Character <|-- Player
 Character <|-- Enemy
 
-note bottom of CharacterFactory
-Minimo: una factory crea Player ed Enemy nascondendo gli YAML.
+note bottom of CharacterBuilder
+Factory Method seleziona la sorgente YAML.
+Il Director ordina i passi dichiarati dal Builder.
+Player ed Enemy sono gli unici prodotti concreti.
 end note
 @enduml

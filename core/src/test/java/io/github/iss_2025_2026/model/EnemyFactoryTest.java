@@ -7,6 +7,8 @@ import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import io.github.iss_2025_2026.factory.EnemyFactory;
 import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlEnemyFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +31,8 @@ public class EnemyFactoryTest {
     @BeforeEach
     public void setUp() {
         // Inizializziamo la factory prima di ogni test
-        enemyFactory = new EnemyFactory();
-        playerFactory = new PlayerFactory();
+        enemyFactory = new YamlEnemyFactory();
+        playerFactory = new YamlPlayerFactory();
     }
 
     @Test
@@ -40,7 +42,7 @@ public class EnemyFactoryTest {
 
         // 2. Verifichiamo che i dati corrispondano a quelli scritti nel file .yaml
         assertNotNull(alieno, "L'alieno non dovrebbe essere nullo!");
-        assertInstanceOf(AlienoInvasore.class, alieno);
+        assertEquals(Enemy.class, alieno.getClass());
         assertEquals("Alieno Invasore", alieno.getName());
         assertEquals(45, alieno.getMaxHp());
         assertEquals(8, alieno.getBaseDamage());
@@ -57,7 +59,7 @@ public class EnemyFactoryTest {
 
         // 2. Verifichiamo i dati del boss
         assertNotNull(boss);
-        assertInstanceOf(BossLivello1.class, boss);
+        assertEquals(Enemy.class, boss.getClass());
         assertTrue(boss.isBoss(), "Il boss deve avere il flag isBoss a true");
         assertEquals(220, boss.getMaxHp());
 
@@ -94,7 +96,7 @@ public class EnemyFactoryTest {
         Player secondPlayer = playerFactory.create("papa");
 
         assertNotSame(firstPlayer, secondPlayer);
-        assertInstanceOf(PapaPlayer.class, firstPlayer);
+        assertEquals(Player.class, firstPlayer.getClass());
         assertNotSame(firstPlayer.getBackpack(), secondPlayer.getBackpack());
 
         firstPlayer.modifyKarma(15);

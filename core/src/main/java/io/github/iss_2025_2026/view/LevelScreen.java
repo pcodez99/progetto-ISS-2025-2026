@@ -35,6 +35,7 @@ import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.CollectibleConfigLoader;
 import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.factory.EnemyFactory;
+import io.github.iss_2025_2026.factory.YamlEnemyFactory;
 import io.github.iss_2025_2026.factory.NpcFactory;
 import io.github.iss_2025_2026.config.CollectibleCatalog;
 import io.github.iss_2025_2026.map.LevelRuntime;
@@ -260,7 +261,7 @@ public class LevelScreen implements Screen {
         mapBounds = level.getGeometry().getBounds();
         cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
 
-        EnemyFactory enemyFactory = new EnemyFactory();
+        EnemyFactory enemyFactory = new YamlEnemyFactory();
         encounterService = new EnemyEncounterService(
                 level.enemyObjects(), enemyFactory, level.getGeometry(), encounterRadius);
         NpcFactory npcFactory = new NpcFactory();

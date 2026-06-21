@@ -15,6 +15,7 @@ import io.github.iss_2025_2026.Main;
 import io.github.iss_2025_2026.controller.CharacterSelectionController;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import io.github.iss_2025_2026.model.CharacterSelectionModel;
 import io.github.iss_2025_2026.model.CharacterSelectionOption;
 import io.github.iss_2025_2026.model.GameModel;
@@ -86,7 +87,7 @@ public class CharacterSelectionScreen implements Screen {
         this.gameController = gameController;
         this.config = config;
         this.currentPlayerIndex = currentPlayerIndex;
-        PlayerFactory playerFactory = new PlayerFactory();
+        PlayerFactory playerFactory = new YamlPlayerFactory();
         this.selectionModel = new CharacterSelectionModel(playerFactory);
         this.selectionController = new CharacterSelectionController(game, gameModel, gameController, selectionModel,
                 playerFactory, config, currentPlayerIndex);

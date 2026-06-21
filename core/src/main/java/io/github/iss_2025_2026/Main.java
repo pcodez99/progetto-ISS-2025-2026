@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
 import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import io.github.iss_2025_2026.map.GameStartupValidator;
 import io.github.iss_2025_2026.map.LevelValidationResult;
 import io.github.iss_2025_2026.model.Player;
@@ -52,7 +53,7 @@ public class Main extends Game {
             if ("mom".equals(mappedId)) mappedId = "mamma";
 
             // Create a player for the specified character and start directly in the runtime level scene.
-            PlayerFactory playerFactory = new PlayerFactory();
+            PlayerFactory playerFactory = new YamlPlayerFactory();
             Player player = playerFactory.create(mappedId);
             if (player != null) {
                 gameContext.getModel().startSinglePlayerGame("Campagna", player);

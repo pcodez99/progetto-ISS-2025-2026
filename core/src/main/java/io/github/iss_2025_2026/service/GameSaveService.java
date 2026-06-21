@@ -1,6 +1,7 @@
 package io.github.iss_2025_2026.service;
 
 import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import io.github.iss_2025_2026.map.CheckpointDefinition;
 import io.github.iss_2025_2026.model.Backpack;
 import io.github.iss_2025_2026.model.GameModel;
@@ -106,7 +107,7 @@ public final class GameSaveService {
     }
 
     private static void loadGameIntoModel(GameModel model, GameState state) throws IOException {
-        PlayerFactory playerFactory = new PlayerFactory();
+        PlayerFactory playerFactory = new YamlPlayerFactory();
 
         if (state.getPlayerOne() != null) {
             Player playerOne = restorePlayer(playerFactory, state.getPlayerOne());

@@ -175,7 +175,7 @@ package io.github.iss_2025_2026.model {
     class CharacterSelectionModel {
         - characters: List<CharacterSelectionOption>
         - selectedIndex: int
-        + CharacterSelectionModel(factory: CharacterFactory)
+        + CharacterSelectionModel(factory: PlayerFactory)
         + getSelectedCharacter(): CharacterSelectionOption
         + nextCharacter(): void
         + previousCharacter(): void
