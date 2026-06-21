@@ -1,0 +1,104 @@
+@startuml 05-dialogue-ai
+!pragma layout smetana
+title Dialogo NPC e AI — Facade con lifecycle esplicito
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "Interazione mappa" {
+  class NpcInteractionService <<Service>> {
+    + checkInteraction(player): NpcInteraction
+    + getInteractions(): List<NpcInteraction>
+  }
+  class NpcInteraction <<DTO>>
+  class NpcFactory <<external>>
+  class TmxLevel <<external>>
+}
+
+package "Sessione di dialogo" {
+  class NpcDialogueController <<Controller>> {
+    + open(player, npc): DialogueSession
+    + submitUserInput(text): DialogueRequestContext
+    + completeNpcDecision(id, decision): boolean
+    + close(): void
+  }
+  class DialogueSession {
+    - state: DialogueSessionState
+    + addTurn(turn): void
+    + snapshotHistory(): List<DialogueTurn>
+  }
+  enum DialogueSessionState <<Lifecycle State>> {
+    INPUT
+    WAITING_AI
+    HELP_REQUEST
+    ENDED
+    CLOSED
+  }
+  class DialogueTurn <<DTO>>
+  class DialogueRequestContext <<DTO>>
+  class NpcDialogueDecision <<DTO>>
+  class Player <<external>>
+  class Npc <<external>>
+}
+
+package "Profilo e orchestrazione" {
+  class NpcDialogueService <<Facade>> {
+    + getDialogueDecision(player, npc, input, history): NpcDialogueDecision
+    + getOpeningDialogue(player, npc): String
+  }
+  class DialogueProfileService <<Service>>
+  class DialogueProfileFactory <<Factory>>
+  class DialoguePrompt <<DTO>>
+  class DialogueProfile
+}
+
+package "Gateway AI" {
+  class AiService <<Facade>> {
+    + chat(request): AiResponse
+    + isAvailable(): boolean
+  }
+  interface AiClient <<Gateway>>
+  class OllamaAiClient <<Adapter>>
+  class AiConfig <<Configuration>>
+  class AiRequest <<DTO>>
+  class AiResponse <<DTO>>
+  class AiMessage <<DTO>>
+  class AiException
+}
+
+TmxLevel --> NpcInteractionService
+NpcInteractionService --> NpcFactory
+NpcInteractionService ..> NpcInteraction
+NpcInteraction --> Npc
+
+NpcDialogueController *-- DialogueSession
+DialogueSession --> DialogueSessionState
+DialogueSession *-- "0..*" DialogueTurn
+DialogueSession --> Player
+DialogueSession --> Npc
+NpcDialogueController ..> DialogueRequestContext
+NpcDialogueController ..> NpcDialogueDecision
+
+NpcDialogueService --> DialogueProfileService
+DialogueProfileService --> DialogueProfileFactory
+DialogueProfileFactory o-- DialogueProfile
+DialogueProfileService ..> DialoguePrompt
+NpcDialogueService --> AiService
+
+AiService *-- AiConfig
+AiService --> AiClient
+AiClient <|.. OllamaAiClient
+AiService --> AiRequest
+AiService ..> AiResponse
+AiRequest *-- "1..*" AiMessage
+AiClient ..> AiException
+
+note bottom of NpcDialogueService
+Pattern principale: Facade.
+Il chiamante non conosce costruzione prompt, gateway HTTP,
+parsing JSON e fallback statico.
+DialogueSessionState rende esplicito il lifecycle, ma non è
+un GoF State polimorfico perché il comportamento resta nel controller.
+end note
+@enduml
+

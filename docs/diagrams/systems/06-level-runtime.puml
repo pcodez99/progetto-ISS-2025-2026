@@ -1,0 +1,96 @@
+@startuml 06-level-runtime
+!pragma layout smetana
+title Runtime del livello — Facade di caricamento e sottosistemi TMX
+
+skinparam classAttributeIconSize 0
+hide empty members
+
+class "map/levels.yaml" as LevelsYaml <<YAML>>
+class "map/levels/<id>/level.yaml" as LevelYaml <<YAML>>
+class "map/levels/<id>/level.tmx" as LevelTmx <<TMX>>
+
+package "Catalogo e validazione" {
+  interface LevelAssetResolver <<Gateway>>
+  class LevelAssetResolvers <<Factory>>
+  class LevelCatalog <<Catalog>>
+  class LevelManifest <<DTO>>
+  class LevelDefinition <<DTO>>
+  class CheckpointDefinition <<DTO>>
+  class LevelAssetValidator <<Validator>>
+  class GameStartupValidator <<Validator>>
+  class LevelValidationResult <<DTO>>
+}
+
+package "Caricamento runtime" {
+  class SceneController <<Application Facade>> {
+    + loadLevel(id): LevelRuntime
+    + unloadCurrentLevel(): void
+  }
+  class TmxLevelLoader <<Loader>>
+  class LevelRuntime
+  class TmxLevel
+  class TmxMapContract <<Contract>>
+  class IsoMapGeometry <<Service>>
+}
+
+package "Sottosistemi del livello" {
+  class PhysicsFacade <<Facade>>
+  class MapPhysicsBuilder <<Builder>>
+  class EnemyEncounterService <<Service>>
+  class CheckpointService <<Service>>
+  class TmxCollectibleLoader <<Loader>>
+  class CollectibleService <<Service>>
+  class NpcInteractionService <<Service>>
+  class LevelScreen <<Boundary>>
+  class CharacterFactory <<external>>
+  class CollectibleFactory <<external>>
+  class NpcFactory <<external>>
+}
+
+LevelsYaml --> LevelCatalog
+LevelYaml --> LevelDefinition
+LevelDefinition *-- "0..*" CheckpointDefinition
+LevelCatalog *-- "1..*" LevelDefinition
+LevelCatalog --> LevelAssetResolver
+LevelAssetResolvers ..> LevelAssetResolver
+LevelAssetValidator --> LevelAssetResolver
+LevelAssetValidator --> LevelCatalog
+LevelAssetValidator ..> LevelValidationResult
+GameStartupValidator --> LevelAssetValidator
+
+SceneController --> LevelCatalog
+SceneController --> TmxLevelLoader
+SceneController *-- LevelRuntime : scena attiva
+TmxLevelLoader ..> TmxLevel
+LevelRuntime *-- LevelDefinition
+LevelRuntime *-- TmxLevel
+LevelTmx --> TmxLevelLoader
+TmxLevel *-- IsoMapGeometry
+TmxLevel --> TmxMapContract
+
+SceneController ..> LevelScreen : crea boundary
+LevelScreen --> LevelRuntime
+LevelScreen *-- PhysicsFacade
+PhysicsFacade --> TmxLevel
+PhysicsFacade ..> MapPhysicsBuilder : costruisce corpi
+LevelScreen *-- EnemyEncounterService
+EnemyEncounterService --> CharacterFactory
+EnemyEncounterService --> TmxLevel
+LevelScreen *-- CheckpointService
+CheckpointService --> LevelRuntime
+LevelScreen --> TmxCollectibleLoader
+TmxCollectibleLoader --> CollectibleFactory
+TmxCollectibleLoader --> TmxLevel
+LevelScreen *-- CollectibleService
+LevelScreen *-- NpcInteractionService
+NpcInteractionService --> NpcFactory
+NpcInteractionService --> TmxLevel
+
+note bottom of SceneController
+Pattern principale: Facade.
+SceneController nasconde catalogo, caricamento TMX,
+creazione del LevelRuntime e sostituzione della scena attiva.
+Factory non è principale: crea collaboratori specifici,
+ma la force centrale è orchestrare più sottosistemi del livello.
+end note
+@enduml
