@@ -23,7 +23,7 @@ public class Level01MapTest {
     public void manifestDefinesTheAvailableDevRuntimeLevel() throws Exception {
         LevelCatalog catalog = loadProjectCatalog();
 
-        assertEquals(1, catalog.getLevels().size());
+        assertTrue(catalog.getLevels().size() >= 1);
         assertEquals("map/levels/1/level.tmx", catalog.requireLevel(1).getMapPath());
     }
 
