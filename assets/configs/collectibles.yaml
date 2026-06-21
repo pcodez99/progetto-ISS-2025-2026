@@ -18,31 +18,3 @@
   effectType: "BUFF"
   aoe: false
   effectValue: 20
-
-- id: "gasolio_benedetto"
-  name: "Gasolio Benedetto"
-  description: "Un carburante benedetto da Zio Toto che aumenta temporaneamente la forza."
-  effectType: "BUFF"
-  aoe: false
-  effectValue: 15
-
-- id: "cannolo_rinforzante"
-  name: "Cannolo Rinforzante"
-  description: "Il cannolo di Zia Pina recupera una grande quantità di salute."
-  effectType: "HEAL"
-  aoe: false
-  effectValue: 45
-
-- id: "upgrade_proximiano"
-  name: "Kit Upgrade Proximiano"
-  description: "Tecnologia ibrida di Zyrko che potenzia temporaneamente i danni."
-  effectType: "BUFF"
-  aoe: false
-  effectValue: 25
-
-- id: "scorciatoia_campi"
-  name: "Mappa della Scorciatoia"
-  description: "La mappa annotata da Turiddu aiuta il gruppo ad attraversare i campi."
-  effectType: "BUFF"
-  aoe: true
-  effectValue: 10

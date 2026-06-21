@@ -25,7 +25,7 @@ public class NpcFactoryTest {
         assertEquals("Zio Toto u Tratturista", npc.getName());
         assertEquals("level_1_campaign", npc.getLevelId());
         assertEquals(NpcType.QUEST_GIVER, npc.getType());
-        assertEquals("gasolio_benedetto", npc.getRewardId());
+        assertEquals("STRENGTH_ELIXIR", npc.getRewardId());
         assertEquals(10, npc.getAltruismReward());
         assertEquals(-15, npc.getAltruismPenalty());
         assertNotNull(npc.getHelpRequest());

@@ -9,7 +9,7 @@ npcs:
   personality: Burbero ma buono. Si lamenta sempre degli alieni perche gli hanno rovinato il raccolto.
   gameplayFunction: Introduce il giocatore alle missioni secondarie e al sistema di ricompense.
   mission: Recuperare filtro del trattore, tanica di gasolio e ruota posteriore rubati dagli alieni.
-  rewardId: gasolio_benedetto
+  rewardId: STRENGTH_ELIXIR
   altruismReward: 10
   altruismPenalty: -15
   canBecomeHostile: false
@@ -19,7 +19,7 @@ npcs:
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Mi aiuti a recuperare i pezzi del trattore prima che gli alieni li smontino del tutto?"
-    acceptedReply: "Bravo picciotto! Tieni il Gasolio Benedetto e facciamo ripartire stu tratturi."
+    acceptedReply: "Bravo picciotto! Tieni questo Elisir della forza e facciamo ripartire stu tratturi."
     refusedReply: "Va beni... ma ricordati che il trattore non si ripara con le belle parole."
     endConversationAfterChoice: false
   interactionOptions:
@@ -40,7 +40,7 @@ npcs:
   personality: Dolce ma autoritaria. Tratta tutti come se fossero nipoti affamati.
   gameplayFunction: Vende o regala oggetti curativi.
   mission: Salvare le sue galline spaventate dagli alieni.
-  rewardId: cannolo_rinforzante
+  rewardId: SMALL_POTION
   rareRewardId: cassata_mistica
   altruismReward: 12
   altruismPenalty: -10
@@ -51,7 +51,7 @@ npcs:
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Mi aiuti a riportare al sicuro le galline prima che finiscano sulla navicella?"
-    acceptedReply: "Beddu di zia, pigghia stu Cannolo Rinforzante: a pancia china si combatte meglio."
+    acceptedReply: "Beddu di zia, pigghia sta Pozione piccola: ti servirà contro gli alieni."
     refusedReply: "Niente aiuto e niente benedizioni della zia. Le galline se lo ricorderanno."
     endConversationAfterChoice: false
   interactionOptions:
@@ -72,7 +72,7 @@ npcs:
   personality: Curioso, pacifico e un po' impacciato. Non vuole combattere per l'invasione e preferisce riparare oggetti, studiare materiali terrestri e barattare tecnologia con i Viddani.
   gameplayFunction: Sostituisce il fabbro come NPC per il potenziamento delle armi, usando tecnologia aliena e cristalli di Proxima invece della forgia tradizionale.
   mission: Portare a Zyrko un frammento di metallo alieno e un oggetto terrestre comune per creare un potenziamento ibrido viddano-alieno.
-  rewardId: upgrade_proximiano
+  rewardId: STRENGTH_ELIXIR
   altruismReward: 10
   altruismPenalty: -10
   canBecomeHostile: false
@@ -82,7 +82,7 @@ npcs:
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Tu aiutare me a trovare metallo alieno e oggetto terrestre per esperimento pacifico?"
-    acceptedReply: "Meraviglioso! Prendi questo Kit Proximiano: tecnologia e zappa ora essere amici."
+    acceptedReply: "Meraviglioso! Prendi questo Elisir della forza: tecnologia e zappa ora essere amici."
     refusedReply: "Capisco. Io continuare solo, ma esperimento essere molto più difficile."
     endConversationAfterChoice: false
   interactionOptions:
@@ -105,7 +105,7 @@ npcs:
   personality: Pauroso, paranoico, convinto che ogni cosa sia un alieno.
   gameplayFunction: Fornisce informazioni sulla posizione dei nemici, ma non sempre e affidabile.
   mission: Rassicurarlo per ottenere una scorciatoia sicura tra i campi.
-  rewardId: scorciatoia_campi
+  rewardId: SMALL_BOMB
   altruismReward: 6
   altruismPenalty: -6
   canBecomeHostile: true
@@ -115,7 +115,7 @@ npcs:
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Mi aiuti a controllare il campo e a dimostrare che quel piccione ha davvero l'antenna?"
-    acceptedReply: "Lo sapevo che mi credevi! Tieni questa mappa: segna la strada dove gli alieni non mi vedono."
+    acceptedReply: "Lo sapevo che mi credevi! Tieni questa Bomba piccola se il piccione con l'antenna ritorna."
     refusedReply: "Ecco, nessuno mi crede... quando i piccioni invaderanno tutto non dire che non ti avevo avvisato!"
     endConversationAfterChoice: false
   interactionOptions:
