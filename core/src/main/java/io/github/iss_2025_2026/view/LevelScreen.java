@@ -31,6 +31,7 @@ import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.factory.YamlCharacterFactory;
 import io.github.iss_2025_2026.config.CollectibleCatalog;
 import io.github.iss_2025_2026.map.LevelRuntime;
+import io.github.iss_2025_2026.map.TmxCollectibleLoader;
 import io.github.iss_2025_2026.map.TmxLevel;
 import io.github.iss_2025_2026.model.CharacterState;
 import io.github.iss_2025_2026.model.Direction;
@@ -48,7 +49,6 @@ import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SaveResult;
 import io.github.iss_2025_2026.service.CollectibleService;
 import io.github.iss_2025_2026.view.collectibles.CollectibleRenderer;
-import java.util.Arrays;
 
 /**
  * Game View (Parte del pattern MVC).
@@ -175,7 +175,10 @@ public class LevelScreen implements Screen {
 
         CollectibleCatalog collectibleCatalog = CollectibleConfigLoader.loadDefault();
         CollectibleFactory collectibleFactory = new CollectibleFactory(collectibleCatalog);
-        collectibleService = new CollectibleService(collectibleFactory);
+        collectibleService = new CollectibleService(
+                new TmxCollectibleLoader(collectibleFactory).load(level, levelRuntime.getId()),
+                playerSize / 2f,
+                playerYOffset);
         collectibleRenderer = new CollectibleRenderer(collectibleCatalog.getVisualConfigs());
         collectibleService.setPickupListener((collectible, player) -> {
             showSaveStatus(player.getName() + " ha raccolto " + collectible.getName() + "!", false);
@@ -397,49 +400,7 @@ public class LevelScreen implements Screen {
             cam.update();
         }
 
-        if (collectibleService != null && p1 != null) {
-            float zoom = cam.zoom;
-            float viewportWidth = stage.getViewport().getWorldWidth() * zoom;
-            float viewportHeight = stage.getViewport().getWorldHeight() * zoom;
-            Rectangle viewportBounds = new Rectangle(
-                    cam.position.x - viewportWidth / 2f,
-                    cam.position.y - viewportHeight / 2f,
-                    viewportWidth,
-                    viewportHeight
-            );
-            collectibleService.update(delta, Arrays.asList(p1, p2), viewportBounds, levelRuntime.getId());
-
-            CollectibleService.CollectibleOnMap closestP1 = collectibleService.getClosestCollectible(p1, 60f);
-            CollectibleService.CollectibleOnMap closest = closestP1;
-            Player picker = p1;
-            if (closest == null && model.isMultiplayerGame() && p2 != null) {
-                closest = collectibleService.getClosestCollectible(p2, 60f);
-                picker = p2;
-            }
-
-            if (closest != null) {
-                if (picker == p1) {
-                    pickupPromptLabel.setText("Premi E per raccogliere " + closest.getCollectible().getName());
-                } else {
-                    pickupPromptLabel.setText("P2: Premi ENTER per raccogliere " + closest.getCollectible().getName());
-                }
-                pickupPromptLabel.setVisible(true);
-                pickupPromptLabel.pack(); // update layout size
-                pickupPromptLabel.setPosition((stage.getViewport().getScreenWidth() - pickupPromptLabel.getWidth()) / 2f, 80f);
-
-                if (picker == p1 && Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-                    collectibleService.pickUp(p1, closest);
-                } else if (picker == p2 && (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0))) {
-                    collectibleService.pickUp(p2, closest);
-                }
-            } else {
-                pickupPromptLabel.setVisible(false);
-            }
-        } else {
-            if (pickupPromptLabel != null) {
-                pickupPromptLabel.setVisible(false);
-            }
-        }
+        handleMapInteractions(p1, p2);
 
         // 3. Rendering (View)
         ScreenUtils.clear(76f / 255f, 126f / 255f, 62f / 255f, 1f);
@@ -462,6 +423,52 @@ public class LevelScreen implements Screen {
         if (playerTwoHud != null) playerTwoHud.update();
         uiStage.act(delta);
         uiStage.draw();
+    }
+
+    private void handleMapInteractions(Player playerOne, Player playerTwo) {
+        if (pickupPromptLabel == null || playerOne == null) {
+            if (pickupPromptLabel != null) {
+                pickupPromptLabel.setVisible(false);
+            }
+            return;
+        }
+
+        CollectibleService.CollectibleOnMap collectible = collectibleService != null
+                ? collectibleService.getClosestCollectible(playerOne)
+                : null;
+        Player interactingPlayer = playerOne;
+        if (collectible == null && model.isMultiplayerGame() && playerTwo != null && collectibleService != null) {
+            collectible = collectibleService.getClosestCollectible(playerTwo);
+            interactingPlayer = playerTwo;
+        }
+
+        if (collectible != null) {
+            String prefix = interactingPlayer == playerOne ? "Premi E" : "P2: Premi ENTER";
+            showInteractionPrompt(prefix + " per raccogliere " + collectible.getCollectible().getName());
+            if (interactionKeyPressed(interactingPlayer, playerOne)) {
+                collectibleService.pickUp(interactingPlayer, collectible);
+            }
+            return;
+        }
+
+        pickupPromptLabel.setVisible(false);
+    }
+
+    private boolean interactionKeyPressed(Player interactingPlayer, Player playerOne) {
+        if (interactingPlayer == playerOne) {
+            return Gdx.input.isKeyJustPressed(Input.Keys.E);
+        }
+        return Gdx.input.isKeyJustPressed(Input.Keys.ENTER)
+                || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0);
+    }
+
+    private void showInteractionPrompt(String text) {
+        pickupPromptLabel.setText(text);
+        pickupPromptLabel.setVisible(true);
+        pickupPromptLabel.pack();
+        pickupPromptLabel.setPosition(
+                (stage.getViewport().getScreenWidth() - pickupPromptLabel.getWidth()) / 2f,
+                80f);
     }
 
     @Override

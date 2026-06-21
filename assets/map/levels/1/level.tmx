@@ -1448,36 +1448,42 @@
   <object id="71" name="cavulicieddi1" x="7701" y="3111">
    <properties>
     <property name="id" value="level_1_potion"/>
+    <property name="interaction_radius" type="float" value="80"/>
    </properties>
    <point/>
   </object>
   <object id="94" name="cavulicieddi2" x="4544" y="3228">
    <properties>
     <property name="id" value="level_1_potion"/>
+    <property name="interaction_radius" type="float" value="80"/>
    </properties>
    <point/>
   </object>
   <object id="95" name="molotov1" x="1408" y="3584">
    <properties>
     <property name="id" value="level_1_bomb"/>
+    <property name="interaction_radius" type="float" value="80"/>
    </properties>
    <point/>
   </object>
   <object id="96" name="molotov2" x="10731" y="2829">
    <properties>
     <property name="id" value="level_1_bomb"/>
+    <property name="interaction_radius" type="float" value="80"/>
    </properties>
    <point/>
   </object>
   <object id="97" name="ricotta2" x="9611" y="3817">
    <properties>
     <property name="id" value="level_1_buff"/>
+    <property name="interaction_radius" type="float" value="80"/>
    </properties>
    <point/>
   </object>
   <object id="98" name="ricotta1" x="4382" y="4878">
    <properties>
     <property name="id" value="level_1_buff"/>
+    <property name="interaction_radius" type="float" value="80"/>
    </properties>
    <point/>
   </object>

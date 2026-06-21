@@ -1,30 +1,48 @@
 package io.github.iss_2025_2026.service;
 
-import com.badlogic.gdx.math.Rectangle;
-import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class CollectibleService {
+    private static final float DEFAULT_INTERACTION_RADIUS = 80f;
     
     public interface PickupListener {
         void onPickup(Collectible collectible, Player player);
     }
 
     public static class CollectibleOnMap {
+        private final String placementId;
         private final Collectible collectible;
         private final float x;
         private final float y;
+        private final float interactionRadius;
 
         public CollectibleOnMap(Collectible collectible, float x, float y) {
+            this(null, collectible, x, y, DEFAULT_INTERACTION_RADIUS);
+        }
+
+        public CollectibleOnMap(String placementId, Collectible collectible, float x, float y) {
+            this(placementId, collectible, x, y, DEFAULT_INTERACTION_RADIUS);
+        }
+
+        public CollectibleOnMap(String placementId, Collectible collectible, float x, float y,
+                float interactionRadius) {
+            this.placementId = placementId;
             this.collectible = collectible;
             this.x = x;
             this.y = y;
+            if (interactionRadius <= 0f) {
+                throw new IllegalArgumentException("Il raggio di interazione deve essere positivo.");
+            }
+            this.interactionRadius = interactionRadius;
+        }
+
+        public String getPlacementId() {
+            return placementId;
         }
 
         public Collectible getCollectible() {
@@ -38,27 +56,29 @@ public class CollectibleService {
         public float getY() {
             return y;
         }
+
+        public float getInteractionRadius() {
+            return interactionRadius;
+        }
     }
 
-    private final CollectibleFactory collectibleFactory;
-    private final float spawnInterval;
-    private final int maxCollectibles;
     private final List<CollectibleOnMap> activeCollectibles;
-    private final Random random;
-    private float spawnTimer;
+    private final float playerInteractionOffsetX;
+    private final float playerInteractionOffsetY;
     private PickupListener pickupListener;
 
-    public CollectibleService(CollectibleFactory collectibleFactory, float spawnInterval, int maxCollectibles) {
-        this.collectibleFactory = collectibleFactory;
-        this.spawnInterval = spawnInterval;
-        this.maxCollectibles = maxCollectibles;
-        this.activeCollectibles = new ArrayList<>();
-        this.random = new Random();
-        this.spawnTimer = 0f;
+    public CollectibleService(List<CollectibleOnMap> mapCollectibles) {
+        this(mapCollectibles, 0f, 0f);
     }
 
-    public CollectibleService(CollectibleFactory collectibleFactory) {
-        this(collectibleFactory, 15f, 5); // default values: spawn every 15s, max 5 items
+    public CollectibleService(List<CollectibleOnMap> mapCollectibles,
+            float playerInteractionOffsetX, float playerInteractionOffsetY) {
+        this.activeCollectibles = new ArrayList<>();
+        if (mapCollectibles != null) {
+            this.activeCollectibles.addAll(mapCollectibles);
+        }
+        this.playerInteractionOffsetX = playerInteractionOffsetX;
+        this.playerInteractionOffsetY = playerInteractionOffsetY;
     }
 
     public void setPickupListener(PickupListener pickupListener) {
@@ -69,33 +89,21 @@ public class CollectibleService {
         return Collections.unmodifiableList(activeCollectibles);
     }
 
-    public void update(float delta, List<Player> players, Rectangle viewportBounds, int levelId) {
-        if (players == null || players.isEmpty() || viewportBounds == null) {
-            return;
-        }
-
-        // 1. Spawning logic
-        spawnTimer += delta;
-        if (spawnTimer >= spawnInterval) {
-            spawnTimer = 0f;
-            if (activeCollectibles.size() < maxCollectibles) {
-                spawnCollectibleInPOV(viewportBounds, levelId);
-            }
-        }
-    }
-
-    public CollectibleOnMap getClosestCollectible(Player player, float maxDistance) {
+    public CollectibleOnMap getClosestCollectible(Player player) {
         if (player == null) {
             return null;
         }
         CollectibleOnMap closest = null;
-        float minDistanceSquared = maxDistance * maxDistance;
+        float minDistanceSquared = Float.MAX_VALUE;
+        float playerInteractionX = player.getX() + playerInteractionOffsetX;
+        float playerInteractionY = player.getY() + playerInteractionOffsetY;
 
         for (CollectibleOnMap item : activeCollectibles) {
-            float dx = player.getX() - item.getX();
-            float dy = player.getY() - item.getY();
+            float dx = playerInteractionX - item.getX();
+            float dy = playerInteractionY - item.getY();
             float distanceSquared = dx * dx + dy * dy;
-            if (distanceSquared <= minDistanceSquared) {
+            float radiusSquared = item.getInteractionRadius() * item.getInteractionRadius();
+            if (distanceSquared <= radiusSquared && distanceSquared < minDistanceSquared) {
                 closest = item;
                 minDistanceSquared = distanceSquared;
             }
@@ -119,25 +127,4 @@ public class CollectibleService {
         return false;
     }
 
-    private void spawnCollectibleInPOV(Rectangle viewportBounds, int levelId) {
-        List<Collectible> all = collectibleFactory.getAllCollectibles();
-        List<Collectible> levelCollectibles = new ArrayList<>();
-        for (Collectible c : all) {
-            if (c.canBeUsedInLevel(levelId)) {
-                levelCollectibles.add(c);
-            }
-        }
-
-        if (levelCollectibles.isEmpty()) {
-            return;
-        }
-
-        Collectible chosen = levelCollectibles.get(random.nextInt(levelCollectibles.size()));
-        
-        // Pseudo-random position within viewport bounds
-        float px = viewportBounds.x + random.nextFloat() * viewportBounds.width;
-        float py = viewportBounds.y + random.nextFloat() * viewportBounds.height;
-        
-        activeCollectibles.add(new CollectibleOnMap(chosen, px, py));
-    }
 }
