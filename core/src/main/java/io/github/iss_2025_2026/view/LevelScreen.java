@@ -91,6 +91,7 @@ public class LevelScreen implements Screen {
     private static final Logger LOGGER = Logger.getLogger(LevelScreen.class.getName());
     private static final float DEFAULT_ENCOUNTER_RADIUS = 130f;
     private static final float DEFAULT_NPC_INTERACTION_RADIUS = 190f;
+    private static final float ENEMY_MAP_SPRITE_SCALE = 1.05f;
     private static final String KEY_NPC_SIZE = "npc_size";
 
     private final Main game;
@@ -207,7 +208,8 @@ public class LevelScreen implements Screen {
         }
 
         buildUI();
-        this.checkpointService = new CheckpointService(model, levelRuntime);
+        this.checkpointService = new CheckpointService(
+                model, levelRuntime, playerSize / 2f, playerYOffset);
         showInitialStatus();
 
         this.inputListener = new InputAdapter() {
@@ -472,7 +474,7 @@ public class LevelScreen implements Screen {
         if (encounterService == null) {
             return;
         }
-        float enemySpriteSize = playerSize * 0.75f;
+        float enemySpriteSize = playerSize * ENEMY_MAP_SPRITE_SCALE;
         for (EnemyEncounterService.EnemyEncounterInfo info : encounterService.getAllEncounterInfo()) {
             Animation<TextureRegion> idleAnim = enemyIdleAnimCache.get(info.getEnemyType());
             if (idleAnim == null) {

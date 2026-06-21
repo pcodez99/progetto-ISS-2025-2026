@@ -2,6 +2,7 @@ package io.github.iss_2025_2026.map;
 
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.objects.PolylineMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public final class TmxLevel {
                 + "' must contain a visible object named '" + TmxMapContract.SPAWN_OBJECT_NAME + "'.");
     }
 
-    public Vector2 checkpointWorldPosition(CheckpointDefinition checkpoint) {
+    public List<Vector2> checkpointWorldPolyline(CheckpointDefinition checkpoint) {
         if (checkpoint == null) {
             throw new IllegalArgumentException("La definizione del checkpoint non puo essere nulla.");
         }
@@ -54,7 +55,7 @@ public final class TmxLevel {
                 continue;
             }
             if (checkpoint.getObjectName().equals(object.getName())) {
-                return geometry.objectToWorld(object);
+                return worldPolyline(object, checkpoint.getLayer());
             }
             if (firstVisibleCheckpointLine == null) {
                 firstVisibleCheckpointLine = object;
@@ -62,11 +63,30 @@ public final class TmxLevel {
         }
 
         if (firstVisibleCheckpointLine != null) {
-            return geometry.objectToWorld(firstVisibleCheckpointLine);
+            return worldPolyline(firstVisibleCheckpointLine, checkpoint.getLayer());
         }
 
         throw new IllegalStateException("TMX layer '" + checkpoint.getLayer()
                 + "' must contain a visible checkpoint line.");
+    }
+
+    private List<Vector2> worldPolyline(MapObject object, String layerName) {
+        if (!(object instanceof PolylineMapObject)) {
+            throw new IllegalStateException("TMX checkpoint object '" + object.getName()
+                    + "' in layer '" + layerName + "' must be a polyline.");
+        }
+
+        float[] vertices = ((PolylineMapObject) object).getPolyline().getTransformedVertices();
+        if (vertices.length < 4) {
+            throw new IllegalStateException("TMX checkpoint polyline '" + object.getName()
+                    + "' must contain at least two vertices.");
+        }
+
+        List<Vector2> worldVertices = new ArrayList<>();
+        for (int index = 0; index < vertices.length; index += 2) {
+            worldVertices.add(geometry.objectToWorld(vertices[index], vertices[index + 1]));
+        }
+        return Collections.unmodifiableList(worldVertices);
     }
 
     public List<MapObject> physicsObjects() {

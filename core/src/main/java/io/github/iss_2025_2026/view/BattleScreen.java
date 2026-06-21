@@ -60,6 +60,8 @@ public class BattleScreen implements Screen {
     private static final float ACTION_BUTTON_HEIGHT = 50f;
     private static final float ENEMY_COUNTER_DELAY = 0.8f;
     private static final float ATTACK_FRAME_DURATION = 0.05f;
+    private static final float PLAYER_ARENA_Y_RATIO = 0.12f;
+    private static final float ENEMY_ARENA_Y_RATIO = 0.10f;
     private static final String MOM_SLIPPER_EFFECT_PATH = "effects/mom-slipper.png";
     private static final float MOM_SLIPPER_BASE_SIZE = 112f;
     private static final String ALIEN_ORB_EFFECT_PATH = "effects/alien-orb.png";
@@ -377,7 +379,7 @@ public class BattleScreen implements Screen {
         float spacingX = Math.min(145f, size * 0.48f);
         float safeLeft = worldWidth < 860f ? worldWidth * 0.12f : ACTION_PANEL_WIDTH + GameUiTheme.SPACE_4;
         float startX = Math.max(worldWidth * 0.14f, safeLeft);
-        float startY = worldHeight * 0.26f;
+        float startY = worldHeight * PLAYER_ARENA_Y_RATIO;
 
         sprite.setSize(size, size);
         sprite.setPosition(startX + index * spacingX, startY + (playerCount - index - 1) * 18f);
@@ -420,7 +422,7 @@ public class BattleScreen implements Screen {
         float spacingX = Math.min(160f, size * 0.56f);
         float spacingY = Math.min(120f, size * 0.42f);
         float startX = worldWidth * 0.57f;
-        float startY = worldHeight * 0.24f;
+        float startY = worldHeight * ENEMY_ARENA_Y_RATIO;
 
         sprite.setSize(size, size);
         sprite.setPosition(startX + column * spacingX, startY - row * spacingY - (column % 2) * 14f);
