@@ -28,6 +28,8 @@ public class NpcFactoryTest {
         assertEquals("gasolio_benedetto", npc.getRewardId());
         assertEquals(10, npc.getAltruismReward());
         assertEquals(-15, npc.getAltruismPenalty());
+        assertNotNull(npc.getHelpRequest());
+        assertEquals(1, npc.getHelpRequest().getTriggerAfterNpcReplies());
     }
 
     @Test
@@ -37,6 +39,7 @@ public class NpcFactoryTest {
         assertEquals(4, npcs.size());
         assertNotNull(factory.getNpc("zyrko_ingegnere_alieno"));
         assertNotNull(factory.getNpc("turiddu_spaventapasseri"));
+        assertTrue(npcs.stream().allMatch(npc -> npc.getHelpRequest() != null));
     }
 
     @Test

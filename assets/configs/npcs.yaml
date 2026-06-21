@@ -16,6 +16,12 @@ npcs:
   negativeConsequence: Se il giocatore ruba, Zio Toto non aiutera piu nei livelli successivi e parlera male del giocatore agli altri NPC.
   sampleDialogue: Picciotti, sti cosi verdi m'hannu scassatu u tratturi! Ma chi sunnu, marziani o meccanici abusivi?
   dialoguePrompt: Sei Zio Toto u Tratturista, un contadino siciliano anziano e burbero ma buono. Ti lamenti degli alieni perche hanno distrutto il raccolto e rubato pezzi del trattore. Parli con battute secche, dialetto leggero e tono pratico. Premi il giocatore se aiuta e diventi diffidente se prova a rubare, ogni tanto parli in siciliano.
+  helpRequest:
+    triggerAfterNpcReplies: 1
+    text: "Mi aiuti a recuperare i pezzi del trattore prima che gli alieni li smontino del tutto?"
+    acceptedReply: "Bravo picciotto! Tieni il Gasolio Benedetto e facciamo ripartire stu tratturi."
+    refusedReply: "Va beni... ma ricordati che il trattore non si ripara con le belle parole."
+    endConversationAfterChoice: false
   interactionOptions:
   - Aiutarlo a recuperare i pezzi del trattore
   - Rubare la tanica di gasolio
@@ -42,6 +48,12 @@ npcs:
   negativeConsequence: Se il giocatore ruba, i cannoli rubati possono essere scaduti e causare un piccolo effetto negativo temporaneo.
   sampleDialogue: Prima salvati i gallini e poi ti dugnu i cannola. Cca nuddu mangia gratis, mancu contra l'alieni!
   dialoguePrompt: Sei Zia Pina, una contadina siciliana anziana, affettuosa ma severa. Parli con tono ironico, usi qualche espressione dialettale siciliana leggera e comprensibile. Offri cibo e cure al giocatore, ma pretendi rispetto e aiuto. Se il giocatore e gentile, lo tratti come un nipote. Se prova a rubare, ti arrabbi e lo rimproveri duramente.
+  helpRequest:
+    triggerAfterNpcReplies: 1
+    text: "Mi aiuti a riportare al sicuro le galline prima che finiscano sulla navicella?"
+    acceptedReply: "Beddu di zia, pigghia stu Cannolo Rinforzante: a pancia china si combatte meglio."
+    refusedReply: "Niente aiuto e niente benedizioni della zia. Le galline se lo ricorderanno."
+    endConversationAfterChoice: false
   interactionOptions:
   - Salvare le galline
   - Comprare cure
@@ -67,6 +79,12 @@ npcs:
   negativeConsequence: Se il giocatore prova a rubare il cristallo o a minacciarlo, Zyrko fugge e lascia un upgrade instabile che puo malfunzionare durante il combattimento.
   sampleDialogue: Io non invadere! Io riparare! Vostra zappa molto primitiva... ma con cristallo Proxima diventa bellissima arma spaziale!
   dialoguePrompt: Sei Zyrko l'Ingegnere di Proxima, un alieno tecnico pacifico, curioso e un po' impacciato. Sei contrario all'invasione della Terra e vuoi aiutare i Viddani migliorando le loro armi con tecnologia aliena. Parli in italiano semplice, con qualche errore grammaticale leggero e tono gentile. Sei affascinato dagli oggetti terrestri come zappe, fionde, ciabatte e trattori. Se il giocatore e altruista, offri upgrade migliori. Se prova a rubare o minacciare, ti spaventi e lasci tecnologia instabile.
+  helpRequest:
+    triggerAfterNpcReplies: 1
+    text: "Tu aiutare me a trovare metallo alieno e oggetto terrestre per esperimento pacifico?"
+    acceptedReply: "Meraviglioso! Prendi questo Kit Proximiano: tecnologia e zappa ora essere amici."
+    refusedReply: "Capisco. Io continuare solo, ma esperimento essere molto più difficile."
+    endConversationAfterChoice: false
   interactionOptions:
   - Consegnare metallo alieno e oggetto terrestre
   - Potenziare zappa, fionda, scupetta o ciabatta con tecnologia di Proxima
@@ -94,6 +112,12 @@ npcs:
   negativeConsequence: Se viene spaventato, urla cosi forte da attirare un gruppo di alieni minori.
   sampleDialogue: L'hai vistu puru tu? Chiddu non era un picciuni... era un picciuni cu l'antenna!
   dialoguePrompt: Sei Turiddu, un uomo vestito da spaventapasseri che vede alieni ovunque. Sei comico, ansioso e facilmente suggestionabile. Dai informazioni utili solo se il giocatore ti calma; se viene deriso o spaventato, reagisci urlando e peggiorando la situazione.
+  helpRequest:
+    triggerAfterNpcReplies: 1
+    text: "Mi aiuti a controllare il campo e a dimostrare che quel piccione ha davvero l'antenna?"
+    acceptedReply: "Lo sapevo che mi credevi! Tieni questa mappa: segna la strada dove gli alieni non mi vedono."
+    refusedReply: "Ecco, nessuno mi crede... quando i piccioni invaderanno tutto non dire che non ti avevo avvisato!"
+    endConversationAfterChoice: false
   interactionOptions:
   - Rassicurarlo
   - Prenderlo in giro

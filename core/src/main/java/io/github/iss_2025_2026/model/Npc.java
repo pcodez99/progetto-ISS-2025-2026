@@ -23,6 +23,7 @@ public class Npc {
     private String negativeConsequence;
     private String sampleDialogue;
     private String dialoguePrompt;
+    private NpcHelpRequest helpRequest;
     private List<String> interactionOptions = new ArrayList<>();
     private List<String> traits = new ArrayList<>();
 
@@ -48,6 +49,7 @@ public class Npc {
         this.negativeConsequence = source.negativeConsequence;
         this.sampleDialogue = source.sampleDialogue;
         this.dialoguePrompt = source.dialoguePrompt;
+        this.helpRequest = source.helpRequest != null ? source.helpRequest.copy() : null;
         this.interactionOptions = new ArrayList<>(source.getInteractionOptions());
         this.traits = new ArrayList<>(source.getTraits());
     }
@@ -202,6 +204,14 @@ public class Npc {
 
     public void setDialoguePrompt(String dialoguePrompt) {
         this.dialoguePrompt = dialoguePrompt;
+    }
+
+    public NpcHelpRequest getHelpRequest() {
+        return helpRequest != null ? helpRequest.copy() : null;
+    }
+
+    public void setHelpRequest(NpcHelpRequest helpRequest) {
+        this.helpRequest = helpRequest != null ? helpRequest.copy() : null;
     }
 
     public List<String> getInteractionOptions() {

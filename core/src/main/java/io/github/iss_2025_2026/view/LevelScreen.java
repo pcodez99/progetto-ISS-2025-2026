@@ -18,6 +18,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -25,6 +26,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.iss_2025_2026.Main;
@@ -32,6 +34,7 @@ import io.github.iss_2025_2026.controller.BattleController;
 import io.github.iss_2025_2026.controller.GameContext;
 import io.github.iss_2025_2026.controller.GameController;
 import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.CollectibleFactory;
 import io.github.iss_2025_2026.factory.NpcFactory;
 import io.github.iss_2025_2026.factory.YamlCharacterFactory;
 import io.github.iss_2025_2026.map.LevelRuntime;
@@ -46,6 +49,9 @@ import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.GameState;
 import io.github.iss_2025_2026.model.Npc;
 import io.github.iss_2025_2026.model.NpcDialogueDecision;
+import io.github.iss_2025_2026.model.NpcHelpRequest;
+import io.github.iss_2025_2026.model.NpcHelpRequestChoice;
+import io.github.iss_2025_2026.model.NpcHelpRequestResult;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.physics.PhysicsFacade;
@@ -58,6 +64,7 @@ import io.github.iss_2025_2026.service.GameProperties;
 import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.NpcDialogueController;
 import io.github.iss_2025_2026.service.NpcDialogueService;
+import io.github.iss_2025_2026.service.NpcHelpRequestService;
 import io.github.iss_2025_2026.service.NpcInteraction;
 import io.github.iss_2025_2026.service.NpcInteractionService;
 import io.github.iss_2025_2026.service.RunMusicManager;
@@ -101,6 +108,8 @@ public class LevelScreen implements Screen {
     private Label dialogueHintLabel;
     private TextField dialogueInputField;
     private Cell<TextField> dialogueInputCell;
+    private Table dialogueChoiceTable;
+    private Cell<Table> dialogueChoiceCell;
     private float saveStatusTimer;
     private PlayerHud playerOneHud;
     private PlayerHud playerTwoHud;
@@ -115,6 +124,7 @@ public class LevelScreen implements Screen {
     private NpcDialogueController dialogueController;
     private NpcInteractionService npcInteractionService;
     private NpcDialogueService npcDialogueService;
+    private NpcHelpRequestService npcHelpRequestService;
     private EvolutionService evolutionService;
     private PlayerAssets playerAssets;
     private PlayerAssets playerTwoAssets;
@@ -206,6 +216,14 @@ public class LevelScreen implements Screen {
                         return true;
                     }
                 }
+                if (isHelpRequestPending() && keycode == Input.Keys.A) {
+                    resolveHelpRequest(NpcHelpRequestChoice.ACCEPT);
+                    return true;
+                }
+                if (isHelpRequestPending() && keycode == Input.Keys.R) {
+                    resolveHelpRequest(NpcHelpRequestChoice.REFUSE);
+                    return true;
+                }
                 if (keycode == Input.Keys.F3) {
                     drawObstacleDebug = !drawObstacleDebug;
                     return true;
@@ -230,6 +248,9 @@ public class LevelScreen implements Screen {
         npcDialogueService = new NpcDialogueService();
         dialogueController = new NpcDialogueController();
         evolutionService = new EvolutionService();
+        CollectibleFactory collectibleFactory = new CollectibleFactory();
+        npcHelpRequestService = new NpcHelpRequestService(collectibleFactory, evolutionService);
+        npcHelpRequestService.validateConfiguration(npcFactory.getAllNpcs());
         npcInteractionService = new NpcInteractionService(
                 level.npcObjects(), npcFactory, level.getGeometry(), levelRuntime.getId(), npcInteractionRadius);
 
@@ -376,12 +397,33 @@ public class LevelScreen implements Screen {
             }
         });
 
+        dialogueChoiceTable = new Table();
+        TextButton acceptButton = GameUiFactory.createButton("[A] Accetta", skin, GameUiTheme.BUTTON_PRIMARY);
+        TextButton refuseButton = GameUiFactory.createButton("[R] Rifiuta", skin, GameUiTheme.BUTTON_GHOST);
+        acceptButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                resolveHelpRequest(NpcHelpRequestChoice.ACCEPT);
+            }
+        });
+        refuseButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                resolveHelpRequest(NpcHelpRequestChoice.REFUSE);
+            }
+        });
+        dialogueChoiceTable.add(acceptButton).height(48f).growX().padRight(GameUiTheme.SPACE_2);
+        dialogueChoiceTable.add(refuseButton).height(48f).growX();
+
         dialoguePanel.add(dialogueSpeakerLabel).padBottom(GameUiTheme.SPACE_1).row();
         dialoguePanel.add(dialogueTextLabel).growX().padBottom(GameUiTheme.SPACE_2).row();
         dialogueInputCell = dialoguePanel.add(dialogueInputField).growX().height(0f).padBottom(0f);
         dialoguePanel.row();
+        dialogueChoiceCell = dialoguePanel.add(dialogueChoiceTable).growX().height(0f).padBottom(0f);
+        dialoguePanel.row();
         dialoguePanel.add(dialogueHintLabel).growX();
         setDialogueInputVisible(false);
+        setDialogueChoiceVisible(false);
 
         dialogueRoot.add(dialoguePanel).growX().minWidth(320f).maxWidth(760f);
         updateDialoguePanelLayout();
@@ -762,6 +804,7 @@ public class LevelScreen implements Screen {
             return;
         }
         setDialogueInputVisible(false);
+        setDialogueChoiceVisible(false);
         setDialoguePanelText(npc.getName(), "Premi E per parlare.", "E");
         dialoguePanel.setVisible(true);
     }
@@ -785,6 +828,7 @@ public class LevelScreen implements Screen {
                 + (dialoguePlayer != null ? dialoguePlayer.getName() : "unknown")
                 + ", npc=" + npc.getId() + " (" + npc.getName() + ")");
         setDialogueInputVisible(true);
+        setDialogueChoiceVisible(false);
         dialogueInputField.setText("");
         dialogueInputField.setDisabled(false);
         uiStage.setKeyboardFocus(dialogueInputField);
@@ -850,7 +894,7 @@ public class LevelScreen implements Screen {
                 + requestContext.getSessionId() + ": " + result.getReply());
         dialogueInputField.setDisabled(dialogueController.isEnded());
         refreshDialogueSessionPanel(dialogueController.getStatusMessage());
-        if (dialogueController.isEnded()) {
+        if (dialogueController.isEnded() || dialogueController.isHelpRequestPending()) {
             uiStage.setKeyboardFocus(null);
         } else {
             uiStage.setKeyboardFocus(dialogueInputField);
@@ -904,6 +948,7 @@ public class LevelScreen implements Screen {
             dialogueInputField.setDisabled(false);
         }
         setDialogueInputVisible(false);
+        setDialogueChoiceVisible(false);
         if (dialoguePanel != null) {
             dialoguePanel.setVisible(false);
         }
@@ -935,6 +980,41 @@ public class LevelScreen implements Screen {
         return dialogueController != null && dialogueController.isActive();
     }
 
+    private boolean isHelpRequestPending() {
+        return dialogueController != null && dialogueController.isHelpRequestPending();
+    }
+
+    private void resolveHelpRequest(NpcHelpRequestChoice choice) {
+        DialogueSession session = dialogueController != null ? dialogueController.getActiveSession() : null;
+        if (session == null || !session.isHelpRequestPending() || npcHelpRequestService == null) {
+            return;
+        }
+
+        NpcHelpRequestResult result = npcHelpRequestService.resolve(session.getPlayer(), session.getNpc(), choice);
+        if (!result.isResolved()) {
+            refreshDialogueSessionPanel(result.getFeedback());
+            return;
+        }
+
+        NpcHelpRequest request = session.getNpc().getHelpRequest();
+        boolean endConversation = request != null && request.isEndConversationAfterChoice();
+        if (!dialogueController.completeHelpRequestChoice(session.getId(), result.getNpcReply(), endConversation)) {
+            LOGGER.warning("[NPC UI] Esito richiesta non applicato alla sessione " + session.getId());
+            return;
+        }
+
+        LOGGER.info("[NPC UI] Richiesta risolta: npc=" + session.getNpc().getId()
+                + ", choice=" + choice
+                + ", karmaDelta=" + result.getKarmaDelta()
+                + ", reward=" + result.getRewardId());
+        refreshDialogueSessionPanel(result.getFeedback());
+        if (dialogueController.isEnded()) {
+            uiStage.setKeyboardFocus(null);
+        } else {
+            uiStage.setKeyboardFocus(dialogueInputField);
+        }
+    }
+
     private void sortWorldActorsByDepth() {
         if (stage == null) {
             return;
@@ -947,8 +1027,9 @@ public class LevelScreen implements Screen {
         if (session == null) {
             return;
         }
-        boolean inputVisible = !dialogueController.isEnded();
+        boolean inputVisible = session.isInputActive();
         setDialogueInputVisible(inputVisible);
+        setDialogueChoiceVisible(session.isHelpRequestPending());
         if (dialogueInputField != null) {
             dialogueInputField.setDisabled(!session.isInputActive());
         }
@@ -989,6 +1070,15 @@ public class LevelScreen implements Screen {
         dialoguePanel.invalidateHierarchy();
     }
 
+    private void setDialogueChoiceVisible(boolean visible) {
+        if (dialogueChoiceTable == null || dialogueChoiceCell == null) {
+            return;
+        }
+        dialogueChoiceTable.setVisible(visible);
+        dialogueChoiceCell.height(visible ? 48f : 0f).padBottom(visible ? GameUiTheme.SPACE_2 : 0f);
+        dialoguePanel.invalidateHierarchy();
+    }
+
     private void updateDialoguePanelLayout() {
         if (uiStage == null || dialogueRoot == null || dialoguePanel == null || dialogueTextLabel == null) {
             return;
@@ -1000,6 +1090,9 @@ public class LevelScreen implements Screen {
         dialoguePanel.getCell(dialogueTextLabel).width(textWidth);
         if (dialogueInputCell != null) {
             dialogueInputCell.width(textWidth);
+        }
+        if (dialogueChoiceCell != null) {
+            dialogueChoiceCell.width(textWidth);
         }
     }
 

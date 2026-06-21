@@ -30,6 +30,7 @@ class SaveManagerTest {
     void testSaveAndLoadConsistency() throws IOException {
         Backpack zainoTest = new Backpack();
         PlayerSaveState playerOne = new PlayerSaveState("mamma", "Mamma", 95, 100, 25, 3, 4, zainoTest);
+        playerOne.getEvolutionState().recordNpcHelpOutcome("zia_pina", NpcHelpRequestOutcome.ACCEPTED);
         PlayerSaveState playerTwo = new PlayerSaveState("papa", "Papa", 120, 120, 19, 2, -3, new Backpack());
         GameState statoOriginale = new GameState(
                 "Run di Test",
@@ -50,6 +51,8 @@ class SaveManagerTest {
         assertEquals("Mamma", statoCaricato.getPlayerOne().getName());
         assertEquals(95, statoCaricato.getPlayerOne().getHp());
         assertEquals(120, statoCaricato.getPlayerTwo().getHp());
+        assertEquals(NpcHelpRequestOutcome.ACCEPTED,
+                statoCaricato.getPlayerOne().getEvolutionState().getNpcHelpOutcome("zia_pina"));
         assertEquals("2026-05-16T10:15:30Z", statoCaricato.getSavedAt());
     }
 

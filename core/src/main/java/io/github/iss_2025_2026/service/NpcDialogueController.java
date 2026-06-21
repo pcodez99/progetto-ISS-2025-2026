@@ -5,6 +5,7 @@ import io.github.iss_2025_2026.model.DialogueSessionState;
 import io.github.iss_2025_2026.model.DialogueTurn;
 import io.github.iss_2025_2026.model.Npc;
 import io.github.iss_2025_2026.model.NpcDialogueDecision;
+import io.github.iss_2025_2026.model.NpcHelpRequest;
 import io.github.iss_2025_2026.model.Player;
 
 public class NpcDialogueController {
@@ -47,6 +48,10 @@ public class NpcDialogueController {
 
     public boolean isEnded() {
         return activeSession != null && activeSession.getState() == DialogueSessionState.ENDED;
+    }
+
+    public boolean isHelpRequestPending() {
+        return activeSession != null && activeSession.isHelpRequestPending();
     }
 
     public DialogueSession getActiveSession() {
@@ -98,7 +103,12 @@ public class NpcDialogueController {
                 : NpcDialogueDecision.neutral(null);
         String safeResponse = sanitizeNpcResponse(safeDecision.getReply());
         activeSession.addTurn(new DialogueTurn(activeSession.getNpc().getName(), safeResponse, false));
-        if (safeDecision.isEndConversation()) {
+        if (shouldOfferHelpRequest()) {
+            NpcHelpRequest request = activeSession.getNpc().getHelpRequest();
+            activeSession.addTurn(new DialogueTurn(activeSession.getNpc().getName(), request.getText(), false));
+            activeSession.setState(DialogueSessionState.HELP_REQUEST_PENDING);
+            statusMessage = "Scegli se accettare o rifiutare la richiesta.";
+        } else if (safeDecision.isEndConversation() && !hasUnresolvedHelpRequest()) {
             activeSession.setState(DialogueSessionState.ENDED);
             statusMessage = "Dialogo concluso. ESC chiude.";
         } else {
@@ -106,6 +116,39 @@ public class NpcDialogueController {
             statusMessage = "Scrivi e premi Invio. ESC chiude.";
         }
         return true;
+    }
+
+    public boolean completeHelpRequestChoice(int sessionId, String npcReply, boolean endConversation) {
+        if (activeSession == null || activeSession.getId() != sessionId || !activeSession.isHelpRequestPending()) {
+            return false;
+        }
+        activeSession.addTurn(new DialogueTurn(activeSession.getNpc().getName(),
+                sanitizeNpcResponse(npcReply), false));
+        if (endConversation) {
+            activeSession.setState(DialogueSessionState.ENDED);
+            statusMessage = "Dialogo concluso. ESC chiude.";
+        } else {
+            activeSession.setState(DialogueSessionState.INPUT_ACTIVE);
+            statusMessage = "Scrivi e premi Invio. ESC chiude.";
+        }
+        return true;
+    }
+
+    private boolean shouldOfferHelpRequest() {
+        if (!hasUnresolvedHelpRequest()) {
+            return false;
+        }
+        NpcHelpRequest request = activeSession.getNpc().getHelpRequest();
+        return activeSession.countNpcReplies() >= request.getTriggerAfterNpcReplies();
+    }
+
+    private boolean hasUnresolvedHelpRequest() {
+        if (activeSession == null) {
+            return false;
+        }
+        NpcHelpRequest request = activeSession.getNpc().getHelpRequest();
+        return request != null && !activeSession.getPlayer().getEvolutionState()
+                .hasNpcHelpOutcome(activeSession.getNpc().getId());
     }
 
     private String sanitize(String rawInput) {

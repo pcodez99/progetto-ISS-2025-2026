@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.iss_2025_2026.model.Npc;
+import io.github.iss_2025_2026.model.NpcHelpRequest;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,6 +124,20 @@ public class NpcFactory {
         }
         if (npc.getType() == null) {
             LOGGER.warning("NPC ignorato: tipo mancante per ID " + npc.getId());
+            return false;
+        }
+        NpcHelpRequest request = npc.getHelpRequest();
+        if (request == null) {
+            LOGGER.warning("NPC ignorato: helpRequest mancante per ID " + npc.getId());
+            return false;
+        }
+        if (isBlank(request.getText()) || isBlank(request.getAcceptedReply())
+                || isBlank(request.getRefusedReply())) {
+            LOGGER.warning("NPC ignorato: testi helpRequest incompleti per ID " + npc.getId());
+            return false;
+        }
+        if (isBlank(npc.getRewardId()) || npc.getAltruismReward() <= 0 || npc.getAltruismPenalty() >= 0) {
+            LOGGER.warning("NPC ignorato: ricompensa o delta karma non validi per ID " + npc.getId());
             return false;
         }
         return true;

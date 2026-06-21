@@ -10,6 +10,7 @@ import io.github.iss_2025_2026.model.DialogueSession;
 import io.github.iss_2025_2026.model.DialogueSessionState;
 import io.github.iss_2025_2026.model.Npc;
 import io.github.iss_2025_2026.model.NpcDialogueDecision;
+import io.github.iss_2025_2026.model.NpcHelpRequest;
 import io.github.iss_2025_2026.model.NpcType;
 import io.github.iss_2025_2026.model.Player;
 import org.junit.jupiter.api.Test;
@@ -97,6 +98,56 @@ public class NpcDialogueControllerTest {
         assertEquals(2, controller.getActiveSession().getHistory().size());
     }
 
+    @Test
+    public void configuredTurnMovesConversationToPendingHelpRequest() {
+        NpcDialogueController controller = new NpcDialogueController();
+        controller.open(createPlayer(), createNpcWithRequest());
+        DialogueRequestContext context = controller.submitUserInput("Dimmi pure");
+
+        boolean completed = controller.completeNpcResponse(context.getSessionId(), "Ho un problema.");
+
+        assertTrue(completed);
+        assertTrue(controller.isHelpRequestPending());
+        assertEquals(DialogueSessionState.HELP_REQUEST_PENDING, controller.getActiveSession().getState());
+        assertEquals(3, controller.getActiveSession().getHistory().size());
+        assertEquals("Mi aiuti?", controller.getActiveSession().getHistory().get(2).getText());
+    }
+
+    @Test
+    public void completedNpcRequestIsNotOfferedAgain() {
+        Npc npc = createNpcWithRequest();
+        Player player = createPlayer();
+        player.getEvolutionState().recordNpcHelpOutcome(npc.getId(),
+                io.github.iss_2025_2026.model.NpcHelpRequestOutcome.REFUSED);
+        NpcDialogueController controller = new NpcDialogueController();
+        controller.open(player, npc);
+        DialogueRequestContext context = controller.submitUserInput("Ciao");
+
+        controller.completeNpcResponse(context.getSessionId(), "Bentornato.");
+
+        assertEquals(DialogueSessionState.INPUT_ACTIVE, controller.getActiveSession().getState());
+        assertFalse(controller.isHelpRequestPending());
+    }
+
+    @Test
+    public void aiCannotEndConversationBeforeConfiguredRequestTurn() {
+        Npc npc = createNpcWithRequest();
+        NpcHelpRequest request = npc.getHelpRequest();
+        request.setTriggerAfterNpcReplies(2);
+        npc.setHelpRequest(request);
+        NpcDialogueController controller = new NpcDialogueController();
+        controller.open(createPlayer(), npc);
+
+        DialogueRequestContext first = controller.submitUserInput("Primo turno");
+        controller.completeNpcDecision(first.getSessionId(),
+                new NpcDialogueDecision("Stavo per salutarti.", true, false, 0, null, ""));
+        assertEquals(DialogueSessionState.INPUT_ACTIVE, controller.getActiveSession().getState());
+
+        DialogueRequestContext second = controller.submitUserInput("Secondo turno");
+        controller.completeNpcResponse(second.getSessionId(), "Aspetta, ho una richiesta.");
+        assertTrue(controller.isHelpRequestPending());
+    }
+
     private Player createPlayer() {
         return new Player("Mamma", 100, 10, null);
     }
@@ -108,6 +159,17 @@ public class NpcDialogueControllerTest {
         npc.setLevelId("level_1_campaign");
         npc.setType(NpcType.MERCHANT);
         npc.setSampleDialogue("Dialogo statico");
+        return npc;
+    }
+
+    private Npc createNpcWithRequest() {
+        Npc npc = createNpc();
+        NpcHelpRequest request = new NpcHelpRequest();
+        request.setTriggerAfterNpcReplies(1);
+        request.setText("Mi aiuti?");
+        request.setAcceptedReply("Grazie!");
+        request.setRefusedReply("Peccato.");
+        npc.setHelpRequest(request);
         return npc;
     }
 }

@@ -53,6 +53,20 @@ public class DialogueSession {
         return state == DialogueSessionState.INPUT_ACTIVE;
     }
 
+    public boolean isHelpRequestPending() {
+        return state == DialogueSessionState.HELP_REQUEST_PENDING;
+    }
+
+    public int countNpcReplies() {
+        int count = 0;
+        for (DialogueTurn turn : history) {
+            if (turn != null && !turn.isFromPlayer()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public void addTurn(DialogueTurn turn) {
         if (turn != null && turn.getText() != null && !turn.getText().trim().isEmpty()) {
             history.add(turn);

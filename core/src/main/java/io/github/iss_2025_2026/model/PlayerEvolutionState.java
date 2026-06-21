@@ -20,6 +20,7 @@ public class PlayerEvolutionState {
     private AbilitySlot selectedAbilitySlot = AbilitySlot.BASE;
     private Set<AbilitySlot> unlockedAbilitySlots = EnumSet.of(AbilitySlot.BASE);
     private Map<String, Integer> npcTrust = new HashMap<>();
+    private Map<String, NpcHelpRequestOutcome> npcHelpOutcomes = new HashMap<>();
 
     public PlayerEvolutionState() {
         unlockAbilitySlot(AbilitySlot.BASE);
@@ -216,6 +217,31 @@ public class PlayerEvolutionState {
         this.npcTrust = new HashMap<>();
         if (npcTrust != null) {
             this.npcTrust.putAll(npcTrust);
+        }
+    }
+
+    public boolean hasNpcHelpOutcome(String npcId) {
+        return npcId != null && npcHelpOutcomes.containsKey(npcId);
+    }
+
+    public NpcHelpRequestOutcome getNpcHelpOutcome(String npcId) {
+        return npcId != null ? npcHelpOutcomes.get(npcId) : null;
+    }
+
+    public void recordNpcHelpOutcome(String npcId, NpcHelpRequestOutcome outcome) {
+        if (npcId != null && !npcId.trim().isEmpty() && outcome != null) {
+            npcHelpOutcomes.put(npcId, outcome);
+        }
+    }
+
+    public Map<String, NpcHelpRequestOutcome> getNpcHelpOutcomes() {
+        return Collections.unmodifiableMap(npcHelpOutcomes);
+    }
+
+    public void setNpcHelpOutcomes(Map<String, NpcHelpRequestOutcome> npcHelpOutcomes) {
+        this.npcHelpOutcomes = new HashMap<>();
+        if (npcHelpOutcomes != null) {
+            this.npcHelpOutcomes.putAll(npcHelpOutcomes);
         }
     }
 }
