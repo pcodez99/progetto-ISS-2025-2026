@@ -272,27 +272,25 @@ public class LevelScreen implements Screen {
                             float mapTileWidth = map.getProperties().get("tilewidth", Integer.class);
                             float mapTileHeight = map.getProperties().get("tileheight", Integer.class);
 
-                            float tileX = tileObj.getX() / mapTileHeight;
-                            float tileY = tileObj.getY() / mapTileHeight;
+                            float tileX = tileObj.getX() / mapTileHeight - 0.5f;
+                            float tileY = tileObj.getY() / mapTileHeight + 0.5f;
 
-                            // Aggiunge un leggero offset X (di mezza larghezza tile) per allineare
-                            // l'immagine isometrica
+                            float objectWidth = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
+                                    tileObj.getProperties(), "width", region.getRegionWidth()) * unitScale;
+                            float objectHeight = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
+                                    tileObj.getProperties(), "height", region.getRegionHeight()) * unitScale;
+
                             float drawX = (tileX + tileY) * (mapTileWidth / 2f) * unitScale
-                                    - (mapTileWidth / 2f) * unitScale + tile.getOffsetX() * unitScale;
+                                    - objectWidth * 0.5f + tile.getOffsetX() * unitScale;
                             float drawY = (tileY - tileX) * (mapTileHeight / 2f) * unitScale
                                     + tile.getOffsetY() * unitScale;
-
-                            float width = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
-                                    tileObj.getProperties(), "width", region.getRegionWidth()) * unitScale;
-                            float height = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
-                                    tileObj.getProperties(), "height", region.getRegionHeight()) * unitScale;
 
                             float scaleX = tileObj.getScaleX();
                             float scaleY = tileObj.getScaleY();
                             float rotation = tileObj.getRotation();
 
-                            float halfWidth = width * 0.5f;
-                            float halfHeight = height * 0.5f;
+                            float halfWidth = objectWidth * 0.5f;
+                            float halfHeight = objectHeight * 0.5f;
 
                             getBatch().draw(
                                     region,
@@ -300,8 +298,8 @@ public class LevelScreen implements Screen {
                                     drawY,
                                     halfWidth,
                                     halfHeight,
-                                    width,
-                                    height,
+                                    objectWidth,
+                                    objectHeight,
                                     scaleX,
                                     scaleY,
                                     rotation);
