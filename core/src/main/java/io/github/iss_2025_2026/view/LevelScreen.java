@@ -248,6 +248,12 @@ public class LevelScreen implements Screen {
     private void configureLevel(LevelRuntime levelRuntime) {
         level = levelRuntime.getLevel();
         map = level.getMap();
+        if (levelRuntime.getId() == 2) {
+            com.badlogic.gdx.maps.MapLayer layer = map.getLayers().get("Immagini");
+            if (layer != null) {
+                layer.setVisible(false);
+            }
+        }
         mapRenderer = new IsometricTiledMapRenderer(map, 1f) {
             @Override
             public void renderObject(com.badlogic.gdx.maps.MapObject object) {
@@ -416,6 +422,9 @@ public class LevelScreen implements Screen {
 
         // Aggiungi sprite idle nemici ai punti di spawn
         addEnemySpritesToMap();
+
+        // Aggiungi attori per gli oggetti della mappa per consentire il corretto Y-sorting
+        addMapObjectActors();
 
         // HUD: crea e aggiungi alla UI (player1 sinistra, player2 destra)
         if (model.getPlayerOne() != null) {
@@ -1293,6 +1302,110 @@ public class LevelScreen implements Screen {
 
         private void updatePosition() {
             setPosition(interaction.getX() - drawSize / 2f, interaction.getY() - yOffset);
+        }
+    }
+
+    private static final class MapObjectActor extends Actor {
+        private final TextureRegion region;
+        private final float drawX;
+        private final float drawYOffset;
+        private final float objectWidth;
+        private final float objectHeight;
+        private final float scaleX;
+        private final float scaleY;
+        private final float rotation;
+        private final float halfWidth;
+        private final float halfHeight;
+        private final float playerYOffset;
+
+        private MapObjectActor(TextureRegion region, float drawX, float drawYOffset,
+                float objectWidth, float objectHeight, float scaleX, float scaleY, float rotation,
+                float sortingY, float playerYOffset) {
+            this.region = region;
+            this.drawX = drawX;
+            this.drawYOffset = drawYOffset;
+            this.objectWidth = objectWidth;
+            this.objectHeight = objectHeight;
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
+            this.rotation = rotation;
+            this.halfWidth = objectWidth * 0.5f;
+            this.halfHeight = objectHeight * 0.5f;
+            this.playerYOffset = playerYOffset;
+
+            setX(drawX);
+            setY(sortingY);
+            setSize(objectWidth, objectHeight);
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            if (region == null) {
+                return;
+            }
+            float drawY = getY() + playerYOffset + drawYOffset;
+            batch.draw(
+                    region,
+                    getX(),
+                    drawY,
+                    halfWidth,
+                    halfHeight,
+                    objectWidth,
+                    objectHeight,
+                    scaleX,
+                    scaleY,
+                    rotation);
+        }
+    }
+
+    private void addMapObjectActors() {
+        if (levelRuntime.getId() != 2) {
+            return;
+        }
+        com.badlogic.gdx.maps.MapLayer layer = map.getLayers().get("Immagini");
+        if (layer == null) {
+            return;
+        }
+
+        float mapTileWidth = map.getProperties().get("tilewidth", Integer.class);
+        float mapTileHeight = map.getProperties().get("tileheight", Integer.class);
+
+        for (com.badlogic.gdx.maps.MapObject object : layer.getObjects()) {
+            if (object instanceof com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) {
+                com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject tileObj = (com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) object;
+                com.badlogic.gdx.maps.tiled.TiledMapTile tile = tileObj.getTile();
+                if (tile != null) {
+                    TextureRegion region = tile.getTextureRegion();
+                    if (region != null) {
+                        float tileX = tileObj.getX() / mapTileHeight - 0.5f;
+                        float tileY = tileObj.getY() / mapTileHeight + 0.5f;
+
+                        float objectWidth = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
+                                tileObj.getProperties(), "width", region.getRegionWidth());
+                        float objectHeight = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
+                                tileObj.getProperties(), "height", region.getRegionHeight());
+
+                        float drawX = (tileX + tileY) * (mapTileWidth / 2f)
+                                - objectWidth * 0.5f + tile.getOffsetX();
+                        float worldY = (tileY - tileX) * (mapTileHeight / 2f);
+                        float sortingY = worldY - playerYOffset;
+
+                        MapObjectActor actor = new MapObjectActor(
+                                region,
+                                drawX,
+                                tile.getOffsetY(),
+                                objectWidth,
+                                objectHeight,
+                                tileObj.getScaleX(),
+                                tileObj.getScaleY(),
+                                tileObj.getRotation(),
+                                sortingY,
+                                playerYOffset
+                        );
+                        stage.addActor(actor);
+                    }
+                }
+            }
         }
     }
 
