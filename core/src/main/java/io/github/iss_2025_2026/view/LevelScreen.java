@@ -423,7 +423,8 @@ public class LevelScreen implements Screen {
         // Aggiungi sprite idle nemici ai punti di spawn
         addEnemySpritesToMap();
 
-        // Aggiungi attori per gli oggetti della mappa per consentire il corretto Y-sorting
+        // Aggiungi attori per gli oggetti della mappa per consentire il corretto
+        // Y-sorting
         addMapObjectActors();
 
         // HUD: crea e aggiungi alla UI (player1 sinistra, player2 destra)
@@ -1308,7 +1309,6 @@ public class LevelScreen implements Screen {
     private static final class MapObjectActor extends Actor {
         private final TextureRegion region;
         private final float drawX;
-        private final float drawYOffset;
         private final float objectWidth;
         private final float objectHeight;
         private final float scaleX;
@@ -1318,12 +1318,11 @@ public class LevelScreen implements Screen {
         private final float halfHeight;
         private final float playerYOffset;
 
-        private MapObjectActor(TextureRegion region, float drawX, float drawYOffset,
+        private MapObjectActor(TextureRegion region, float drawX,
                 float objectWidth, float objectHeight, float scaleX, float scaleY, float rotation,
                 float sortingY, float playerYOffset) {
             this.region = region;
             this.drawX = drawX;
-            this.drawYOffset = drawYOffset;
             this.objectWidth = objectWidth;
             this.objectHeight = objectHeight;
             this.scaleX = scaleX;
@@ -1343,7 +1342,9 @@ public class LevelScreen implements Screen {
             if (region == null) {
                 return;
             }
-            float drawY = getY() + playerYOffset + drawYOffset;
+            // getY() è il sortingY (base dell'oggetto); aggiungiamo solo playerYOffset
+            // per risalire alla posizione di rendering corretta (worldY + tileOffsetY).
+            float drawY = getY() + playerYOffset;
             batch.draw(
                     region,
                     getX(),
@@ -1358,6 +1359,71 @@ public class LevelScreen implements Screen {
         }
     }
 
+    /**
+     * Attore speciale che disegna tutti gli oggetti del layer Immagini come sfondo.
+     * Il metodo getY() restituisce Float.MAX_VALUE, così il Y-sorting lo posiziona
+     * sempre per primo (dietro a tutti gli altri attori dello stage).
+     */
+    private static final class BackgroundObjectsActor extends Actor {
+        private final List<BackgroundObjectData> objects = new ArrayList<>();
+
+        @Override
+        public float getY() {
+            return Float.MAX_VALUE;
+        }
+
+        private void addObject(TextureRegion region, float drawX, float drawY,
+                float objectWidth, float objectHeight,
+                float scaleX, float scaleY, float rotation) {
+            objects.add(new BackgroundObjectData(
+                    region, drawX, drawY, objectWidth, objectHeight,
+                    scaleX, scaleY, rotation));
+        }
+
+        @Override
+        public void draw(Batch batch, float parentAlpha) {
+            for (BackgroundObjectData obj : objects) {
+                float halfW = obj.objectWidth * 0.5f;
+                float halfH = obj.objectHeight * 0.5f;
+                batch.draw(
+                        obj.region,
+                        obj.drawX,
+                        obj.drawY,
+                        halfW,
+                        halfH,
+                        obj.objectWidth,
+                        obj.objectHeight,
+                        obj.scaleX,
+                        obj.scaleY,
+                        obj.rotation);
+            }
+        }
+
+        private static final class BackgroundObjectData {
+            final TextureRegion region;
+            final float drawX;
+            final float drawY;
+            final float objectWidth;
+            final float objectHeight;
+            final float scaleX;
+            final float scaleY;
+            final float rotation;
+
+            private BackgroundObjectData(TextureRegion region, float drawX, float drawY,
+                    float objectWidth, float objectHeight,
+                    float scaleX, float scaleY, float rotation) {
+                this.region = region;
+                this.drawX = drawX;
+                this.drawY = drawY;
+                this.objectWidth = objectWidth;
+                this.objectHeight = objectHeight;
+                this.scaleX = scaleX;
+                this.scaleY = scaleY;
+                this.rotation = rotation;
+            }
+        }
+    }
+
     private void addMapObjectActors() {
         if (levelRuntime.getId() != 2 && levelRuntime.getId() != 3) {
             return;
@@ -1369,6 +1435,9 @@ public class LevelScreen implements Screen {
 
         float mapTileWidth = map.getProperties().get("tilewidth", Integer.class);
         float mapTileHeight = map.getProperties().get("tileheight", Integer.class);
+
+        // Per il livello 3 usiamo un singolo attore sfondo (sempre dietro a tutto)
+        BackgroundObjectsActor bgActor = (levelRuntime.getId() == 3) ? new BackgroundObjectsActor() : null;
 
         for (com.badlogic.gdx.maps.MapObject object : layer.getObjects()) {
             if (object instanceof com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) {
@@ -1388,24 +1457,36 @@ public class LevelScreen implements Screen {
                         float drawX = (tileX + tileY) * (mapTileWidth / 2f)
                                 - objectWidth * 0.5f + tile.getOffsetX();
                         float worldY = (tileY - tileX) * (mapTileHeight / 2f);
-                        float sortingY = worldY - playerYOffset;
 
-                        MapObjectActor actor = new MapObjectActor(
-                                region,
-                                drawX,
-                                tile.getOffsetY(),
-                                objectWidth,
-                                objectHeight,
-                                tileObj.getScaleX(),
-                                tileObj.getScaleY(),
-                                tileObj.getRotation(),
-                                sortingY,
-                                playerYOffset
-                        );
-                        stage.addActor(actor);
+                        if (bgActor != null) {
+                            // Livello 3: sfondo — posizione di rendering diretta
+                            float drawY = worldY + tile.getOffsetY();
+                            bgActor.addObject(region, drawX, drawY,
+                                    objectWidth, objectHeight,
+                                    tileObj.getScaleX(), tileObj.getScaleY(),
+                                    tileObj.getRotation());
+                        } else {
+                            // Livello 2: Y-sorting con i personaggi
+                            float sortingY = worldY - playerYOffset + tile.getOffsetY();
+                            MapObjectActor actor = new MapObjectActor(
+                                    region,
+                                    drawX,
+                                    objectWidth,
+                                    objectHeight,
+                                    tileObj.getScaleX(),
+                                    tileObj.getScaleY(),
+                                    tileObj.getRotation(),
+                                    sortingY,
+                                    playerYOffset);
+                            stage.addActor(actor);
+                        }
                     }
                 }
             }
+        }
+
+        if (bgActor != null) {
+            stage.addActor(bgActor);
         }
     }
 
