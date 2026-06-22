@@ -1,0 +1,28 @@
+@startuml 03-abilities-combat
+!pragma layout smetana
+title Abilità e combattimento - Strategy
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class "abilities/*.yaml" as AbilityYaml <<asset>>
+class AbilityLoader <<Loader>>
+class DataDrivenAbility
+class AbilityFactory <<Registry>>
+interface AbilityStrategy <<Strategy>>
+class "DamageStrategy\nHealStrategy" as Strategies
+class BattleModel <<Model>>
+
+AbilityYaml --> AbilityLoader
+AbilityLoader --> DataDrivenAbility
+DataDrivenAbility --> AbilityFactory
+AbilityFactory --> AbilityStrategy
+AbilityStrategy <|.. Strategies
+BattleModel --> DataDrivenAbility : usa abilità
+
+note bottom of AbilityStrategy
+Minimo: lo YAML sceglie una strategia eseguita in battaglia.
+end note
+@enduml

@@ -5,15 +5,18 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.backends.headless.HeadlessApplicationConfiguration;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
-import io.github.iss_2025_2026.factory.CharacterFactory;
-import io.github.iss_2025_2026.factory.YamlCharacterFactory;
+import io.github.iss_2025_2026.factory.EnemyFactory;
+import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlEnemyFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class EnemyFactoryTest {
-    private CharacterFactory factory;
+    private EnemyFactory enemyFactory;
+    private PlayerFactory playerFactory;
 
     //Motore di gioco invisibile:
     @BeforeAll
@@ -28,16 +31,18 @@ public class EnemyFactoryTest {
     @BeforeEach
     public void setUp() {
         // Inizializziamo la factory prima di ogni test
-        factory = new YamlCharacterFactory();
+        enemyFactory = new YamlEnemyFactory();
+        playerFactory = new YamlPlayerFactory();
     }
 
     @Test
     public void testCreateAlienBase() {
         // 1. Creiamo l'alieno base dallo YAML
-        Enemy alieno = factory.createEnemy("alieno_base");
+        Enemy alieno = enemyFactory.create("alieno_base");
 
         // 2. Verifichiamo che i dati corrispondano a quelli scritti nel file .yaml
         assertNotNull(alieno, "L'alieno non dovrebbe essere nullo!");
+        assertEquals(Enemy.class, alieno.getClass());
         assertEquals("Alieno Invasore", alieno.getName());
         assertEquals(45, alieno.getMaxHp());
         assertEquals(8, alieno.getBaseDamage());
@@ -50,10 +55,11 @@ public class EnemyFactoryTest {
     @Test
     public void testCreateBoss() {
         // 1. Creiamo il boss dallo YAML
-        Enemy boss = factory.createEnemy("boss_livello_1");
+        Enemy boss = enemyFactory.create("boss_livello_1");
 
         // 2. Verifichiamo i dati del boss
         assertNotNull(boss);
+        assertEquals(Enemy.class, boss.getClass());
         assertTrue(boss.isBoss(), "Il boss deve avere il flag isBoss a true");
         assertEquals(220, boss.getMaxHp());
 
@@ -66,14 +72,14 @@ public class EnemyFactoryTest {
     public void testInvalidEnemyId() {
         // Verifichiamo che se inseriamo un ID inventato, il sistema lanci l'eccezione corretta
         assertThrows(IllegalArgumentException.class, () -> {
-            factory.createEnemy("id_inesistente_che_fa_crashtare");
+            enemyFactory.create("id_inesistente_che_fa_crashtare");
         });
     }
 
     @Test
     public void createEnemyReturnsIndependentPrototypeCopies() {
-        Enemy firstAlien = factory.createEnemy("alieno_base");
-        Enemy secondAlien = factory.createEnemy("alieno_base");
+        Enemy firstAlien = enemyFactory.create("alieno_base");
+        Enemy secondAlien = enemyFactory.create("alieno_base");
 
         assertNotSame(firstAlien, secondAlien);
         firstAlien.takeDamage(20);
@@ -86,10 +92,11 @@ public class EnemyFactoryTest {
 
     @Test
     public void createPlayerBuildsIndependentInstances() {
-        Player firstPlayer = factory.createPlayer("papa");
-        Player secondPlayer = factory.createPlayer("papa");
+        Player firstPlayer = playerFactory.create("papa");
+        Player secondPlayer = playerFactory.create("papa");
 
         assertNotSame(firstPlayer, secondPlayer);
+        assertEquals(Player.class, firstPlayer.getClass());
         assertNotSame(firstPlayer.getBackpack(), secondPlayer.getBackpack());
 
         firstPlayer.modifyKarma(15);
@@ -103,7 +110,7 @@ public class EnemyFactoryTest {
 
     @Test
     public void enemyYamlRepresentsReadmeContract() {
-        Map<String, Map<String, Object>> enemies = factory.getEnemyData();
+        Map<String, Map<String, Object>> enemies = enemyFactory.getEnemyData();
 
         assertEquals(6, enemies.size(), "Il README prevede 3 classi di alieni e 3 boss finali.");
         assertEquals(3, enemies.values().stream().filter(enemy -> !bool(enemy.get("isBoss"))).count());

@@ -3,9 +3,9 @@ package io.github.iss_2025_2026.view;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.badlogic.gdx.graphics.Color;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
-import io.github.iss_2025_2026.model.Character;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ public class PlayerHudTest {
         @Override
         public String getDescription() { return "Test Ability"; }
         @Override
-        public void perform(Character user, Character target, int userLevel) {}
+        public void perform(Characters user, Characters target, int userLevel) {}
     };
 
     @BeforeEach
@@ -230,4 +230,3 @@ public class PlayerHudTest {
                 a.a + (b.a - a.a) * t);
     }
 }
-

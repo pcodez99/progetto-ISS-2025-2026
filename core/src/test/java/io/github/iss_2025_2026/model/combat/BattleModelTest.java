@@ -3,12 +3,12 @@ package io.github.iss_2025_2026.model.combat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import io.github.iss_2025_2026.model.Collectible;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import io.github.iss_2025_2026.model.abilities.AbilityConfiguration;
 import io.github.iss_2025_2026.model.abilities.DataDrivenAbility;
-import io.github.iss_2025_2026.model.Character;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ public class BattleModelTest {
         dummyAbility = new SpecialAbility() {
             @Override public String getName() { return "Test Ability"; }
             @Override public String getDescription() { return "Abilita di test"; }
-            @Override public void perform(Character user, Character target, int userLevel) {
+            @Override public void perform(Characters user, Characters target, int userLevel) {
                 target.takeDamage(15);
             }
         };
@@ -244,9 +244,12 @@ public class BattleModelTest {
         playerOne.getBackpack().addItem(healPotion);
 
         BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
-        model.executeUseItem(playerOne, healPotion, enemyOne);
+        ItemUseResult result = model.executeUseItem(playerOne, healPotion, enemyOne);
 
+        assertEquals(ItemUseResult.USED, result);
         assertTrue(playerOne.getHp() > 70, "L'HP del player deve aumentare dopo aver usato la pozione");
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase(),
+                "Usare un oggetto non deve concludere il turno");
     }
 
     @Test
@@ -259,6 +262,104 @@ public class BattleModelTest {
         model.executeUseItem(playerOne, healPotion, enemyOne);
 
         assertEquals(0, playerOne.getBackpack().getSize(), "L'oggetto usato deve essere rimosso dallo zaino");
+    }
+
+    @Test
+    public void testPlayerCanAttackAfterUsingItem() {
+        playerOne.takeDamage(30);
+        Collectible healPotion = new Collectible("pozione", "Pozione", "Cura 20 HP", "HEAL", false, 20);
+        playerOne.getBackpack().addItem(healPotion);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+
+        model.executeUseItem(playerOne, healPotion, enemyOne);
+        int enemyHpBefore = enemyOne.getHp();
+        model.executePlayerAttack(playerOne, enemyOne);
+
+        assertTrue(enemyOne.getHp() < enemyHpBefore);
+        assertEquals(BattlePhase.ENEMY_TURN, model.getPhase(),
+                "Solo l'attacco successivo deve concludere il turno");
+    }
+
+    @Test
+    public void testCannotUseTwoItemsInTheSameTurn() {
+        playerOne.takeDamage(50);
+        Collectible firstPotion = new Collectible("pozione_1", "Pozione 1", "Cura", "HEAL", false, 10);
+        Collectible secondPotion = new Collectible("pozione_2", "Pozione 2", "Cura", "HEAL", false, 10);
+        playerOne.getBackpack().addItem(firstPotion);
+        playerOne.getBackpack().addItem(secondPotion);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+
+        ItemUseResult firstResult = model.executeUseItem(playerOne, firstPotion, enemyOne);
+        int hpAfterFirstPotion = playerOne.getHp();
+        ItemUseResult secondResult = model.executeUseItem(playerOne, secondPotion, enemyOne);
+
+        assertEquals(ItemUseResult.USED, firstResult);
+        assertEquals(ItemUseResult.ALREADY_USED, secondResult);
+        assertEquals(hpAfterFirstPotion, playerOne.getHp());
+        assertTrue(playerOne.getBackpack().getItems().contains(secondPotion));
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase());
+    }
+
+    @Test
+    public void testItemMustBelongToCurrentPlayerBackpack() {
+        playerOne.takeDamage(30);
+        Collectible externalPotion = new Collectible("esterna", "Pozione esterna", "Cura", "HEAL", false, 20);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+        int hpBefore = playerOne.getHp();
+
+        ItemUseResult result = model.executeUseItem(playerOne, externalPotion, enemyOne);
+
+        assertEquals(ItemUseResult.NOT_OWNED, result);
+        assertEquals(hpBefore, playerOne.getHp());
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase());
+    }
+
+    @Test
+    public void testItemAllowanceResetsAtTheNextPlayerTurn() {
+        playerOne.takeDamage(50);
+        Collectible firstPotion = new Collectible("pozione_1", "Pozione 1", "Cura", "HEAL", false, 10);
+        Collectible secondPotion = new Collectible("pozione_2", "Pozione 2", "Cura", "HEAL", false, 10);
+        playerOne.getBackpack().addItem(firstPotion);
+        playerOne.getBackpack().addItem(secondPotion);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+
+        model.executeUseItem(playerOne, firstPotion, enemyOne);
+        model.executePlayerAttack(playerOne, enemyOne);
+        model.executeEnemyTurn();
+        ItemUseResult nextTurnResult = model.executeUseItem(playerOne, secondPotion, enemyOne);
+
+        assertEquals(ItemUseResult.USED, nextTurnResult);
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase());
+    }
+
+    @Test
+    public void testEachPlayerCanUseOneItemDuringMultiplayerRound() {
+        Collectible playerOnePotion = new Collectible("p1", "Pozione P1", "Cura", "HEAL", false, 10);
+        Collectible playerTwoPotion = new Collectible("p2", "Pozione P2", "Cura", "HEAL", false, 10);
+        playerOne.getBackpack().addItem(playerOnePotion);
+        playerTwo.getBackpack().addItem(playerTwoPotion);
+        BattleModel model = new BattleModel(playerOne, playerTwo, Arrays.asList(enemyOne));
+
+        assertEquals(ItemUseResult.USED, model.executeUseItem(playerOne, playerOnePotion, enemyOne));
+        assertEquals(BattlePhase.PLAYER_ONE_TURN, model.getPhase());
+        model.executePlayerAttack(playerOne, enemyOne);
+        assertEquals(BattlePhase.PLAYER_TWO_TURN, model.getPhase());
+
+        assertEquals(ItemUseResult.USED, model.executeUseItem(playerTwo, playerTwoPotion, enemyOne));
+        assertEquals(BattlePhase.PLAYER_TWO_TURN, model.getPhase());
+    }
+
+    @Test
+    public void testLethalDamageItemEndsBattleImmediately() {
+        Collectible bomb = new Collectible("bomba", "Bomba", "Danno letale", "DAMAGE", false, 100);
+        playerOne.getBackpack().addItem(bomb);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(enemyOne));
+
+        ItemUseResult result = model.executeUseItem(playerOne, bomb, enemyOne);
+
+        assertEquals(ItemUseResult.USED, result);
+        assertEquals(BattlePhase.VICTORY, model.getPhase());
+        assertTrue(model.isVictory());
     }
 
     // -------------------------------------------------------------------------

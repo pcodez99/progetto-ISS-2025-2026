@@ -1,7 +1,7 @@
 package io.github.iss_2025_2026.service;
 
-import io.github.iss_2025_2026.factory.CharacterFactory;
-import io.github.iss_2025_2026.factory.YamlCharacterFactory;
+import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import io.github.iss_2025_2026.map.CheckpointDefinition;
 import io.github.iss_2025_2026.model.Backpack;
 import io.github.iss_2025_2026.model.GameModel;
@@ -107,11 +107,11 @@ public final class GameSaveService {
     }
 
     private static void loadGameIntoModel(GameModel model, GameState state) throws IOException {
-        CharacterFactory factory = new YamlCharacterFactory();
+        PlayerFactory playerFactory = new YamlPlayerFactory();
 
         if (state.getPlayerOne() != null) {
-            Player playerOne = restorePlayer(factory, state.getPlayerOne());
-            Player playerTwo = state.getPlayerTwo() != null ? restorePlayer(factory, state.getPlayerTwo()) : null;
+            Player playerOne = restorePlayer(playerFactory, state.getPlayerOne());
+            Player playerTwo = state.getPlayerTwo() != null ? restorePlayer(playerFactory, state.getPlayerTwo()) : null;
             String gameName = resolveGameName(state);
             if ((state.getGameMode() == NewGameConfigModel.GameMode.MULTIPLAYER || playerTwo != null)
                     && playerTwo != null) {
@@ -125,7 +125,7 @@ public final class GameSaveService {
         }
 
         if (state.hasLegacySinglePlayerData()) {
-            Player legacyPlayer = createPlayerFromSave(factory, normalizeCharacterId(state.getCharacterType()));
+            Player legacyPlayer = createPlayerFromSave(playerFactory, normalizeCharacterId(state.getCharacterType()));
             legacyPlayer.restoreState(
                     state.getPlayerName(),
                     state.getHp(),
@@ -176,13 +176,13 @@ public final class GameSaveService {
         return state;
     }
 
-    private static Player restorePlayer(CharacterFactory factory, PlayerSaveState playerState) throws IOException {
+    private static Player restorePlayer(PlayerFactory playerFactory, PlayerSaveState playerState) throws IOException {
         String characterId = normalizeCharacterId(playerState.getCharacterId());
         if (characterId == null || characterId.isEmpty()) {
             throw new IOException("Salvataggio corrotto: characterId mancante.");
         }
 
-        Player player = createPlayerFromSave(factory, characterId);
+        Player player = createPlayerFromSave(playerFactory, characterId);
         player.restoreState(
                 playerState.getName(),
                 playerState.getHp(),
@@ -204,9 +204,9 @@ public final class GameSaveService {
         return player;
     }
 
-    private static Player createPlayerFromSave(CharacterFactory factory, String characterId) throws IOException {
+    private static Player createPlayerFromSave(PlayerFactory playerFactory, String characterId) throws IOException {
         try {
-            Player player = factory.createPlayer(characterId);
+            Player player = playerFactory.create(characterId);
             if (player == null) {
                 throw new IOException("Salvataggio corrotto: characterId non valido (" + characterId + ").");
             }

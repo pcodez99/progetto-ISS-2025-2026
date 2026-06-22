@@ -12,7 +12,7 @@ public class PlayerTest {
         @Override
         public String getDescription() { return "Mock Desc"; }
         @Override
-        public void perform(Character user, Character target, int userLevel) {
+        public void perform(Characters user, Characters target, int userLevel) {
             used = true;
         }
     }

@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Represents a character selectable by the player */
+/** Base class for characters selectable by the player. */
 public class Player extends Character {
     private String characterId;
     private int karma; // from -50 to +50 (egoism and altruism)
@@ -60,7 +60,7 @@ public class Player extends Character {
     /**
      * Uses the character's special ability
      */
-    public void useSpecialAbility(Character target) {
+    public void useSpecialAbility(Characters target) {
         SpecialAbility selectedAbility = getAbility();
         if (selectedAbility != null) {
             selectedAbility.perform(this, target, getLevel());

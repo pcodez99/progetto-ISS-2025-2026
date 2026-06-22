@@ -1,6 +1,6 @@
 package io.github.iss_2025_2026.model.combat;
 
-import io.github.iss_2025_2026.model.Character;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
@@ -24,6 +24,7 @@ public class BattleModel {
     private BattlePhase phase;
     private float fleeTimer;
     private int totalXpEarned;
+    private boolean itemUsedThisTurn;
     private final List<String> battleLog;
     private final Random random;
 
@@ -34,6 +35,7 @@ public class BattleModel {
         this.phase = BattlePhase.PLAYER_ONE_TURN;
         this.fleeTimer = INITIAL_FLEE_TIMER;
         this.totalXpEarned = 0;
+        this.itemUsedThisTurn = false;
         this.battleLog = new ArrayList<>();
         this.random = new Random();
         // Resetta l'uso delle abilità speciali per la nuova battaglia
@@ -89,7 +91,7 @@ public class BattleModel {
             return;
         }
 
-        List<Character> targets = resolveSpecialAbilityTargets(attacker);
+        List<Characters> targets = resolveSpecialAbilityTargets(attacker);
         if (targets.isEmpty()) {
             resolveAfterPlayerAction(attacker);
             return;
@@ -98,7 +100,7 @@ public class BattleModel {
         if (ability instanceof DataDrivenAbility) {
             ((DataDrivenAbility) ability).performOnTargets(attacker, targets, attacker.getLevel());
         } else {
-            for (Character target : targets) {
+            for (Characters target : targets) {
                 ability.perform(attacker, target, attacker.getLevel());
             }
         }
@@ -111,17 +113,25 @@ public class BattleModel {
         resolveAfterPlayerAction(attacker);
     }
 
-    public void executeUseItem(Player user, Collectible item, Enemy target) {
-        if (user == null || item == null) {
-            return;
+    public ItemUseResult executeUseItem(Player user, Collectible item, Enemy target) {
+        ItemUseResult validationResult = validateItemUse(user, item);
+        if (validationResult != ItemUseResult.USED) {
+            battleLog.add(validationResult.getMessage());
+            return validationResult;
         }
 
-        List<Character> targets = buildItemTargets(user, item, target);
+        List<Characters> targets = buildItemTargets(user, item, target);
         item.use(new CollectibleUseContext(user, targets));
         user.getBackpack().removeItem(item);
         battleLog.add(user.getName() + " usa " + item.getName());
+        itemUsedThisTurn = true;
 
-        resolveAfterPlayerAction(user);
+        updateEndState();
+        return ItemUseResult.USED;
+    }
+
+    public boolean canCurrentPlayerUseItem() {
+        return isPlayerTurn() && !itemUsedThisTurn;
     }
 
     public void executeEnemyTurn() {
@@ -146,6 +156,7 @@ public class BattleModel {
             return;
         }
 
+        itemUsedThisTurn = false;
         phase = BattlePhase.PLAYER_ONE_TURN;
     }
 
@@ -264,6 +275,7 @@ public class BattleModel {
             return;
         }
 
+        itemUsedThisTurn = false;
         if (actingPlayer == playerOne && playerTwo != null && playerTwo.isAlive()) {
             phase = BattlePhase.PLAYER_TWO_TURN;
         } else {
@@ -283,6 +295,26 @@ public class BattleModel {
         return false;
     }
 
+    private ItemUseResult validateItemUse(Player user, Collectible item) {
+        if (user == null || !isPlayerTurn() || user != getCurrentTurnPlayer()) {
+            return ItemUseResult.INVALID_TURN;
+        }
+        if (item == null) {
+            return ItemUseResult.INVALID_ITEM;
+        }
+        if (!user.getBackpack().getItems().contains(item)) {
+            return ItemUseResult.NOT_OWNED;
+        }
+        if (itemUsedThisTurn) {
+            return ItemUseResult.ALREADY_USED;
+        }
+        return ItemUseResult.USED;
+    }
+
+    private boolean isPlayerTurn() {
+        return phase == BattlePhase.PLAYER_ONE_TURN || phase == BattlePhase.PLAYER_TWO_TURN;
+    }
+
     private boolean allEnemiesDefeated() {
         for (Enemy enemy : enemies) {
             if (enemy.isAlive()) {
@@ -292,8 +324,8 @@ public class BattleModel {
         return !enemies.isEmpty();
     }
 
-    private List<Character> buildItemTargets(Player user, Collectible item, Enemy target) {
-        List<Character> targets = new ArrayList<>();
+    private List<Characters> buildItemTargets(Player user, Collectible item, Enemy target) {
+        List<Characters> targets = new ArrayList<>();
         String effectType = item.getEffectType();
         if (effectType != null && ("HEAL".equalsIgnoreCase(effectType) || "BUFF".equalsIgnoreCase(effectType))) {
             targets.add(user);
@@ -309,7 +341,7 @@ public class BattleModel {
         return targets;
     }
 
-    private List<Character> resolveSpecialAbilityTargets(Player attacker) {
+    private List<Characters> resolveSpecialAbilityTargets(Player attacker) {
         SpecialAbility ability = attacker.getAbility();
         if (ability == null) {
             return Collections.emptyList();
@@ -318,14 +350,14 @@ public class BattleModel {
         if (ability instanceof DataDrivenAbility) {
             String strategy = ((DataDrivenAbility) ability).getConfig().getStrategy();
             if ("HEAL".equalsIgnoreCase(strategy)) {
-                return new ArrayList<Character>(getAlivePlayers());
+                return new ArrayList<Characters>(getAlivePlayers());
             }
             if ("DAMAGE".equalsIgnoreCase(strategy)) {
-                return new ArrayList<Character>(getAliveEnemies());
+                return new ArrayList<Characters>(getAliveEnemies());
             }
         }
 
-        List<Character> enemyTargets = new ArrayList<>();
+        List<Characters> enemyTargets = new ArrayList<>();
         for (Enemy enemy : getAliveEnemies()) {
             enemyTargets.add(enemy);
         }

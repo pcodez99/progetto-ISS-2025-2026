@@ -3,22 +3,34 @@
 !pragma layout smetana
 package io.github.iss_2025_2026.factory {
 
-    interface CharacterFactory {
-        + createPlayer(id: String): Player
-        + createEnemy(id: String): Enemy
+    abstract class PlayerFactory <<Creator>> {
+        + create(id: String): Player
         + getAbility(abilityId: String): SpecialAbility
         + getCharacterData(): Map<String, Map<String, Object>>
+    }
+
+    class YamlPlayerFactory <<Concrete Creator>> {
+        - characterData: Map<String, Map<String, Object>>
+        - abilityRegistry: AbilityRegistry
+        - buildDirector: CharacterBuildDirector
+        + YamlPlayerFactory()
+        + create(id: String): Player
+        + getAbility(abilityId: String): SpecialAbility
+        + getCharacterData(): Map<String, Map<String, Object>>
+    }
+
+    abstract class EnemyFactory <<Creator>> {
+        + create(id: String): Enemy
         + getEnemyData(): Map<String, Map<String, Object>>
     }
 
-    class YamlCharacterFactory implements CharacterFactory {
-        - playersData: Map<String, Map<String, Object>>
-        - enemiesData: Map<String, Map<String, Object>>
-        - abilityRegistry: AbilityRegistry
-        + YamlCharacterFactory()
-        + createPlayer(id: String): Player
-        + createEnemy(id: String): Enemy
-        + getAbility(abilityId: String): SpecialAbility
+    class YamlEnemyFactory <<Concrete Creator>> {
+        - enemyData: Map<String, Map<String, Object>>
+        - prototypes: Map<String, Enemy>
+        - buildDirector: CharacterBuildDirector
+        + YamlEnemyFactory()
+        + create(id: String): Enemy
+        + getEnemyData(): Map<String, Map<String, Object>>
     }
 
     class AbilityRegistry {
@@ -28,11 +40,7 @@ package io.github.iss_2025_2026.factory {
     }
 
     class CharacterConfigLoader {
-        + {static} loadYaml(filepath: String): Map<String, Map<String, Object>>
-    }
-
-    class CharacterTypeFactory {
-        + {static} createCharacter(type: String): Character
+        + loadIndexedList(filepath: String, rootKey: String): Map<String, Map<String, Object>>
     }
 
     class CollectibleFactory {
@@ -62,15 +70,21 @@ package io.github.iss_2025_2026.factory {
         + getProfile(path: EvolutionPath): DialogueProfile
     }
 
-    class EnemyFactory {
-        + {static} createEnemy(id: String): Enemy
+    interface CharacterBuilder <<Builder>> {
+        + reset(): CharacterBuilder
+        + id(id: String): CharacterBuilder
+        + name(name: String): CharacterBuilder
+        + maxHp(maxHp: int): CharacterBuilder
+        + baseDamage(baseDamage: int): CharacterBuilder
+        + build(): Character
     }
 
-    class PlayerFactory {
-        + {static} createPlayer(id: String): Player
+    class CharacterBuildDirector <<Director>> {
+        + constructPlayer(builder: PlayerBuilder, data: Map, abilities: AbilityRegistry): Player
+        + constructEnemy(builder: EnemyBuilder, data: Map, abilities: AbilityRegistry): Enemy
     }
 
-    class EnemyBuilder {
+    class EnemyBuilder <<Concrete Builder>> {
         - id: String
         - name: String
         - maxHp: int
@@ -82,7 +96,7 @@ package io.github.iss_2025_2026.factory {
         + build(): Enemy
     }
 
-    class PlayerBuilder {
+    class PlayerBuilder <<Concrete Builder>> {
         - id: String
         - name: String
         - maxHp: int
@@ -188,6 +202,7 @@ package io.github.iss_2025_2026.physics {
         + PhysicsFacade(level: TmxLevel, playerSize: float, playerYOffset: float)
         + initPlayerBody(player: Player): void
         + setPlayerVelocity(player: Player, delta: float): void
+        + setMultiplayerVelocities(first: Player, second: Player, delta: float): void
         + step(delta: float): void
         + syncPlayerPositions(): void
         + drawDebug(cam: OrthographicCamera): void
@@ -240,10 +255,10 @@ package io.github.iss_2025_2026.service {
 
     class EnemyEncounterService {
         - enemySpawnPoints: List<EnemySpawnPoint>
-        - factory: CharacterFactory
+        - factory: EnemyFactory
         - geometry: IsoMapGeometry
         - encounterRadius: float
-        + EnemyEncounterService(enemySpawnPoints: List<EnemySpawnPoint>, factory: CharacterFactory, geometry: IsoMapGeometry, encounterRadius: float)
+        + EnemyEncounterService(enemySpawnPoints: List<EnemySpawnPoint>, factory: EnemyFactory, geometry: IsoMapGeometry, encounterRadius: float)
         + checkEncounter(player: Player): EnemyEncounter
     }
 
@@ -379,8 +394,18 @@ package io.github.iss_2025_2026.service.ai {
     }
 }
 
-YamlCharacterFactory o-- AbilityRegistry : uses
-EnemyEncounterService o-- io.github.iss_2025_2026.factory.CharacterFactory : uses
+PlayerFactory <|-- YamlPlayerFactory
+EnemyFactory <|-- YamlEnemyFactory
+CharacterBuilder <|.. PlayerBuilder
+CharacterBuilder <|.. EnemyBuilder
+YamlPlayerFactory o-- AbilityRegistry : uses
+YamlPlayerFactory --> PlayerBuilder : creates
+YamlPlayerFactory --> CharacterBuildDirector : delegates
+YamlEnemyFactory o-- AbilityRegistry : uses
+YamlEnemyFactory --> EnemyBuilder : creates
+YamlEnemyFactory --> CharacterBuildDirector : delegates
+CharacterBuildDirector --> CharacterBuilder : orders steps
+EnemyEncounterService o-- io.github.iss_2025_2026.factory.EnemyFactory : uses
 CheckpointService o-- io.github.iss_2025_2026.model.GameModel : uses
 GameOverService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
 GameSaveService o-- io.github.iss_2025_2026.persistence.SaveManager : uses

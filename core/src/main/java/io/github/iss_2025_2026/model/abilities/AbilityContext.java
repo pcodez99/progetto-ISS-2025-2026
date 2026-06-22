@@ -1,6 +1,6 @@
 package io.github.iss_2025_2026.model.abilities;
 
-import io.github.iss_2025_2026.model.Character;
+import io.github.iss_2025_2026.model.Characters;
 import java.util.*;
 
 /**
@@ -11,19 +11,19 @@ import java.util.*;
  */
 
 public class AbilityContext {
-    private final Character caster;
-    private final List<Character> targets;
+    private final Characters caster;
+    private final List<Characters> targets;
 
-    public AbilityContext(Character caster, List<Character> targets) {
+    public AbilityContext(Characters caster, List<? extends Characters> targets) {
         this.caster = caster;
-        this.targets = targets;
+        this.targets = targets == null ? Collections.emptyList() : new ArrayList<>(targets);
     }
 
-    public Character getCaster() {
+    public Characters getCaster() {
         return caster;
     }
 
-    public List<Character> getTargets() {
+    public List<Characters> getTargets() {
         return targets;
     }
 }
