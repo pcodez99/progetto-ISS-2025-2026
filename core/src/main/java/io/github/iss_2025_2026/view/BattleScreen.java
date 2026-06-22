@@ -145,7 +145,8 @@ public class BattleScreen implements Screen {
     @Override
     public void show() {
         skin = GameUiTheme.loadSkin();
-        backgroundTexture = new Texture(Gdx.files.internal("map/levels/1/Arena_level_1.png"));
+        int currentLevel = gameModel.getGameState().getCurrentLevelId();
+        backgroundTexture = new Texture(Gdx.files.internal("map/levels/" + currentLevel + "/Arena_level_" + currentLevel + ".png"));
         momSlipperTexture = new Texture(Gdx.files.internal(MOM_SLIPPER_EFFECT_PATH));
         momSlipperTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         alienOrbTexture = new Texture(Gdx.files.internal(ALIEN_ORB_EFFECT_PATH));
