@@ -3,9 +3,31 @@ package io.github.iss_2025_2026.service;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
+import java.nio.file.Path;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 public class GamePropertiesTest {
+    private static final String PROPERTY_FILE_OVERRIDE = "viddani.game.properties";
+
+    @TempDir
+    Path tempDir;
+
+    private Path propertiesFile;
+
+    @BeforeEach
+    void useTemporaryPropertiesFile() {
+        propertiesFile = tempDir.resolve("game.properties");
+        System.setProperty(PROPERTY_FILE_OVERRIDE, propertiesFile.toString());
+        GameProperties.load();
+    }
+
+    @AfterEach
+    void clearPropertiesFileOverride() {
+        System.clearProperty(PROPERTY_FILE_OVERRIDE);
+    }
 
     @Test
     public void testDefaultPropertiesExist() {
@@ -55,12 +77,13 @@ public class GamePropertiesTest {
         assertEquals(999.0f, val, 0.001f);
 
         // Check file exists
-        File file = new File("game.properties");
-        assertTrue(file.exists());
+        assertEquals(propertiesFile.toAbsolutePath().toString(), GameProperties.getActiveFilePath());
+        assertTrue(propertiesFile.toFile().exists());
     }
 
     @Test
     public void resolvesRootPropertiesWhenRuntimeStartsFromAssetsDirectory() {
+        System.clearProperty(PROPERTY_FILE_OVERRIDE);
         String originalUserDir = System.getProperty("user.dir");
         File assetsDirectory = new File("../assets").getAbsoluteFile();
         try {

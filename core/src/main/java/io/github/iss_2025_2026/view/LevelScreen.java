@@ -193,12 +193,6 @@ public class LevelScreen implements Screen {
         Player player = model.getPlayerOne();
         this.playerAssets = new PlayerAssets(player);
 
-        // Sincronizza la durata dell'attacco del modello con la durata dell'animazione
-        // caricata
-        if (player != null && playerAssets.getAttackAnim() != null) {
-            player.setAttackDuration(playerAssets.getAttackAnim().getAnimationDuration());
-        }
-
         Player playerTwo = model.getPlayerTwo();
         if (model.isMultiplayerGame() && playerTwo != null) {
             this.playerTwoAssets = new PlayerAssets(playerTwo);
