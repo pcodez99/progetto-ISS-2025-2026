@@ -248,7 +248,7 @@ public class LevelScreen implements Screen {
     private void configureLevel(LevelRuntime levelRuntime) {
         level = levelRuntime.getLevel();
         map = level.getMap();
-        if (levelRuntime.getId() == 2) {
+        if (levelRuntime.getId() == 2 || levelRuntime.getId() == 3) {
             com.badlogic.gdx.maps.MapLayer layer = map.getLayers().get("Immagini");
             if (layer != null) {
                 layer.setVisible(false);
@@ -257,7 +257,7 @@ public class LevelScreen implements Screen {
         mapRenderer = new IsometricTiledMapRenderer(map, 1f) {
             @Override
             public void renderObject(com.badlogic.gdx.maps.MapObject object) {
-                if (levelRuntime.getId() == 2
+                if ((levelRuntime.getId() == 2 || levelRuntime.getId() == 3)
                         && object instanceof com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) {
                     com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject tileObj = (com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) object;
                     com.badlogic.gdx.maps.tiled.TiledMapTile tile = tileObj.getTile();
@@ -1359,7 +1359,7 @@ public class LevelScreen implements Screen {
     }
 
     private void addMapObjectActors() {
-        if (levelRuntime.getId() != 2) {
+        if (levelRuntime.getId() != 2 && levelRuntime.getId() != 3) {
             return;
         }
         com.badlogic.gdx.maps.MapLayer layer = map.getLayers().get("Immagini");
