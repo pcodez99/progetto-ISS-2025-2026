@@ -8,3 +8,12 @@ levels:
         objectName: checkpoint
         radius: 96
         autosave: true
+  - id: 2
+    name: Astronave
+    map: map/levels/2/MapLevel2.tmx
+    checkpoints:
+      - id: astronave_cp_2
+        layer: checkpoint
+        objectName: checkpoint
+        radius: 96
+        autosave: true

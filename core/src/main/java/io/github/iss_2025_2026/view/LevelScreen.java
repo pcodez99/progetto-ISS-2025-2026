@@ -85,7 +85,8 @@ import java.util.logging.Logger;
  * Game View (Parte del pattern MVC).
  * Implementazione di {@link Screen} di LibGDX.
  * Si occupa esclusivamente del rendering dello stato del Model.
- * Delega la logica di aggiornamento al Controller, la fisica a PhysicsFacade e gli asset a PlayerAssets.
+ * Delega la logica di aggiornamento al Controller, la fisica a PhysicsFacade e
+ * gli asset a PlayerAssets.
  */
 public class LevelScreen implements Screen {
     private static final Logger LOGGER = Logger.getLogger(LevelScreen.class.getName());
@@ -192,6 +193,12 @@ public class LevelScreen implements Screen {
         Player player = model.getPlayerOne();
         this.playerAssets = new PlayerAssets(player);
 
+        // Sincronizza la durata dell'attacco del modello con la durata dell'animazione
+        // caricata
+        if (player != null && playerAssets.getAttackAnim() != null) {
+            player.setAttackDuration(playerAssets.getAttackAnim().getAnimationDuration());
+        }
+
         Player playerTwo = model.getPlayerTwo();
         if (model.isMultiplayerGame() && playerTwo != null) {
             this.playerTwoAssets = new PlayerAssets(playerTwo);
@@ -247,7 +254,55 @@ public class LevelScreen implements Screen {
     private void configureLevel(LevelRuntime levelRuntime) {
         level = levelRuntime.getLevel();
         map = level.getMap();
-        mapRenderer = new IsometricTiledMapRenderer(map, 1f);
+        mapRenderer = new IsometricTiledMapRenderer(map, 1f) {
+            @Override
+            public void renderObject(com.badlogic.gdx.maps.MapObject object) {
+                if (levelRuntime.getId() == 2
+                        && object instanceof com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) {
+                    com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject tileObj = (com.badlogic.gdx.maps.tiled.objects.TiledMapTileMapObject) object;
+                    com.badlogic.gdx.maps.tiled.TiledMapTile tile = tileObj.getTile();
+                    if (tile != null) {
+                        TextureRegion region = tile.getTextureRegion();
+                        if (region != null) {
+                            float mapTileWidth = map.getProperties().get("tilewidth", Integer.class);
+                            float mapTileHeight = map.getProperties().get("tileheight", Integer.class);
+
+                            float tileX = tileObj.getX() / mapTileHeight - 0.5f;
+                            float tileY = tileObj.getY() / mapTileHeight + 0.5f;
+
+                            float objectWidth = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
+                                    tileObj.getProperties(), "width", region.getRegionWidth()) * unitScale;
+                            float objectHeight = io.github.iss_2025_2026.map.IsoMapGeometry.propertyFloat(
+                                    tileObj.getProperties(), "height", region.getRegionHeight()) * unitScale;
+
+                            float drawX = (tileX + tileY) * (mapTileWidth / 2f) * unitScale
+                                    - objectWidth * 0.5f + tile.getOffsetX() * unitScale;
+                            float drawY = (tileY - tileX) * (mapTileHeight / 2f) * unitScale
+                                    + tile.getOffsetY() * unitScale;
+
+                            float scaleX = tileObj.getScaleX();
+                            float scaleY = tileObj.getScaleY();
+                            float rotation = tileObj.getRotation();
+
+                            float halfWidth = objectWidth * 0.5f;
+                            float halfHeight = objectHeight * 0.5f;
+
+                            getBatch().draw(
+                                    region,
+                                    drawX,
+                                    drawY,
+                                    halfWidth,
+                                    halfHeight,
+                                    objectWidth,
+                                    objectHeight,
+                                    scaleX,
+                                    scaleY,
+                                    rotation);
+                        }
+                    }
+                }
+            }
+        };
         mapBounds = level.getGeometry().getBounds();
         cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
 
@@ -273,8 +328,8 @@ public class LevelScreen implements Screen {
                 playerSize / 2f,
                 playerYOffset);
         collectibleRenderer = new CollectibleRenderer(collectibleCatalog.getVisualConfigs());
-        collectibleService.setPickupListener((collectible, player) ->
-                showSaveStatus(player.getName() + " ha raccolto " + collectible.getName() + "!", false));
+        collectibleService.setPickupListener((collectible,
+                player) -> showSaveStatus(player.getName() + " ha raccolto " + collectible.getName() + "!", false));
 
         Player playerOne = model.getPlayerOne();
         if (playerOne != null) {
@@ -286,7 +341,8 @@ public class LevelScreen implements Screen {
     }
 
     /**
-     * Pre-carica le animazioni idle per ogni tipo di nemico presente nei punti di spawn attivi.
+     * Pre-carica le animazioni idle per ogni tipo di nemico presente nei punti di
+     * spawn attivi.
      */
     private void preloadEnemyIdleAnimations() {
         if (encounterService == null) {
@@ -306,7 +362,8 @@ public class LevelScreen implements Screen {
     }
 
     /**
-     * Mappa l'ID del tipo nemico al percorso della cartella sprite overworld corrispondente.
+     * Mappa l'ID del tipo nemico al percorso della cartella sprite overworld
+     * corrispondente.
      */
     private static String resolveOverworldEnemyPath(String enemyType) {
         if ("alieno_guardiano".equals(enemyType)
@@ -458,7 +515,8 @@ public class LevelScreen implements Screen {
     }
 
     /**
-     * Crea e aggiunge gli attori sprite animati dei nemici ai loro punti di spawn sulla mappa.
+     * Crea e aggiunge gli attori sprite animati dei nemici ai loro punti di spawn
+     * sulla mappa.
      */
     private void addEnemySpritesToMap() {
         if (encounterService == null) {
@@ -492,7 +550,8 @@ public class LevelScreen implements Screen {
     }
 
     private void addPlayerActor(final Player player, final PlayerAssets assets) {
-        // Actor personalizzato per il rendering delle animazioni del giocatore basato sullo State Pattern
+        // Actor personalizzato per il rendering delle animazioni del giocatore basato
+        // sullo State Pattern
         Image animatedSprite = new Image() {
             @Override
             public void draw(Batch batch, float parentAlpha) {
@@ -517,7 +576,8 @@ public class LevelScreen implements Screen {
             @Override
             public void act(float delta) {
                 super.act(delta);
-                // Sincronizza la posizione dell'attore con le coordinate del modello del giocatore
+                // Sincronizza la posizione dell'attore con le coordinate del modello del
+                // giocatore
                 setX(player.getX());
                 setY(player.getY());
             }
@@ -626,11 +686,11 @@ public class LevelScreen implements Screen {
                 targetCamY = p1.getY() + playerSize / 2f;
             }
 
-            float halfViewportWidth  = (stage.getViewport().getWorldWidth()  * cam.zoom) / 2f;
+            float halfViewportWidth = (stage.getViewport().getWorldWidth() * cam.zoom) / 2f;
             float halfViewportHeight = (stage.getViewport().getWorldHeight() * cam.zoom) / 2f;
 
-            float minCamX = mapBounds.x + halfViewportWidth  + cameraEdgePadding;
-            float maxCamX = mapBounds.x + mapBounds.width - halfViewportWidth  - cameraEdgePadding;
+            float minCamX = mapBounds.x + halfViewportWidth + cameraEdgePadding;
+            float maxCamX = mapBounds.x + mapBounds.width - halfViewportWidth - cameraEdgePadding;
             float minCamY = mapBounds.y + halfViewportHeight + cameraEdgePadding;
             float maxCamY = mapBounds.y + mapBounds.height - halfViewportHeight - cameraEdgePadding;
 
@@ -665,8 +725,10 @@ public class LevelScreen implements Screen {
         sortWorldActorsByDepth();
         stage.draw();
         // Aggiorna HUD prima di processare la UI
-        if (playerOneHud != null) playerOneHud.update();
-        if (playerTwoHud != null) playerTwoHud.update();
+        if (playerOneHud != null)
+            playerOneHud.update();
+        if (playerTwoHud != null)
+            playerTwoHud.update();
         uiStage.act(delta);
         uiStage.draw();
     }
@@ -1186,7 +1248,8 @@ public class LevelScreen implements Screen {
     }
 
     /**
-     * Aggiorna la visibilità degli sprite nemici in base allo stato degli encounter point.
+     * Aggiorna la visibilità degli sprite nemici in base allo stato degli encounter
+     * point.
      * Nasconde gli sprite corrispondenti a encounter già sconfitti.
      */
     private void updateEnemySpriteVisibility() {
