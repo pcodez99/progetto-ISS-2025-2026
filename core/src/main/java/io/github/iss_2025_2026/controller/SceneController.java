@@ -47,10 +47,21 @@ public final class SceneController {
                     "Il caricamento additivo sara supportato quando avremo piu scene attive.");
         }
 
+        Integer prevLevelId = activeScene != null ? activeScene.getId() : null;
         unloadCurrentLevel();
         LevelDefinition definition = catalog.requireLevel(levelId);
         TmxLevel level = TmxLevelLoader.load(definition);
         activeScene = new LevelRuntime(definition, level);
+
+        if (prevLevelId != null && prevLevelId != levelId) {
+            model.getPlayerOne().setX(0);
+            model.getPlayerOne().setY(0);
+            if (model.getPlayerTwo() != null) {
+                model.getPlayerTwo().setX(0);
+                model.getPlayerTwo().setY(0);
+            }
+        }
+
         game.setScreen(new LevelScreen(game, gameContext, model, gameController, activeScene));
         return activeScene;
     }
