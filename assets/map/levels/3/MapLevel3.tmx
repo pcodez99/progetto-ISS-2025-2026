@@ -1277,7 +1277,7 @@
   </object>
  </objectgroup>
  <objectgroup id="10" name="NPC" locked="1">
-  <object id="628" name="NPC1" x="6239" y="6357">
+  <object id="628" name="NPC" x="6239" y="6357">
    <point/>
   </object>
  </objectgroup>

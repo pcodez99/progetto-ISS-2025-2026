@@ -1045,15 +1045,15 @@
    <point/>
   </object>
  </objectgroup>
- <objectgroup id="8" name="NPC" locked="1">
-  <object id="574" name="NPC1" x="3879.09" y="2878.48">
+ <objectgroup id="8" name="NPC">
+  <object id="574" name="NPC" x="3932.42" y="2126.48">
    <properties>
     <property name="enemies_number" type="int" value="4"/>
     <property name="id" value="SmallPotion"/>
    </properties>
    <point/>
   </object>
-  <object id="584" name="NPC2" x="5838.18" y="5228.48">
+  <object id="584" name="NPC" x="8487.33" y="3531.33">
    <point/>
   </object>
  </objectgroup>
