@@ -73,6 +73,7 @@ import io.github.iss_2025_2026.service.NpcInteractionService;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SaveResult;
 import io.github.iss_2025_2026.service.CollectibleService;
+import io.github.iss_2025_2026.service.tts.NpcSpeechService;
 import io.github.iss_2025_2026.view.collectibles.CollectibleRenderer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,6 +132,7 @@ public class LevelScreen implements Screen {
     private NpcDialogueController dialogueController;
     private NpcInteractionService npcInteractionService;
     private NpcDialogueService npcDialogueService;
+    private NpcSpeechService npcSpeechService;
     private NpcHelpRequestService npcHelpRequestService;
     private EvolutionService evolutionService;
     private PlayerAssets playerAssets;
@@ -319,6 +321,7 @@ public class LevelScreen implements Screen {
                 level.enemyObjects(), enemyFactory, level.getGeometry(), encounterRadius);
         NpcFactory npcFactory = new NpcFactory();
         npcDialogueService = new NpcDialogueService();
+        npcSpeechService = new NpcSpeechService();
         dialogueController = new NpcDialogueController();
         evolutionService = new EvolutionService();
         CollectibleCatalog collectibleCatalog = CollectibleConfigLoader.loadDefault();
@@ -858,6 +861,10 @@ public class LevelScreen implements Screen {
     @Override
     public void dispose() {
         RunMusicManager.stop();
+        if (npcSpeechService != null) {
+            npcSpeechService.close();
+            npcSpeechService = null;
+        }
         stage.dispose();
         uiStage.dispose();
         skin.dispose();
@@ -1052,6 +1059,7 @@ public class LevelScreen implements Screen {
             return;
         }
         applyDialogueDecisionEffects(requestContext, result);
+        speakNpcTurnsSince(requestContext.getHistory().size());
         LOGGER.info("[NPC UI] Risposta AI applicata alla sessione "
                 + requestContext.getSessionId() + ": " + result.getReply());
         dialogueInputField.setDisabled(dialogueController.isEnded());
@@ -1099,6 +1107,9 @@ public class LevelScreen implements Screen {
     }
 
     private void closeDialogue() {
+        if (npcSpeechService != null) {
+            npcSpeechService.stop();
+        }
         if (dialogueController != null) {
             dialogueController.close();
         }
@@ -1125,6 +1136,33 @@ public class LevelScreen implements Screen {
         }
         if (dialogueHintLabel != null) {
             dialogueHintLabel.setText(hint != null ? hint : "");
+        }
+    }
+
+    private void speakNpcTurnsSince(int historyStart) {
+        if (npcSpeechService == null || dialogueController == null) {
+            return;
+        }
+        DialogueSession session = dialogueController.getActiveSession();
+        if (session == null) {
+            return;
+        }
+
+        StringBuilder speech = new StringBuilder();
+        List<DialogueTurn> history = session.getHistory();
+        int start = Math.max(0, Math.min(historyStart, history.size()));
+        for (int i = start; i < history.size(); i++) {
+            DialogueTurn turn = history.get(i);
+            if (turn == null || turn.isFromPlayer() || turn.getText() == null || turn.getText().trim().isEmpty()) {
+                continue;
+            }
+            if (speech.length() > 0) {
+                speech.append(' ');
+            }
+            speech.append(turn.getText().trim());
+        }
+        if (speech.length() > 0) {
+            npcSpeechService.speak(speech.toString());
         }
     }
 
@@ -1169,6 +1207,9 @@ public class LevelScreen implements Screen {
                 + ", choice=" + choice
                 + ", karmaDelta=" + result.getKarmaDelta()
                 + ", reward=" + result.getRewardId());
+        if (npcSpeechService != null) {
+            npcSpeechService.speak(result.getNpcReply());
+        }
         refreshDialogueSessionPanel(result.getFeedback());
         if (dialogueController.isEnded()) {
             uiStage.setKeyboardFocus(null);

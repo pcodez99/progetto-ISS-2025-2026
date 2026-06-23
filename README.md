@@ -171,6 +171,36 @@ I dialoghi NPC possono passare da Ollama tramite `AiService`, un Singleton confi
 
 `NpcDialogueService` usa `DialogueProfileService` per costruire prompt e temperatura in base al percorso morale del giocatore, poi invia la richiesta a Ollama. Se il servizio non risponde e il fallback e attivo, viene usato `sampleDialogue` dell'NPC.
 
+### Voce NPC locale
+
+Le risposte testuali degli NPC possono essere sintetizzate da Voxtral 4B. Su
+macOS con 16 GB viene usata la conversione MLX 4-bit; su NVIDIA si puo usare il
+checkpoint BF16 originale tramite vLLM-Omni. Il gioco chiama
+`POST http://127.0.0.1:8000/v1/audio/speech` in background e continua a mostrare
+subito i sottotitoli; se il server non e disponibile, il dialogo resta testuale.
+
+Il launcher Docker e lo smoke test si trovano in `services/voxtral-tts/`.
+L'esecuzione richiede Linux o WSL2, una GPU NVIDIA con 16 GB di VRAM e Docker
+con NVIDIA Container Toolkit. Il compose usa un profilo a concorrenza singola
+pensato per rientrare nel vincolo di memoria del progetto.
+
+Il client TTS usa Factory Method per scegliere tra due prodotti concreti:
+
+- `LocalVoxtralTtsClient`, creato da `LocalVoxtralTtsClientCreator`;
+- `MistralApiTtsClient`, creato da `MistralApiTtsClientCreator`.
+
+Il provider si seleziona con `tts_provider` oppure con `TTS_PROVIDER`. Per usare
+direttamente l'API Mistral, la chiave viene letta esclusivamente dalla variabile
+d'ambiente `MISTRAL_API_KEY`; non esistono fallback verso properties o YAML.
+
+Per avviare caricando un `.env` locale ignorato da Git:
+
+```bash
+./scripts/run-with-env.sh
+```
+
+Se `.env` non esiste, lo script lo crea vuoto e chiede di compilare la chiave.
+
 
 ## 🛠️ Pipeline CI/CD
 
