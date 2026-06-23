@@ -21,7 +21,6 @@ import io.github.iss_2025_2026.service.MenuMusicManager;
 import io.github.iss_2025_2026.service.RunMusicManager;
 import io.github.iss_2025_2026.service.SettingsManager;
 
-import java.util.Map;
 
 /**
  * Schermata delle impostazioni.
@@ -155,17 +154,32 @@ public class SettingsScreen implements Screen {
 
         Table controlsPanel = GameUiFactory.createStrongPanel(skin, GameUiTheme.SPACE_4);
         controlsPanel.defaults().left();
-        controlsPanel.add(new Label("Comandi di gioco", skin, GameUiTheme.LABEL_SECTION)).padBottom(GameUiTheme.SPACE_3)
-                .row();
+        controlsPanel.add(new Label("Comandi di gioco", skin, GameUiTheme.LABEL_SECTION))
+                .padBottom(GameUiTheme.SPACE_3).row();
 
-        Table controlsGrid = new Table();
-        controlsGrid.defaults().left().pad(GameUiTheme.SPACE_1);
-        Map<String, String> bindings = settingsModel.getKeyBindings();
-        for (Map.Entry<String, String> entry : bindings.entrySet()) {
-            Table bindingCard = GameUiFactory.createStatChip(skin, entry.getKey(), entry.getValue());
-            controlsGrid.add(bindingCard).width(150f);
-        }
-        controlsPanel.add(controlsGrid).row();
+        controlsPanel.add(new Label("GIOCATORE 1", skin, GameUiTheme.LABEL_TAG))
+                .padBottom(GameUiTheme.SPACE_2).row();
+
+        Table p1Grid = new Table();
+        p1Grid.defaults().left().pad(GameUiTheme.SPACE_1);
+        p1Grid.add(createKeyChip(skin, "W", "Su")).width(125f);
+        p1Grid.add(createKeyChip(skin, "S", "Gi\u00f9")).width(125f);
+        p1Grid.add(createKeyChip(skin, "A", "Sinistra")).width(125f);
+        p1Grid.add(createKeyChip(skin, "D", "Destra")).width(125f);
+        p1Grid.add(createKeyChip(skin, "I", "Inventario")).width(125f);
+        controlsPanel.add(p1Grid).padBottom(GameUiTheme.SPACE_3).row();
+
+        controlsPanel.add(new Label("GIOCATORE 2", skin, GameUiTheme.LABEL_TAG))
+                .padBottom(GameUiTheme.SPACE_2).row();
+
+        Table p2Grid = new Table();
+        p2Grid.defaults().left().pad(GameUiTheme.SPACE_1);
+        p2Grid.add(createKeyChip(skin, "UP", "Su")).width(125f);
+        p2Grid.add(createKeyChip(skin, "DOWN", "Gi\u00f9")).width(125f);
+        p2Grid.add(createKeyChip(skin, "LEFT", "Sinistra")).width(125f);
+        p2Grid.add(createKeyChip(skin, "RIGHT", "Destra")).width(125f);
+        p2Grid.add(createKeyChip(skin, "O", "Inventario")).width(125f);
+        controlsPanel.add(p2Grid).row();
 
         shell.add(controlsPanel).width(700f).padBottom(GameUiTheme.SPACE_3).row();
 
@@ -198,6 +212,22 @@ public class SettingsScreen implements Screen {
         Container<Table> shellWrap = new Container<>(shell);
         shellWrap.width(820f);
         root.add(shellWrap).center();
+    }
+
+    // ---------------------------------------------------------------
+    // Componenti UI compatti
+    // ---------------------------------------------------------------
+
+    private static Table createKeyChip(Skin skin, String key, String action) {
+        Table chip = new Table();
+        chip.setBackground(skin.getDrawable(GameUiTheme.DRAWABLE_CHIP));
+        chip.pad(6f, 8f, 6f, 8f);
+        Label keyLabel = new Label(key, skin, GameUiTheme.LABEL_BODY);
+        keyLabel.setColor(GameUiTheme.ACCENT_LIME);
+        Label actionLabel = new Label(action, skin, GameUiTheme.LABEL_TAG);
+        chip.add(keyLabel).padRight(6f);
+        chip.add(actionLabel);
+        return chip;
     }
 
     // ---------------------------------------------------------------
