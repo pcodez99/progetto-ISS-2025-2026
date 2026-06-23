@@ -83,6 +83,14 @@ public class BattleController {
         return model.tryFlee();
     }
 
+    /**
+     * Salta il turno di un giocatore KO (HP <= 0).
+     */
+    public void onSkipKoTurn() {
+        model.skipKoPlayerTurn();
+        menuState = MenuState.MAIN_MENU;
+    }
+
     public void update(float delta) {
         model.updateFleeTimer(delta);
 

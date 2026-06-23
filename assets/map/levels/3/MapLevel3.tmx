@@ -1114,7 +1114,7 @@
    </properties>
    <polygon points="0,0 27,5 32,0 37,3 84,8 84,-36 129,-33 130,-78 165,-73 176,-80 172,-164 79,-259 27,-299 -63,-309 -63,-305 -142,-306 -128,-168 -98,-138 -96,-96"/>
   </object>
-  <object id="609" x="5960" y="2420">
+  <object id="609" x="5995" y="2421">
    <properties>
     <property name="collision" type="bool" value="true"/>
    </properties>
