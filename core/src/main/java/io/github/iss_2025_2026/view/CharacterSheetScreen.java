@@ -171,10 +171,8 @@ public class CharacterSheetScreen implements Screen {
             for (int i = 0; i < items.size(); i++) {
                 Collectible c = items.get(i);
                 Table itemCard = buildItemCard(c);
-                itemsGrid.add(itemCard).width(130f).height(90f).pad(GameUiTheme.SPACE_1);
-                if ((i + 1) % 2 == 0) {
-                    itemsGrid.row();
-                }
+                itemsGrid.add(itemCard).width(280f).height(60f).pad(GameUiTheme.SPACE_1);
+                itemsGrid.row();
             }
             itemsGrid.row();
 
@@ -207,17 +205,15 @@ public class CharacterSheetScreen implements Screen {
                     region = new TextureRegion(texture);
                 }
                 Image icon = new Image(region);
-                card.add(icon).size(40f, 40f).center().padBottom(GameUiTheme.SPACE_1).row();
+                card.add(icon).size(36f, 36f).center().padRight(GameUiTheme.SPACE_2);
             } catch (Exception e) {
                 Gdx.app.error("CharacterSheetScreen", "Errore caricamento texture: " + assetPath, e);
             }
         }
 
-        // Nome oggetto
         Label nameLabel = new Label(collectible.getName(), skin, GameUiTheme.LABEL_MUTED);
-        nameLabel.setAlignment(Align.center);
-        nameLabel.setWrap(true);
-        card.add(nameLabel).fillX().center();
+        nameLabel.setAlignment(Align.left);
+        card.add(nameLabel).fillX().expandX();
 
         return card;
     }
@@ -279,7 +275,7 @@ public class CharacterSheetScreen implements Screen {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                if (keycode == Input.Keys.I || keycode == Input.Keys.ESCAPE) {
+                if (keycode == Input.Keys.I || keycode == Input.Keys.O || keycode == Input.Keys.ESCAPE) {
                     close();
                     return true;
                 }

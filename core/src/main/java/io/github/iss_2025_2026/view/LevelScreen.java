@@ -141,6 +141,7 @@ public class LevelScreen implements Screen {
     private CollectibleRenderer collectibleRenderer;
     private Label pickupPromptLabel;
     private CharacterSheetModel characterSheetModel;
+    private CharacterSheetModel characterSheetModelP2;
 
     private Rectangle mapBounds;
     private boolean battleTransitionPending;
@@ -240,6 +241,13 @@ public class LevelScreen implements Screen {
                     }
                     return true;
                 }
+                if (keycode == Input.Keys.O) {
+                    if (characterSheetModelP2 != null
+                            && characterSheetModelP2.canOpenDuringPhase(model.getGameState().getPhase())) {
+                        game.setScreen(new CharacterSheetScreen(game, characterSheetModelP2, LevelScreen.this));
+                    }
+                    return true;
+                }
 
                 return false;
             }
@@ -334,6 +342,12 @@ public class LevelScreen implements Screen {
         Player playerOne = model.getPlayerOne();
         if (playerOne != null) {
             characterSheetModel = new CharacterSheetModel(playerOne);
+        }
+        if (model.isMultiplayerGame()) {
+            Player playerTwo = model.getPlayerTwo();
+            if (playerTwo != null) {
+                characterSheetModelP2 = new CharacterSheetModel(playerTwo);
+            }
         }
 
         // Pre-carica le animazioni idle nemico per gli sprite sulla mappa
