@@ -182,5 +182,8 @@ yarn-error.log*
 /core/saves
 /assets/saves/
 /assets/settings.json
+/services/voxtral-tts/.venv/
+/services/voxtral-tts/voxtral.pid
+/services/voxtral-tts/voxtral.log
 
 ACKNOWLEDGE.md

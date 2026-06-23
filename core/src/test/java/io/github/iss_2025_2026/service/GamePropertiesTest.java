@@ -42,6 +42,10 @@ public class GamePropertiesTest {
         boolean devMode = GameProperties.getBoolean(GameProperties.KEY_DEV_MODE, false);
         String aiBaseUrl = GameProperties.getString(GameProperties.KEY_AI_BASE_URL, "");
         int aiTimeout = GameProperties.getInt(GameProperties.KEY_AI_CONNECT_TIMEOUT_MS, 0);
+        String ttsBaseUrl = GameProperties.getString(GameProperties.KEY_TTS_BASE_URL, "");
+        String ttsModel = GameProperties.getString(GameProperties.KEY_TTS_MODEL, "");
+        String ttsProvider = GameProperties.getString(GameProperties.KEY_TTS_PROVIDER, "");
+        String mistralTtsModel = GameProperties.getString(GameProperties.KEY_TTS_MISTRAL_MODEL, "");
 
         assertEquals(400f, maxDistance, 0.001f);
         assertEquals(0.72f, zoom, 0.001f);
@@ -53,6 +57,10 @@ public class GamePropertiesTest {
         assertTrue(devMode);
         assertEquals("http://localhost:11434", aiBaseUrl);
         assertEquals(5000, aiTimeout);
+        assertEquals("http://127.0.0.1:8000/v1", ttsBaseUrl);
+        assertEquals("mlx-community/Voxtral-4B-TTS-2603-mlx-4bit", ttsModel);
+        assertEquals("local", ttsProvider);
+        assertEquals("voxtral-mini-tts-2603", mistralTtsModel);
     }
 
     @Test

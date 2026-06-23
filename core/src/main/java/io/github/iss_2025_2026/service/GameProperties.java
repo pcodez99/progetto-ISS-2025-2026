@@ -39,6 +39,22 @@ public class GameProperties {
     public static final String KEY_AI_DEFAULT_TEMPERATURE = "ai_default_temperature";
     public static final String KEY_AI_MAX_PROMPT_CHARS = "ai_max_prompt_chars";
     public static final String KEY_AI_FALLBACK_TO_STATIC_DIALOGUE = "ai_fallback_to_static_dialogue";
+    public static final String KEY_TTS_ENABLED = "tts_enabled";
+    public static final String KEY_TTS_PROVIDER = "tts_provider";
+    public static final String KEY_TTS_BASE_URL = "tts_base_url";
+    public static final String KEY_TTS_SPEECH_ENDPOINT = "tts_speech_endpoint";
+    public static final String KEY_TTS_MODEL = "tts_model";
+    public static final String KEY_TTS_VOICE = "tts_voice";
+    public static final String KEY_TTS_RESPONSE_FORMAT = "tts_response_format";
+    public static final String KEY_TTS_SPEED = "tts_speed";
+    public static final String KEY_TTS_VOLUME = "tts_volume";
+    public static final String KEY_TTS_CONNECT_TIMEOUT_MS = "tts_connect_timeout_ms";
+    public static final String KEY_TTS_READ_TIMEOUT_MS = "tts_read_timeout_ms";
+    public static final String KEY_TTS_MISTRAL_BASE_URL = "tts_mistral_base_url";
+    public static final String KEY_TTS_MISTRAL_SPEECH_ENDPOINT = "tts_mistral_speech_endpoint";
+    public static final String KEY_TTS_MISTRAL_VOICES_ENDPOINT = "tts_mistral_voices_endpoint";
+    public static final String KEY_TTS_MISTRAL_MODEL = "tts_mistral_model";
+    public static final String KEY_TTS_MISTRAL_VOICE_ID = "tts_mistral_voice_id";
 
     static {
         // Impostiamo i valori di default
@@ -62,6 +78,22 @@ public class GameProperties {
         properties.setProperty(KEY_AI_DEFAULT_TEMPERATURE, "0.75");
         properties.setProperty(KEY_AI_MAX_PROMPT_CHARS, "4000");
         properties.setProperty(KEY_AI_FALLBACK_TO_STATIC_DIALOGUE, "true");
+        properties.setProperty(KEY_TTS_ENABLED, "true");
+        properties.setProperty(KEY_TTS_PROVIDER, "local");
+        properties.setProperty(KEY_TTS_BASE_URL, "http://127.0.0.1:8000/v1");
+        properties.setProperty(KEY_TTS_SPEECH_ENDPOINT, "/audio/speech");
+        properties.setProperty(KEY_TTS_MODEL, "mlx-community/Voxtral-4B-TTS-2603-mlx-4bit");
+        properties.setProperty(KEY_TTS_VOICE, "it_male");
+        properties.setProperty(KEY_TTS_RESPONSE_FORMAT, "wav");
+        properties.setProperty(KEY_TTS_SPEED, "1.0");
+        properties.setProperty(KEY_TTS_VOLUME, "0.85");
+        properties.setProperty(KEY_TTS_CONNECT_TIMEOUT_MS, "5000");
+        properties.setProperty(KEY_TTS_READ_TIMEOUT_MS, "120000");
+        properties.setProperty(KEY_TTS_MISTRAL_BASE_URL, "https://api.mistral.ai/v1");
+        properties.setProperty(KEY_TTS_MISTRAL_SPEECH_ENDPOINT, "/audio/speech");
+        properties.setProperty(KEY_TTS_MISTRAL_VOICES_ENDPOINT, "/audio/voices");
+        properties.setProperty(KEY_TTS_MISTRAL_MODEL, "voxtral-mini-tts-2603");
+        properties.setProperty(KEY_TTS_MISTRAL_VOICE_ID, "");
 
         load();
     }
