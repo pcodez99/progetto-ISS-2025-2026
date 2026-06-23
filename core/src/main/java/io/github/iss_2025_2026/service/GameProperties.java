@@ -21,6 +21,7 @@ public class GameProperties {
     // Chiavi delle impostazioni
     public static final String KEY_MAX_PLAYER_DISTANCE = "max_player_distance";
     public static final String KEY_CAMERA_ZOOM = "camera_zoom";
+    public static final String KEY_CAMERA_ZOOM_MIN = "camera_zoom_min";
     public static final String KEY_PLAYER_SIZE = "player_size";
     public static final String KEY_ENEMY_ENCOUNTER_RADIUS = "enemy_encounter_radius";
     public static final String KEY_NPC_INTERACTION_RADIUS = "npc_interaction_radius";
@@ -44,6 +45,7 @@ public class GameProperties {
         // Impostiamo i valori di default
         properties.setProperty(KEY_MAX_PLAYER_DISTANCE, "400.0");
         properties.setProperty(KEY_CAMERA_ZOOM, "0.72");
+        properties.setProperty(KEY_CAMERA_ZOOM_MIN, "2.0");
         properties.setProperty(KEY_PLAYER_SIZE, "160.0");
         properties.setProperty(KEY_ENEMY_ENCOUNTER_RADIUS, "130.0");
         properties.setProperty(KEY_NPC_INTERACTION_RADIUS, "190.0");

@@ -14,7 +14,6 @@ import io.github.iss_2025_2026.service.GameProperties;
  * Coordina l'aggiornamento della logica di gioco.
  */
 public class GameController {
-    public static final float MAX_PLAYER_DISTANCE = 400f;
 
     private final GameModel model;
     private final MultiplayerMovementConstraint multiplayerMovementConstraint;
@@ -28,8 +27,8 @@ public class GameController {
         if (model.isMultiplayerGame() && model.getPlayerTwo() != null) {
             Player playerOne = model.getPlayerOne();
             Player playerTwo = model.getPlayerTwo();
-            float maxDistance = GameProperties.getFloat(
-                    GameProperties.KEY_MAX_PLAYER_DISTANCE, MAX_PLAYER_DISTANCE);
+
+            float maxDistance = computeMaxCameraDistance();
 
             multiplayerMovementConstraint.normalizeInitialDistance(playerOne, playerTwo, maxDistance);
             float previousPlayerOneX = playerOne.getX();
@@ -62,6 +61,14 @@ public class GameController {
             handlePlayerMovement(delta, model.getPlayerOne());
         }
         model.update(delta);
+    }
+
+    private float computeMaxCameraDistance() {
+        float zoomMin = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM_MIN, 2.0f);
+        float playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
+        float padding = playerSize * 0.5f;
+        float viewportHeight = Gdx.graphics.getHeight();
+        return zoomMin * viewportHeight - playerSize * 2f - padding;
     }
 
     void handlePlayerMovement(float delta, Player player) {

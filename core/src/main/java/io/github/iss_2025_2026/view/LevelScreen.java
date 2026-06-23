@@ -143,7 +143,6 @@ public class LevelScreen implements Screen {
     private CharacterSheetModel characterSheetModel;
 
     private Rectangle mapBounds;
-    private float cameraEdgePadding;
     private boolean battleTransitionPending;
     private float encounterCooldownTimer;
     private NpcInteraction nearbyNpcInteraction;
@@ -155,8 +154,6 @@ public class LevelScreen implements Screen {
     private final List<Texture> enemySpriteTextures = new ArrayList<>();
     private final List<Image> enemySpriteActors = new ArrayList<>();
 
-    private static final float DEFAULT_CAMERA_EDGE_PADDING = 320f;
-
     // Configurable game properties
     private final float playerSize;
     private final float playerYOffset;
@@ -165,6 +162,8 @@ public class LevelScreen implements Screen {
     private final float encounterRadius;
     private final float npcInteractionRadius;
     private final float cameraZoom;
+    private final float cameraZoomMin;
+    private float currentZoom;
     private boolean drawObstacleDebug;
 
     public LevelScreen(Main game, GameContext gameContext, GameModel model, GameController controller,
@@ -186,6 +185,8 @@ public class LevelScreen implements Screen {
         this.npcInteractionRadius = GameProperties.getFloat(GameProperties.KEY_NPC_INTERACTION_RADIUS,
                 DEFAULT_NPC_INTERACTION_RADIUS);
         this.cameraZoom = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM, 0.72f);
+        this.cameraZoomMin = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM_MIN, 2.0f);
+        this.currentZoom = this.cameraZoom;
         this.drawObstacleDebug = GameProperties.getBoolean(GameProperties.KEY_DRAW_PHYSICS_DEBUG, true);
 
         configureLevel(levelRuntime);
@@ -304,7 +305,6 @@ public class LevelScreen implements Screen {
             }
         };
         mapBounds = level.getGeometry().getBounds();
-        cameraEdgePadding = level.getGeometry().mapPropertyFloat("camera_edge_padding", DEFAULT_CAMERA_EDGE_PADDING);
 
         EnemyFactory enemyFactory = new YamlEnemyFactory();
         encounterService = new EnemyEncounterService(
@@ -678,27 +678,52 @@ public class LevelScreen implements Screen {
 
         // Gestione della telecamera (Midpoint dei due giocatori in Multiplayer)
         if (p1 != null) {
-            cam.zoom = cameraZoom;
-
             float targetCamX, targetCamY;
             if (model.isMultiplayerGame() && p2 != null) {
                 targetCamX = (p1.getX() + p2.getX()) / 2f + playerSize / 2f;
                 targetCamY = (p1.getY() + p2.getY()) / 2f + playerSize / 2f;
+
+                float dx = Math.abs(p1.getX() - p2.getX());
+                float dy = Math.abs(p1.getY() - p2.getY());
+                float zoomPadding = playerSize * 0.5f;
+                float neededWidth = dx + playerSize * 2f + zoomPadding;
+                float neededHeight = dy + playerSize * 2f + zoomPadding;
+                float viewportWidth = stage.getViewport().getWorldWidth();
+                float viewportHeight = stage.getViewport().getWorldHeight();
+
+                float zoomFromWidth = neededWidth / viewportWidth;
+                float zoomFromHeight = neededHeight / viewportHeight;
+                float targetZoom = Math.max(zoomFromWidth, zoomFromHeight);
+                targetZoom = Math.max(targetZoom, cameraZoom);
+                targetZoom = Math.min(targetZoom, cameraZoomMin);
+
+                currentZoom += (targetZoom - currentZoom) * 3f * delta;
+                cam.zoom = currentZoom;
             } else {
                 targetCamX = p1.getX() + playerSize / 2f;
                 targetCamY = p1.getY() + playerSize / 2f;
+                currentZoom = cameraZoom;
+                cam.zoom = cameraZoom;
             }
 
             float halfViewportWidth = (stage.getViewport().getWorldWidth() * cam.zoom) / 2f;
             float halfViewportHeight = (stage.getViewport().getWorldHeight() * cam.zoom) / 2f;
 
-            float minCamX = mapBounds.x + halfViewportWidth + cameraEdgePadding;
-            float maxCamX = mapBounds.x + mapBounds.width - halfViewportWidth - cameraEdgePadding;
-            float minCamY = mapBounds.y + halfViewportHeight + cameraEdgePadding;
-            float maxCamY = mapBounds.y + mapBounds.height - halfViewportHeight - cameraEdgePadding;
+            float minCamX = mapBounds.x + halfViewportWidth;
+            float maxCamX = mapBounds.x + mapBounds.width - halfViewportWidth;
+            float minCamY = mapBounds.y + halfViewportHeight;
+            float maxCamY = mapBounds.y + mapBounds.height - halfViewportHeight;
 
-            targetCamX = clamp(targetCamX, minCamX, maxCamX);
-            targetCamY = clamp(targetCamY, minCamY, maxCamY);
+            if (minCamX > maxCamX) {
+                targetCamX = mapBounds.x + mapBounds.width / 2f;
+            } else {
+                targetCamX = clamp(targetCamX, minCamX, maxCamX);
+            }
+            if (minCamY > maxCamY) {
+                targetCamY = mapBounds.y + mapBounds.height / 2f;
+            } else {
+                targetCamY = clamp(targetCamY, minCamY, maxCamY);
+            }
 
             cam.position.set(targetCamX, targetCamY, 0);
             cam.update();
