@@ -66,6 +66,13 @@ public class BattleModel {
             return;
         }
 
+        // Un giocatore con 0 HP non può attaccare
+        if (!attacker.isAlive()) {
+            battleLog.add(attacker.getName() + " è KO e non può attaccare!");
+            resolveAfterPlayerAction(attacker);
+            return;
+        }
+
         int damage = attacker.getBaseDamage();
         target.takeDamage(damage);
         battleLog.add(attacker.getName() + " attacca " + target.getName() + "! Danni: " + damage + " HP");
@@ -75,6 +82,13 @@ public class BattleModel {
 
     public void executePlayerSpecialAbility(Player attacker) {
         if (attacker == null) {
+            return;
+        }
+
+        // Un giocatore con 0 HP non può usare abilità speciali
+        if (!attacker.isAlive()) {
+            battleLog.add(attacker.getName() + " è KO e non può usare abilità!");
+            resolveAfterPlayerAction(attacker);
             return;
         }
 
@@ -157,7 +171,25 @@ public class BattleModel {
         }
 
         itemUsedThisTurn = false;
-        phase = BattlePhase.PLAYER_ONE_TURN;
+        // Se P1 è KO e P2 è vivo, salta direttamente al turno di P2
+        if (!playerOne.isAlive() && playerTwo != null && playerTwo.isAlive()) {
+            phase = BattlePhase.PLAYER_TWO_TURN;
+        } else {
+            phase = BattlePhase.PLAYER_ONE_TURN;
+        }
+    }
+
+    /**
+     * Salta il turno del giocatore corrente se è KO.
+     * Avanza alla fase successiva (turno P2 o turno nemico).
+     */
+    public void skipKoPlayerTurn() {
+        Player current = getCurrentTurnPlayer();
+        if (current == null || current.isAlive()) {
+            return; // non è KO, non saltare
+        }
+        battleLog.add(current.getName() + " è KO, turno saltato!");
+        resolveAfterPlayerAction(current);
     }
 
     public boolean tryFlee() {
@@ -215,6 +247,9 @@ public class BattleModel {
     }
 
     public void awardXpToPlayers() {
+        // Rianima i giocatori KO a 1 HP se almeno un compagno è sopravvissuto
+        reviveDeadPlayers();
+
         int xp = 0;
         for (Enemy enemy : enemies) {
             if (!enemy.isAlive()) {
@@ -224,13 +259,13 @@ public class BattleModel {
         totalXpEarned = xp;
         if (xp > 0) {
             battleLog.add("Vittoria! +" + xp + " XP guadagnati.");
-            // Distribuisci l'XP equamente tra i giocatori vivi
-            List<Player> alive = getAlivePlayers();
-            if (!alive.isEmpty()) {
-                int perPlayer = xp / alive.size();
-                int remainder = xp % alive.size();
-                for (int i = 0; i < alive.size(); i++) {
-                    Player p = alive.get(i);
+            // Distribuisci l'XP equamente tra tutti i giocatori (inclusi quelli rianimati)
+            List<Player> allPlayers = getAllPlayers();
+            if (!allPlayers.isEmpty()) {
+                int perPlayer = xp / allPlayers.size();
+                int remainder = xp % allPlayers.size();
+                for (int i = 0; i < allPlayers.size(); i++) {
+                    Player p = allPlayers.get(i);
                     int grant = perPlayer + (i == 0 ? remainder : 0); // assegna il resto al primo
                     if (grant > 0) {
                         p.addXp(grant);
@@ -239,6 +274,37 @@ public class BattleModel {
                 }
             }
         }
+    }
+
+    /**
+     * Rianima i giocatori KO a 1 HP se almeno uno dei due è ancora vivo.
+     * Chiamato alla fine di una battaglia vinta.
+     */
+    private void reviveDeadPlayers() {
+        if (playerTwo == null) {
+            return; // single player, niente da rianimare
+        }
+        boolean p1Alive = playerOne.isAlive();
+        boolean p2Alive = playerTwo.isAlive();
+        if (p1Alive && !p2Alive) {
+            playerTwo.setHp(1);
+            battleLog.add(playerTwo.getName() + " è stato rianimato con 1 HP!");
+        } else if (!p1Alive && p2Alive) {
+            playerOne.setHp(1);
+            battleLog.add(playerOne.getName() + " è stato rianimato con 1 HP!");
+        }
+    }
+
+    /**
+     * Restituisce tutti i giocatori (vivi e KO).
+     */
+    private List<Player> getAllPlayers() {
+        List<Player> all = new ArrayList<>();
+        all.add(playerOne);
+        if (playerTwo != null) {
+            all.add(playerTwo);
+        }
+        return all;
     }
 
     public int getTotalXpEarned() {

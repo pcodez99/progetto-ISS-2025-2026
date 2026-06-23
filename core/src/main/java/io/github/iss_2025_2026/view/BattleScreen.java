@@ -115,6 +115,7 @@ public class BattleScreen implements Screen {
     private float enemyTurnDelayTimer;
     private float enemyAttackTimer;
     private float enemyAttackStateTime;
+    private float koSkipTimer;
 
     public BattleScreen(Main game, GameContext gameContext, GameModel gameModel, LevelScreen returnScreen,
             BattleModel battleModel, BattleController battleController, EnemyEncounter encounter,
@@ -508,11 +509,23 @@ public class BattleScreen implements Screen {
             return;
         }
 
+        // Se il giocatore corrente è KO, mostra messaggio e avvia auto-skip
+        Player currentPlayer = battleModel.getCurrentTurnPlayer();
+        if (currentPlayer != null && !currentPlayer.isAlive()) {
+            addActionHeader("KO");
+            menuPanel.add(new Label(currentPlayer.getName() + " è KO!", skin, GameUiTheme.LABEL_MUTED))
+                    .left().padBottom(GameUiTheme.SPACE_2).row();
+            // Avvia il timer per saltare automaticamente il turno
+            if (koSkipTimer <= 0f) {
+                koSkipTimer = 0.6f;
+            }
+            return;
+        }
+
         addActionHeader("AZIONI");
         addActionButton(createMenuButton("Attacco", this::onAttack));
 
         // Crea il bottone dell'abilità speciale e lo disabilita se già usato
-        Player currentPlayer = battleModel.getCurrentTurnPlayer();
         String specialLabel = currentPlayer != null && currentPlayer.getAbility() != null
                 ? currentPlayer.getAbility().getName()
                 : "Abilita speciale";
@@ -944,6 +957,20 @@ public class BattleScreen implements Screen {
         }
 
         updateFleeButton();
+
+        // Auto-skip del turno per giocatori KO
+        if (koSkipTimer > 0f) {
+            koSkipTimer -= delta;
+            if (koSkipTimer <= 0f) {
+                koSkipTimer = 0f;
+                // Forza il passaggio al turno successivo tramite il controller
+                Player currentPlayer = battleModel.getCurrentTurnPlayer();
+                if (currentPlayer != null && !currentPlayer.isAlive() && isPlayerTurn()) {
+                    battleController.onSkipKoTurn();
+                    afterPlayerAction();
+                }
+            }
+        }
 
         if (battleModel.getPhase() == BattlePhase.FLED) {
             finishBattle(false);
