@@ -1182,23 +1182,33 @@ public class BattleScreen implements Screen {
                 return "characters/battle-sidescroller/enemy-2";
             }
             String enemyId = enemy.getEnemyId();
+            if ("boss_livello_1".equals(enemyId)) {
+                return "characters/battle-sidescroller/boss-1";
+            }
+            if ("boss_livello_2".equals(enemyId)) {
+                return "characters/battle-sidescroller/boss-2";
+            }
             if ("boss_livello_3".equals(enemyId)) {
+                return "characters/battle-sidescroller/boss-3";
+            }
+            if ("alieno_guardiano".equals(enemyId)) {
                 return "characters/battle-sidescroller/enemy-3";
             }
-            if ("alieno_guardiano".equals(enemyId)
-                    || "boss_livello_1".equals(enemyId)
-                    || "boss_livello_2".equals(enemyId)) {
+            if ("alieno_base".equals(enemyId)) {
                 return "characters/battle-sidescroller/enemy-1";
             }
             return "characters/battle-sidescroller/enemy-2";
         }
 
         private static float resolveDisplaySize(String basePath) {
-            if (basePath.endsWith("enemy-1")) {
+            if (basePath.endsWith("boss-3")) {
+                return 420f;
+            }
+            if (basePath.endsWith("boss-1") || basePath.endsWith("boss-2")) {
                 return 390f;
             }
-            if (basePath.endsWith("enemy-3")) {
-                return 420f;
+            if (basePath.endsWith("enemy-1") || basePath.endsWith("enemy-3")) {
+                return 370f;
             }
             return 330f;
         }
