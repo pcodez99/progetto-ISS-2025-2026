@@ -2,10 +2,10 @@ characters:
   - id: "nonno"
     name: "Nonno"
     description: "Veterano resistente che regge il fronte e apre la strada."
-    maxHp: 50000
-    baseDamage: 80000
-    maxHpGrowth: 30000
-    damageGrowth: 30000
+    maxHp: 120
+    baseDamage: 20
+    maxHpGrowth: 15
+    damageGrowth: 3
     abilityId: "WHEELCHAIR_JUMP"
     abilities:
       base: "WHEELCHAIR_JUMP"

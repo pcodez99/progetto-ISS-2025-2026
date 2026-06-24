@@ -1,0 +1,7 @@
+id: "NONNO_GUARDIAN_STANCE"
+name: "Guardia del Nonno"
+description: "Tecnica altruista del Nonno: una manovra difensiva tradotta in pressione sui nemici."
+strategy: "DAMAGE"
+cooldown: 3
+aoe: true
+baseDamage: 24
