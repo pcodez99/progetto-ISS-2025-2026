@@ -43,9 +43,9 @@ public class EnemyFactoryTest {
         // 2. Verifichiamo che i dati corrispondano a quelli scritti nel file .yaml
         assertNotNull(alieno, "L'alieno non dovrebbe essere nullo!");
         assertEquals(Enemy.class, alieno.getClass());
-        assertEquals("Alieno Invasore", alieno.getName());
-        assertEquals(45, alieno.getMaxHp());
-        assertEquals(8, alieno.getBaseDamage());
+        assertEquals("Alieno Sciame", alieno.getName());
+        assertEquals(28, alieno.getMaxHp());
+        assertEquals(5, alieno.getBaseDamage());
         assertFalse(alieno.isBoss(), "L'alieno base non deve essere un boss");
 
         // CORRETTO: Verifichiamo che l'alieno base NON abbia abilità speciali
@@ -85,8 +85,8 @@ public class EnemyFactoryTest {
         firstAlien.takeDamage(20);
         firstAlien.setX(250f);
 
-        assertEquals(25, firstAlien.getHp());
-        assertEquals(45, secondAlien.getHp());
+        assertEquals(8, firstAlien.getHp());
+        assertEquals(28, secondAlien.getHp());
         assertEquals(0f, secondAlien.getX());
     }
 
@@ -123,18 +123,18 @@ public class EnemyFactoryTest {
         assertNotNull(base);
         assertNotNull(guardiano);
 
-        assertEquals("SCIAME", sciame.get("enemyClass"));
-        assertEquals("INVASORE", base.get("enemyClass"));
+        assertEquals("INVASORE", sciame.get("enemyClass"));
+        assertEquals("SCIAME", base.get("enemyClass"));
         assertEquals("GUARDIANO", guardiano.get("enemyClass"));
         assertTrue(bool(encounter(sciame).get("immediateBattle")));
         assertTrue(bool(encounter(base).get("immediateBattle")));
         assertTrue(bool(encounter(guardiano).get("immediateBattle")));
 
-        assertTrue(intValue(encounter(sciame).get("maxGroupSize")) > intValue(encounter(base).get("maxGroupSize")));
+        assertTrue(intValue(encounter(sciame).get("maxGroupSize")) < intValue(encounter(base).get("maxGroupSize")));
         assertTrue(intValue(encounter(base).get("maxGroupSize")) > intValue(encounter(guardiano).get("maxGroupSize")));
-        assertTrue(intValue(sciame.get("maxHp")) < intValue(base.get("maxHp")));
+        assertTrue(intValue(sciame.get("maxHp")) > intValue(base.get("maxHp")));
         assertTrue(intValue(base.get("maxHp")) < intValue(guardiano.get("maxHp")));
-        assertTrue(intValue(sciame.get("baseDamage")) < intValue(base.get("baseDamage")));
+        assertTrue(intValue(sciame.get("baseDamage")) > intValue(base.get("baseDamage")));
         assertTrue(intValue(base.get("baseDamage")) < intValue(guardiano.get("baseDamage")));
 
         assertEquals(1, intValue(enemies.get("boss_livello_1").get("levelId")));

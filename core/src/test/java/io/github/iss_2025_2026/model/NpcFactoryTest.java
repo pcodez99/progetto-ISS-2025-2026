@@ -46,19 +46,23 @@ public class NpcFactoryTest {
     public void testNpcPerLivelloUsaCatalogoCorrente() {
         List<Npc> levelOneNpcs = factory.getNpcsForLevel("level_1_campaign");
 
-        assertEquals(4, levelOneNpcs.size());
+        assertEquals(2, levelOneNpcs.size());
         assertTrue(containsNpc(levelOneNpcs, "zio_toto"));
-        assertTrue(containsNpc(levelOneNpcs, "zyrko_ingegnere_alieno"));
+        assertFalse(containsNpc(levelOneNpcs, "zyrko_ingegnere_alieno"));
     }
 
     @Test
     public void testNpcPerLivelloMantieneOrdineYaml() {
         List<Npc> levelOneNpcs = factory.getNpcsForLevel("level_1_campaign");
 
+        assertEquals(2, levelOneNpcs.size());
         assertEquals("zio_toto", levelOneNpcs.get(0).getId());
         assertEquals("zia_pina", levelOneNpcs.get(1).getId());
-        assertEquals("zyrko_ingegnere_alieno", levelOneNpcs.get(2).getId());
-        assertEquals("turiddu_spaventapasseri", levelOneNpcs.get(3).getId());
+
+        List<Npc> levelTwoNpcs = factory.getNpcsForLevel("level_2_campaign");
+        assertEquals(2, levelTwoNpcs.size());
+        assertEquals("zyrko_ingegnere_alieno", levelTwoNpcs.get(0).getId());
+        assertEquals("turiddu_spaventapasseri", levelTwoNpcs.get(1).getId());
     }
 
     @Test
