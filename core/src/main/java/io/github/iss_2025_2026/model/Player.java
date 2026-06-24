@@ -21,7 +21,8 @@ public class Player extends Character {
     private int xp = 0;
     private int xpToNext = 100; // default required XP for next level
 
-    // Flag per-player: traccia se l'abilità speciale è stata già usata in questa battaglia
+    // Flag per-player: traccia se l'abilità speciale è stata già usata in questa
+    // battaglia
     private boolean specialAbilityUsedThisBattle = false;
 
     public Player(String name, int maxHp, int baseDamage, SpecialAbility ability, int maxHpGrowth, int damageGrowth,
@@ -127,7 +128,8 @@ public class Player extends Character {
     }
 
     public float getXpPercent() {
-        if (xpToNext <= 0) return 0f;
+        if (xpToNext <= 0)
+            return 0f;
         return Math.max(0f, Math.min(1f, (float) xp / (float) xpToNext));
     }
 

@@ -40,6 +40,18 @@ public class BattleModel {
         this.random = new Random();
         // Resetta l'uso delle abilità speciali per la nuova battaglia
         resetPlayersSpecialAbilityUsage();
+
+        // Check for level 3 boss karma perk
+        for (Enemy enemy : this.enemies) {
+            if ("boss_livello_3".equals(enemy.getEnemyId())) {
+                float karmaPercentOne = (playerOne.getKarma() + 50f) / 100f;
+                float karmaPercentTwo = (playerTwo != null) ? (playerTwo.getKarma() + 50f) / 100f : 0f;
+                if (karmaPercentOne >= 0.75f || karmaPercentTwo >= 0.75f) {
+                    enemy.takeDamage(100);
+                    battleLog.add("Tutte le persone che hai aiutato adesso ricambiano il favore, il Sovrano Proxima perde 100 HP");
+                }
+            }
+        }
     }
 
     public BattlePhase getPhase() {

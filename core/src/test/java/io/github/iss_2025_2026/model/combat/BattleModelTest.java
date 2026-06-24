@@ -541,4 +541,45 @@ public class BattleModelTest {
 
         assertFalse(model.getBattleLog().isEmpty(), "Il log deve contenere almeno un messaggio dopo l'attacco");
     }
+
+    @Test
+    public void testBossLivello3KarmaPerkActivatesForPlayerOne() {
+        playerOne.modifyKarma(25); // 75% (which is (25+50)/100 = 0.75)
+        Enemy boss = new Enemy("Sovrano Proxima", "boss_livello_3", 420, 32, 260, true);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(boss));
+
+        assertEquals(320, boss.getHp());
+        assertTrue(model.getBattleLog().contains("Tutte le persone che hai aiutato adesso ricambiano il favore, il Sovrano Proxima perde 100 HP"));
+    }
+
+    @Test
+    public void testBossLivello3KarmaPerkActivatesForPlayerTwo() {
+        playerOne.modifyKarma(0);
+        playerTwo.modifyKarma(25); // 75% (which is (25+50)/100 = 0.75)
+        Enemy boss = new Enemy("Sovrano Proxima", "boss_livello_3", 420, 32, 260, true);
+        BattleModel model = new BattleModel(playerOne, playerTwo, Arrays.asList(boss));
+
+        assertEquals(320, boss.getHp());
+        assertTrue(model.getBattleLog().contains("Tutte le persone che hai aiutato adesso ricambiano il favore, il Sovrano Proxima perde 100 HP"));
+    }
+
+    @Test
+    public void testBossLivello3KarmaPerkDoesNotActivateIfKarmaBelow75() {
+        playerOne.modifyKarma(24); // 74% (which is (24+50)/100 = 0.74)
+        Enemy boss = new Enemy("Sovrano Proxima", "boss_livello_3", 420, 32, 260, true);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(boss));
+
+        assertEquals(420, boss.getHp());
+        assertFalse(model.getBattleLog().contains("Tutte le persone che hai aiutato adesso ricambiano il favore, il Sovrano Proxima perde 100 HP"));
+    }
+
+    @Test
+    public void testBossLivello3KarmaPerkDoesNotActivateForOtherEnemies() {
+        playerOne.modifyKarma(40);
+        Enemy other = new Enemy("Alieno Guardiano", "alieno_guardiano", 90, 14, 30, false);
+        BattleModel model = new BattleModel(playerOne, null, Arrays.asList(other));
+
+        assertEquals(90, other.getHp());
+        assertFalse(model.getBattleLog().contains("Tutte le persone che hai aiutato adesso ricambiano il favore, il Sovrano Proxima perde 100 HP"));
+    }
 }
