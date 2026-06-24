@@ -1,0 +1,34 @@
+services:
+  voxtral-tts:
+    image: vllm/vllm-omni:v0.22.0
+    command:
+      - vllm
+      - serve
+      - mistralai/Voxtral-4B-TTS-2603
+      - --omni
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --stage-overrides
+      - '{"0":{"max_num_seqs":1,"max_num_batched_tokens":4096,"gpu_memory_utilization":0.78,"enforce_eager":true},"1":{"max_num_seqs":1,"max_num_batched_tokens":8192,"gpu_memory_utilization":0.10,"enforce_eager":true}}'
+    ports:
+      - "127.0.0.1:8000:8000"
+    gpus: all
+    ipc: host
+    volumes:
+      - huggingface-cache:/root/.cache/huggingface
+    restart: unless-stopped
+    healthcheck:
+      test:
+        - CMD
+        - python3
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10m
+
+volumes:
+  huggingface-cache:

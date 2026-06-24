@@ -1,5 +1,11 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
 echo "Running pre-commit checks..."
 ./gradlew assemble
+
+echo "Compilazione dei diagrammi PlantUML..."
+./gradlew compilePuml || exit 1
+
+# Aggiunge i file .svg generati o modificati allo stage del commit corrente
+git add docs/diagrams/**/*.svg 2>/dev/null || true
+
+echo "Running pre-commit test..."
+./gradlew test --scan

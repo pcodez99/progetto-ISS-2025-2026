@@ -1,0 +1,28 @@
+@startuml 02-collectibles-inventory
+!pragma layout smetana
+title Collectible e inventario - Prototype
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class "collectibles.yaml" as CollectiblesYaml <<asset>>
+class "level.tmx" as LevelTmx <<asset>>
+class CollectibleFactory <<Prototype Factory>>
+class Collectible <<Prototype>>
+class TmxCollectibleLoader <<Loader>>
+class CollectibleService <<Service>>
+class Backpack
+
+CollectiblesYaml --> CollectibleFactory
+CollectibleFactory o-- Collectible : prototipi
+LevelTmx --> TmxCollectibleLoader
+TmxCollectibleLoader --> CollectibleFactory : copy per id
+TmxCollectibleLoader --> CollectibleService
+CollectibleService --> Backpack : pickup
+
+note bottom of CollectibleFactory
+Minimo: la factory clona collectible configurati e il service li mette nello zaino.
+end note
+@enduml

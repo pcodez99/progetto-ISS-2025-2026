@@ -1,0 +1,28 @@
+@startuml 05-dialogue-ai
+!pragma layout smetana
+title Dialogo NPC e AI - Facade
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class LevelScreen <<Boundary>>
+class NpcDialogueController <<Controller>>
+class DialogueSession
+class NpcDialogueService <<Facade>>
+class AiService <<Facade>>
+interface AiClient <<Gateway>>
+class OllamaAiClient <<Adapter>>
+
+LevelScreen --> NpcDialogueController : sessione
+NpcDialogueController *-- DialogueSession
+LevelScreen --> NpcDialogueService : input + storia
+NpcDialogueService --> AiService : richiesta
+AiService --> AiClient
+AiClient <|.. OllamaAiClient
+
+note bottom of NpcDialogueService
+Minimo: il dialogo passa da una facade che nasconde prompt, AI e fallback.
+end note
+@enduml

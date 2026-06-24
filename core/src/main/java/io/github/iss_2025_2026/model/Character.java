@@ -2,8 +2,8 @@ package io.github.iss_2025_2026.model;
 
 import io.github.iss_2025_2026.service.GameProperties;
 
-/** Represents a generic character in the game (Hero, Enemy, or Boss) */
-public abstract class Character {
+/** Base implementation shared by every playable character and enemy. */
+public abstract class Character implements Characters {
     private String name;
     private int hp;
     private int maxHp;

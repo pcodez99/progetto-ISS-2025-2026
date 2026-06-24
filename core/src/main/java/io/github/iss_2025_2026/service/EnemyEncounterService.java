@@ -2,7 +2,7 @@ package io.github.iss_2025_2026.service;
 
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.math.Vector2;
-import io.github.iss_2025_2026.factory.CharacterFactory;
+import io.github.iss_2025_2026.factory.EnemyFactory;
 import io.github.iss_2025_2026.map.IsoMapGeometry;
 import io.github.iss_2025_2026.map.TmxMapContract;
 import io.github.iss_2025_2026.model.Enemy;
@@ -10,18 +10,19 @@ import io.github.iss_2025_2026.model.Player;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Rileva collisioni tra giocatore e oggetti nemici sulla mappa TMX.
  */
 public class EnemyEncounterService {
     private final List<EncounterPoint> encounterPoints;
-    private final CharacterFactory characterFactory;
+    private final Function<String, Enemy> enemyProvider;
     private final float encounterRadius;
 
-    public EnemyEncounterService(List<MapObject> enemyObjects, CharacterFactory characterFactory,
+    public EnemyEncounterService(List<MapObject> enemyObjects, EnemyFactory enemyFactory,
             IsoMapGeometry geometry, float encounterRadius) {
-        this.characterFactory = characterFactory;
+        this.enemyProvider = enemyFactory::create;
         this.encounterRadius = encounterRadius;
         this.encounterPoints = new ArrayList<>();
         if (enemyObjects != null && geometry != null) {
@@ -34,10 +35,10 @@ public class EnemyEncounterService {
         }
     }
 
-    private EnemyEncounterService(List<EncounterPoint> encounterPoints, CharacterFactory characterFactory,
+    private EnemyEncounterService(List<EncounterPoint> encounterPoints, Function<String, Enemy> enemyProvider,
             float encounterRadius) {
         this.encounterPoints = encounterPoints;
-        this.characterFactory = characterFactory;
+        this.enemyProvider = enemyProvider;
         this.encounterRadius = encounterRadius;
     }
 
@@ -45,7 +46,42 @@ public class EnemyEncounterService {
             float encounterRadius) {
         List<EncounterPoint> points = new ArrayList<>();
         points.add(new TestEncounterPoint(x, y, enemyType, enemiesNumber));
-        return new EnemyEncounterService(points, new TestCharacterFactory(), encounterRadius);
+        return new EnemyEncounterService(points,
+                id -> new Enemy("Alieno Test", id, 45, 8, 15, false), encounterRadius);
+    }
+
+    /**
+     * Restituisce le informazioni su tutti gli encounter point (attivi e non)
+     * per il rendering degli sprite idle sulla mappa isometrica.
+     */
+    public List<EnemyEncounterInfo> getAllEncounterInfo() {
+        List<EnemyEncounterInfo> result = new ArrayList<>();
+        for (EncounterPoint point : encounterPoints) {
+            result.add(new EnemyEncounterInfo(point.getX(), point.getY(), point.getEnemyType(), point.isActive()));
+        }
+        return result;
+    }
+
+    /**
+     * Dati di un singolo punto di spawn nemico, usato dalla view per disegnare lo sprite idle.
+     */
+    public static final class EnemyEncounterInfo {
+        private final float x;
+        private final float y;
+        private final String enemyType;
+        private final boolean active;
+
+        private EnemyEncounterInfo(float x, float y, String enemyType, boolean active) {
+            this.x = x;
+            this.y = y;
+            this.enemyType = enemyType;
+            this.active = active;
+        }
+
+        public float getX() { return x; }
+        public float getY() { return y; }
+        public String getEnemyType() { return enemyType; }
+        public boolean isActive() { return active; }
     }
 
     public EnemyEncounter checkEncounter(Player player) {
@@ -98,7 +134,7 @@ public class EnemyEncounterService {
         List<Enemy> enemies = new ArrayList<>();
         int safeCount = Math.max(1, count);
         for (int i = 0; i < safeCount; i++) {
-            Enemy template = characterFactory.createEnemy(enemyType);
+            Enemy template = enemyProvider.apply(enemyType);
             if (template != null) {
                 enemies.add(template.copy());
             }
@@ -244,36 +280,6 @@ public class EnemyEncounterService {
         @Override
         public MapObject getMapObject() {
             return null;
-        }
-    }
-
-    /**
-     * Factory minimale per i test unitari senza dipendenze YAML.
-     */
-    private static final class TestCharacterFactory implements CharacterFactory {
-        @Override
-        public io.github.iss_2025_2026.model.Player createPlayer(String id) {
-            return null;
-        }
-
-        @Override
-        public Enemy createEnemy(String id) {
-            return new Enemy("Alieno Test", id, 45, 8, 15, false);
-        }
-
-        @Override
-        public io.github.iss_2025_2026.model.SpecialAbility getAbility(String abilityId) {
-            return null;
-        }
-
-        @Override
-        public java.util.Map<String, java.util.Map<String, Object>> getCharacterData() {
-            return java.util.Collections.emptyMap();
-        }
-
-        @Override
-        public java.util.Map<String, java.util.Map<String, Object>> getEnemyData() {
-            return java.util.Collections.emptyMap();
         }
     }
 }

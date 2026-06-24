@@ -2,9 +2,9 @@ package io.github.iss_2025_2026.model;
 
 /**
  * Represents an enemy in the game (can be a standard alien or a boss).
- * Extends the abstract Character class.
+ * Extends the shared character base class.
  */
-public class Enemy extends Character implements CharacterPrototype<Enemy> {
+public class Enemy extends Character implements Characters, CharacterPrototype<Enemy> {
 
     private String enemyId;         // L'ID dello YAML (es. "alieno_base")
     private int xpReward;          // I punti esperienza che dona al giocatore quando muore

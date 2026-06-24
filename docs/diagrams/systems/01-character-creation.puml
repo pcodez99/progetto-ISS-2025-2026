@@ -1,0 +1,44 @@
+@startuml 01-character-creation
+!pragma layout smetana
+title Creazione personaggi - Factory Method e Builder
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class "characters.yaml\nenemies.yaml" as CharacterYaml <<asset>>
+abstract class PlayerFactory <<Creator>>
+class YamlPlayerFactory <<Concrete Creator>>
+abstract class EnemyFactory <<Creator>>
+class YamlEnemyFactory <<Concrete Creator>>
+interface CharacterBuilder <<Builder>>
+class CharacterBuildDirector <<Director>>
+class PlayerBuilder <<Concrete Builder>>
+class EnemyBuilder <<Concrete Builder>>
+abstract class Character
+class Player
+class Enemy <<Prototype>>
+
+PlayerFactory <|-- YamlPlayerFactory
+EnemyFactory <|-- YamlEnemyFactory
+CharacterYaml --> YamlPlayerFactory
+CharacterYaml --> YamlEnemyFactory
+YamlPlayerFactory --> PlayerBuilder
+YamlEnemyFactory --> EnemyBuilder
+YamlPlayerFactory --> CharacterBuildDirector
+YamlEnemyFactory --> CharacterBuildDirector
+CharacterBuildDirector --> CharacterBuilder : ordina i passi
+CharacterBuilder <|.. PlayerBuilder
+CharacterBuilder <|.. EnemyBuilder
+PlayerBuilder --> Player : build
+EnemyBuilder --> Enemy : build
+Character <|-- Player
+Character <|-- Enemy
+
+note bottom of CharacterBuilder
+Factory Method seleziona la sorgente YAML.
+Il Director ordina i passi dichiarati dal Builder.
+Player ed Enemy sono gli unici prodotti concreti.
+end note
+@enduml

@@ -5,6 +5,7 @@ import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
 import io.github.iss_2025_2026.model.combat.BattleModel;
 import io.github.iss_2025_2026.model.combat.BattlePhase;
+import io.github.iss_2025_2026.model.combat.ItemUseResult;
 
 /**
  * Controller MVC del combattimento a turni. Coordina {@link BattleModel} e lo stato del menu.
@@ -64,17 +65,30 @@ public class BattleController {
     }
 
     public void onInventorySelected() {
-        menuState = MenuState.INVENTORY_SELECTION;
+        if (model.canCurrentPlayerUseItem()) {
+            menuState = MenuState.INVENTORY_SELECTION;
+        }
     }
 
-    public void onItemSelected(Collectible item, Enemy target) {
+    public ItemUseResult onItemSelected(Collectible item, Enemy target) {
         Player currentPlayer = model.getCurrentTurnPlayer();
-        model.executeUseItem(currentPlayer, item, target);
-        menuState = MenuState.MAIN_MENU;
+        ItemUseResult result = model.executeUseItem(currentPlayer, item, target);
+        menuState = result.isSuccess() || !model.canCurrentPlayerUseItem()
+                ? MenuState.MAIN_MENU
+                : MenuState.INVENTORY_SELECTION;
+        return result;
     }
 
     public boolean onFleeAttempt() {
         return model.tryFlee();
+    }
+
+    /**
+     * Salta il turno di un giocatore KO (HP <= 0).
+     */
+    public void onSkipKoTurn() {
+        model.skipKoPlayerTurn();
+        menuState = MenuState.MAIN_MENU;
     }
 
     public void update(float delta) {

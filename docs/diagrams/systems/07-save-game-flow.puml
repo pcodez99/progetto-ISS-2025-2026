@@ -1,0 +1,30 @@
+@startuml 07-save-game-flow
+!pragma layout smetana
+title Salvataggio - Memento
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class GameModel <<Originator>>
+class GameState <<Memento>>
+class PlayerSaveState <<Memento>>
+class GameSaveService <<Mapper>>
+class SaveManager <<JSON Repository>>
+class "saves/*.json" as SaveFiles <<asset>>
+class CheckpointService <<Service>>
+class GameOverService <<Service>>
+
+GameModel --> GameSaveService : save/load
+GameSaveService --> GameState : snapshot
+GameState *-- PlayerSaveState
+GameSaveService --> SaveManager
+SaveManager --> SaveFiles
+CheckpointService --> GameSaveService : autosave
+GameOverService --> GameSaveService : restore
+
+note bottom of GameState
+Minimo: GameState è lo snapshot serializzato su JSON.
+end note
+@enduml

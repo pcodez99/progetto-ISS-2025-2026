@@ -1,0 +1,118 @@
+@startuml controller
+!pragma layout smetana
+!pragma layout smetana
+package io.github.iss_2025_2026 {
+    class Main extends com.badlogic.gdx.Game {
+        - gameContext: GameContext
+        + create(): void
+        + getGameContext(): GameContext
+        + dispose(): void
+    }
+}
+
+package io.github.iss_2025_2026.controller {
+
+    class GameController {
+        + {static} MAX_PLAYER_DISTANCE: float
+        - model: GameModel
+        - multiplayerMovementConstraint: MultiplayerMovementConstraint
+        + GameController(model: GameModel)
+        + update(delta: float): void
+        ~ handlePlayerMovement(delta: float, player: Player): void
+        ~ handlePlayerMovement(delta: float, player: Player, upPressed: boolean, downPressed: boolean, leftPressed: boolean, rightPressed: boolean): void
+    }
+
+    class MultiplayerMovementConstraint <<Constraint>> {
+        ~ normalizeInitialDistance(first: Player, second: Player, maxDistance: float): void
+        ~ rollbackIfExceeded(first: Player, second: Player, previousPositions..., maxDistance: float): boolean
+    }
+
+    class BattleController {
+        - model: BattleModel
+        - menuState: MenuState
+        + BattleController(model: BattleModel)
+        + onAttackSelected(): void
+        + onTargetSelected(target: Enemy): void
+        + onSpecialAbilitySelected(): void
+        + onInventorySelected(): void
+        + onItemSelected(item: Collectible, target: Enemy): ItemUseResult
+        + update(delta: float): void
+    }
+
+    class GameContext {
+        - gameModel: GameModel
+        - gameController: GameController
+        - sceneController: SceneController
+        + GameContext(gameModel: GameModel, gameController: GameController, sceneController: SceneController)
+        + getGameModel(): GameModel
+        + getGameController(): GameController
+        + getSceneController(): SceneController
+    }
+
+    class GameFlowController {
+        - mainClass: Main
+        - gameModel: GameModel
+        - sceneController: SceneController
+        + GameFlowController(mainClass: Main, gameModel: GameModel, sceneController: SceneController)
+        + startNewGame(gameName: String, p1Id: String, p2Id: String, mode: GameMode): void
+        + loadGame(saveFileName: String): void
+        + saveGame(type: SaveType): void
+        + triggerBattle(enemies: List<Enemy>): void
+        + endBattle(won: boolean): void
+        + triggerGameOver(reason: String): void
+        + returnToMainMenu(): void
+    }
+
+    class MainMenuController {
+        - model: MainMenuModel
+        - flowController: GameFlowController
+        + MainMenuController(model: MainMenuModel, flowController: GameFlowController)
+        + selectNewGame(): void
+        + selectLoadGame(): void
+        + selectSettings(): void
+        + selectQuit(): void
+    }
+
+    class CharacterSelectionController {
+        - model: CharacterSelectionModel
+        - flowController: GameFlowController
+        + CharacterSelectionController(model: CharacterSelectionModel, flowController: GameFlowController)
+        + confirmSelection(p1Id: String, p2Id: String, gameName: String, mode: GameMode): void
+    }
+
+    class GameOverController {
+        - model: GameModel
+        - gameOverService: GameOverService
+        - levelResumeAction: LevelResumeAction
+        + GameOverController(model: GameModel, gameOverService: GameOverService, levelResumeAction: LevelResumeAction)
+        + getModel(): GameModel
+        + onContinue(): GameOverResult
+    }
+
+    interface LevelResumeAction {
+        + resumeLevel(): void
+    }
+
+    interface SceneController {
+        + setScreen(screen: Screen): void
+        + showMainMenu(): void
+        + showCharacterSelection(): void
+        + showLevelScreen(): void
+        + showBattleScreen(enemies: List<Enemy>): void
+        + showGameOverScreen(result: GameOverResult): void
+    }
+
+    io.github.iss_2025_2026.Main "1" *-- "1" GameContext : contains
+    GameController "1" o-- "1" io.github.iss_2025_2026.model.GameModel
+    GameController "1" *-- "1" MultiplayerMovementConstraint
+    BattleController "1" o-- "1" io.github.iss_2025_2026.model.combat.BattleModel
+    GameContext "1" o-- "1" GameController
+    GameContext "1" o-- "1" SceneController
+    GameFlowController "1" o-- "1" io.github.iss_2025_2026.model.GameModel
+    GameFlowController "1" o-- "1" SceneController
+    MainMenuController "1" o-- "1" GameFlowController
+    CharacterSelectionController "1" o-- "1" GameFlowController
+    GameOverController "1" o-- "1" LevelResumeAction
+    GameOverController "1" o-- "1" io.github.iss_2025_2026.model.GameModel
+}
+@enduml

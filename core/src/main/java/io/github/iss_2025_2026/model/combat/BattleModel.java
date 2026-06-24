@@ -1,6 +1,6 @@
 package io.github.iss_2025_2026.model.combat;
 
-import io.github.iss_2025_2026.model.Character;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.Collectible;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.Player;
@@ -24,6 +24,7 @@ public class BattleModel {
     private BattlePhase phase;
     private float fleeTimer;
     private int totalXpEarned;
+    private boolean itemUsedThisTurn;
     private final List<String> battleLog;
     private final Random random;
 
@@ -34,8 +35,23 @@ public class BattleModel {
         this.phase = BattlePhase.PLAYER_ONE_TURN;
         this.fleeTimer = INITIAL_FLEE_TIMER;
         this.totalXpEarned = 0;
+        this.itemUsedThisTurn = false;
         this.battleLog = new ArrayList<>();
         this.random = new Random();
+        // Resetta l'uso delle abilità speciali per la nuova battaglia
+        resetPlayersSpecialAbilityUsage();
+
+        // Check for level 3 boss karma perk
+        for (Enemy enemy : this.enemies) {
+            if ("boss_livello_3".equals(enemy.getEnemyId())) {
+                float karmaPercentOne = (playerOne.getKarma() + 50f) / 100f;
+                float karmaPercentTwo = (playerTwo != null) ? (playerTwo.getKarma() + 50f) / 100f : 0f;
+                if (karmaPercentOne >= 0.75f || karmaPercentTwo >= 0.75f) {
+                    enemy.takeDamage(100);
+                    battleLog.add("Tutte le persone che hai aiutato adesso ricambiano il favore, il Sovrano Proxima perde 100 HP");
+                }
+            }
+        }
     }
 
     public BattlePhase getPhase() {
@@ -62,6 +78,13 @@ public class BattleModel {
             return;
         }
 
+        // Un giocatore con 0 HP non può attaccare
+        if (!attacker.isAlive()) {
+            battleLog.add(attacker.getName() + " è KO e non può attaccare!");
+            resolveAfterPlayerAction(attacker);
+            return;
+        }
+
         int damage = attacker.getBaseDamage();
         target.takeDamage(damage);
         battleLog.add(attacker.getName() + " attacca " + target.getName() + "! Danni: " + damage + " HP");
@@ -74,13 +97,27 @@ public class BattleModel {
             return;
         }
 
+        // Un giocatore con 0 HP non può usare abilità speciali
+        if (!attacker.isAlive()) {
+            battleLog.add(attacker.getName() + " è KO e non può usare abilità!");
+            resolveAfterPlayerAction(attacker);
+            return;
+        }
+
+        // Controllo: il giocatore può usare l'abilità speciale solo una volta per battaglia
+        if (attacker.hasUsedSpecialAbilityThisBattle()) {
+            battleLog.add(" EHI, dovresti sapere che posso usare l'abilità speciale una sola volta per battaglia, ora abbiamo sprecato un turno!");
+            resolveAfterPlayerAction(attacker);
+            return;
+        }
+
         SpecialAbility ability = attacker.getAbility();
         if (ability == null) {
             resolveAfterPlayerAction(attacker);
             return;
         }
 
-        List<Character> targets = resolveSpecialAbilityTargets(attacker);
+        List<Characters> targets = resolveSpecialAbilityTargets(attacker);
         if (targets.isEmpty()) {
             resolveAfterPlayerAction(attacker);
             return;
@@ -89,26 +126,38 @@ public class BattleModel {
         if (ability instanceof DataDrivenAbility) {
             ((DataDrivenAbility) ability).performOnTargets(attacker, targets, attacker.getLevel());
         } else {
-            for (Character target : targets) {
+            for (Characters target : targets) {
                 ability.perform(attacker, target, attacker.getLevel());
             }
         }
 
         appendSpecialAbilityLog(attacker, ability);
+
+        // Segna che il giocatore ha usato l'abilità speciale in questa battaglia
+        attacker.markSpecialAbilityUsed();
+
         resolveAfterPlayerAction(attacker);
     }
 
-    public void executeUseItem(Player user, Collectible item, Enemy target) {
-        if (user == null || item == null) {
-            return;
+    public ItemUseResult executeUseItem(Player user, Collectible item, Enemy target) {
+        ItemUseResult validationResult = validateItemUse(user, item);
+        if (validationResult != ItemUseResult.USED) {
+            battleLog.add(validationResult.getMessage());
+            return validationResult;
         }
 
-        List<Character> targets = buildItemTargets(user, item, target);
+        List<Characters> targets = buildItemTargets(user, item, target);
         item.use(new CollectibleUseContext(user, targets));
         user.getBackpack().removeItem(item);
         battleLog.add(user.getName() + " usa " + item.getName());
+        itemUsedThisTurn = true;
 
-        resolveAfterPlayerAction(user);
+        updateEndState();
+        return ItemUseResult.USED;
+    }
+
+    public boolean canCurrentPlayerUseItem() {
+        return isPlayerTurn() && !itemUsedThisTurn;
     }
 
     public void executeEnemyTurn() {
@@ -133,7 +182,26 @@ public class BattleModel {
             return;
         }
 
-        phase = BattlePhase.PLAYER_ONE_TURN;
+        itemUsedThisTurn = false;
+        // Se P1 è KO e P2 è vivo, salta direttamente al turno di P2
+        if (!playerOne.isAlive() && playerTwo != null && playerTwo.isAlive()) {
+            phase = BattlePhase.PLAYER_TWO_TURN;
+        } else {
+            phase = BattlePhase.PLAYER_ONE_TURN;
+        }
+    }
+
+    /**
+     * Salta il turno del giocatore corrente se è KO.
+     * Avanza alla fase successiva (turno P2 o turno nemico).
+     */
+    public void skipKoPlayerTurn() {
+        Player current = getCurrentTurnPlayer();
+        if (current == null || current.isAlive()) {
+            return; // non è KO, non saltare
+        }
+        battleLog.add(current.getName() + " è KO, turno saltato!");
+        resolveAfterPlayerAction(current);
     }
 
     public boolean tryFlee() {
@@ -191,6 +259,9 @@ public class BattleModel {
     }
 
     public void awardXpToPlayers() {
+        // Rianima i giocatori KO a 1 HP se almeno un compagno è sopravvissuto
+        reviveDeadPlayers();
+
         int xp = 0;
         for (Enemy enemy : enemies) {
             if (!enemy.isAlive()) {
@@ -200,7 +271,52 @@ public class BattleModel {
         totalXpEarned = xp;
         if (xp > 0) {
             battleLog.add("Vittoria! +" + xp + " XP guadagnati.");
+            // Distribuisci l'XP equamente tra tutti i giocatori (inclusi quelli rianimati)
+            List<Player> allPlayers = getAllPlayers();
+            if (!allPlayers.isEmpty()) {
+                int perPlayer = xp / allPlayers.size();
+                int remainder = xp % allPlayers.size();
+                for (int i = 0; i < allPlayers.size(); i++) {
+                    Player p = allPlayers.get(i);
+                    int grant = perPlayer + (i == 0 ? remainder : 0); // assegna il resto al primo
+                    if (grant > 0) {
+                        p.addXp(grant);
+                        battleLog.add(p.getName() + " riceve " + grant + " XP");
+                    }
+                }
+            }
         }
+    }
+
+    /**
+     * Rianima i giocatori KO a 1 HP se almeno uno dei due è ancora vivo.
+     * Chiamato alla fine di una battaglia vinta.
+     */
+    private void reviveDeadPlayers() {
+        if (playerTwo == null) {
+            return; // single player, niente da rianimare
+        }
+        boolean p1Alive = playerOne.isAlive();
+        boolean p2Alive = playerTwo.isAlive();
+        if (p1Alive && !p2Alive) {
+            playerTwo.setHp(1);
+            battleLog.add(playerTwo.getName() + " è stato rianimato con 1 HP!");
+        } else if (!p1Alive && p2Alive) {
+            playerOne.setHp(1);
+            battleLog.add(playerOne.getName() + " è stato rianimato con 1 HP!");
+        }
+    }
+
+    /**
+     * Restituisce tutti i giocatori (vivi e KO).
+     */
+    private List<Player> getAllPlayers() {
+        List<Player> all = new ArrayList<>();
+        all.add(playerOne);
+        if (playerTwo != null) {
+            all.add(playerTwo);
+        }
+        return all;
     }
 
     public int getTotalXpEarned() {
@@ -209,6 +325,19 @@ public class BattleModel {
 
     public List<Enemy> getEnemies() {
         return Collections.unmodifiableList(enemies);
+    }
+
+    /**
+     * Verifica se la battaglia includeva almeno un boss.
+     * Utilizzato per determinare se la vittoria deve innescare il completamento del livello.
+     */
+    public boolean wasBossBattle() {
+        for (Enemy enemy : enemies) {
+            if (enemy.isBoss()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Player getPlayerOne() {
@@ -224,6 +353,7 @@ public class BattleModel {
             return;
         }
 
+        itemUsedThisTurn = false;
         if (actingPlayer == playerOne && playerTwo != null && playerTwo.isAlive()) {
             phase = BattlePhase.PLAYER_TWO_TURN;
         } else {
@@ -243,6 +373,26 @@ public class BattleModel {
         return false;
     }
 
+    private ItemUseResult validateItemUse(Player user, Collectible item) {
+        if (user == null || !isPlayerTurn() || user != getCurrentTurnPlayer()) {
+            return ItemUseResult.INVALID_TURN;
+        }
+        if (item == null) {
+            return ItemUseResult.INVALID_ITEM;
+        }
+        if (!user.getBackpack().getItems().contains(item)) {
+            return ItemUseResult.NOT_OWNED;
+        }
+        if (itemUsedThisTurn) {
+            return ItemUseResult.ALREADY_USED;
+        }
+        return ItemUseResult.USED;
+    }
+
+    private boolean isPlayerTurn() {
+        return phase == BattlePhase.PLAYER_ONE_TURN || phase == BattlePhase.PLAYER_TWO_TURN;
+    }
+
     private boolean allEnemiesDefeated() {
         for (Enemy enemy : enemies) {
             if (enemy.isAlive()) {
@@ -252,11 +402,15 @@ public class BattleModel {
         return !enemies.isEmpty();
     }
 
-    private List<Character> buildItemTargets(Player user, Collectible item, Enemy target) {
-        List<Character> targets = new ArrayList<>();
+    private List<Characters> buildItemTargets(Player user, Collectible item, Enemy target) {
+        List<Characters> targets = new ArrayList<>();
         String effectType = item.getEffectType();
         if (effectType != null && ("HEAL".equalsIgnoreCase(effectType) || "BUFF".equalsIgnoreCase(effectType))) {
             targets.add(user);
+        } else if (item.isAoe()) {
+            for (Enemy enemy : getAliveEnemies()) {
+                targets.add(enemy);
+            }
         } else if (target != null) {
             targets.add(target);
         } else {
@@ -265,7 +419,7 @@ public class BattleModel {
         return targets;
     }
 
-    private List<Character> resolveSpecialAbilityTargets(Player attacker) {
+    private List<Characters> resolveSpecialAbilityTargets(Player attacker) {
         SpecialAbility ability = attacker.getAbility();
         if (ability == null) {
             return Collections.emptyList();
@@ -274,14 +428,14 @@ public class BattleModel {
         if (ability instanceof DataDrivenAbility) {
             String strategy = ((DataDrivenAbility) ability).getConfig().getStrategy();
             if ("HEAL".equalsIgnoreCase(strategy)) {
-                return new ArrayList<Character>(getAlivePlayers());
+                return new ArrayList<Characters>(getAlivePlayers());
             }
             if ("DAMAGE".equalsIgnoreCase(strategy)) {
-                return new ArrayList<Character>(getAliveEnemies());
+                return new ArrayList<Characters>(getAliveEnemies());
             }
         }
 
-        List<Character> enemyTargets = new ArrayList<>();
+        List<Characters> enemyTargets = new ArrayList<>();
         for (Enemy enemy : getAliveEnemies()) {
             enemyTargets.add(enemy);
         }
@@ -301,5 +455,17 @@ public class BattleModel {
             return;
         }
         battleLog.add(attacker.getName() + " usa " + ability.getName() + "!");
+    }
+
+    /**
+     * Resetta l'uso delle abilità speciali per entrambi i giocatori all'inizio di una nuova battaglia
+     */
+    private void resetPlayersSpecialAbilityUsage() {
+        if (playerOne != null) {
+            playerOne.resetSpecialAbilityUsageForBattle();
+        }
+        if (playerTwo != null) {
+            playerTwo.resetSpecialAbilityUsageForBattle();
+        }
     }
 }

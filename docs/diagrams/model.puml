@@ -1,0 +1,388 @@
+@startuml model
+!pragma layout smetana
+!pragma layout smetana
+package io.github.iss_2025_2026.model {
+
+    abstract class Character {
+        - name: String
+        - hp: int
+        - maxHp: int
+        - baseDamage: int
+        # level: int
+        - x: float
+        - y: float
+        - speed: float
+        - direction: Direction
+        - state: CharacterState
+        - stateTime: float
+        - attackDuration: float
+        + Character(name: String, maxHp: int, baseDamage: int, level: int)
+        + takeDamage(amount: int): void
+        + heal(amount: int): void
+        + increaseBaseDamageByPercent(percentage: int): void
+        + isAlive(): boolean
+        + copyRuntimeStateTo(copy: Character): void
+    }
+
+    class Player {
+        - characterId: String
+        - karma: int
+        - backpack: Backpack
+        - ability: SpecialAbility
+        - abilitiesBySlot: Map<AbilitySlot, SpecialAbility>
+        - evolutionState: PlayerEvolutionState
+        - maxHpGrowth: int
+        - damageGrowth: int
+        - specialAbilityUsedThisBattle: boolean
+        + Player(name: String, maxHp: int, baseDamage: int, ability: SpecialAbility)
+        + modifyKarma(variation: int): void
+        + useSpecialAbility(target: Character): void
+        + hasUsedSpecialAbilityThisBattle(): boolean
+        + markSpecialAbilityUsed(): void
+        + resetSpecialAbilityUsageForBattle(): void
+        + levelUp(): void
+        + restoreState(...)
+    }
+
+    class Enemy {
+        - enemyId: String
+        - xpReward: int
+        - isBoss: boolean
+        - specialAbility: SpecialAbility
+        + Enemy(name: String, enemyId: String, maxHp: int, baseDamage: int, xpReward: int, isBoss: boolean)
+        + hasSpecialAbility(): boolean
+        + copy(): Enemy
+    }
+
+    interface CharacterPrototype<T> {
+        + copy(): T
+    }
+
+    class Backpack {
+        - capacity: int
+        - items: List<Collectible>
+        + Backpack(capacity: int)
+        + addItem(item: Collectible): boolean
+        + removeItem(item: Collectible): boolean
+        + getItems(): List<Collectible>
+    }
+
+    class Collectible {
+        - id: String
+        - name: String
+        - description: String
+        - effectType: String
+        - aoe: boolean
+        - effectValue: int
+        + Collectible()
+        + Collectible(id: String, name: String, description: String, effectType: String, aoe: boolean, effectValue: int)
+        + use(context: CollectibleUseContext): void
+        + canBeUsedInLevel(levelId: int): boolean
+        + copy(): Collectible
+    }
+
+    class Npc {
+        - id: String
+        - name: String
+        - levelId: String
+        - type: NpcType
+        - role: String
+        - mission: String
+        - rewardId: String
+        - rareRewardId: String
+        - altruismReward: int
+        - altruismPenalty: int
+        - canBecomeHostile: boolean
+        - dialoguePrompt: String
+        + copy(): Npc
+    }
+
+    class PlayerEvolutionState {
+        - altruismScore: int
+        - egoismScore: int
+        - helpedNpcs: int
+        - stolenItems: int
+        - selectedAbilitySlot: AbilitySlot
+        - unlockedAbilitySlots: Set<AbilitySlot>
+        - npcTrust: Map<String, Integer>
+        + getDominantPath(): EvolutionPath
+        + unlockAbilitySlot(slot: AbilitySlot): void
+    }
+
+    class DialogueProfile {
+        - path: EvolutionPath
+        - temperature: float
+        - tone: String
+        - promptSuffix: String
+    }
+
+    interface SpecialAbility {
+        + getName(): String
+        + getDescription(): String
+        + perform(source: Character, target: Character, level: int): void
+    }
+
+    class GameModel {
+        - gameState: GameState
+        - message: String
+        - timer: float
+        - gameName: String
+        - gameMode: GameMode
+        - playerOne: Player
+        - playerTwo: Player
+        - gameStarted: boolean
+        - currentSaveFileName: String
+        - activeBattleModel: BattleModel
+        + GameModel()
+        + update(delta: float): void
+        + startSinglePlayerGame(gameName: String, player: Player): void
+        + startMultiplayerGame(gameName: String, p1: Player, p2: Player): void
+    }
+
+    class GameState {
+        - schemaVersion: int
+        - saveType: SaveType
+        - gameName: String
+        - gameMode: GameMode
+        - playerOne: PlayerSaveState
+        - playerTwo: PlayerSaveState
+        - savedAt: String
+        - currentLevelId: int
+        - phase: Phase
+        - completedLevelIds: List<Integer>
+        - lastCheckpointLevelId: int
+        + GameState()
+        + addCompletedLevelId(levelId: int): void
+    }
+
+    class PlayerSaveState {
+        - characterId: String
+        - name: String
+        - hp: int
+        - maxHp: int
+        - baseDamage: int
+        - level: int
+        - karma: int
+        - backpack: Backpack
+        - x: float
+        - y: float
+        - direction: Direction
+        - state: CharacterState
+        + PlayerSaveState()
+        + PlayerSaveState(characterId: String, name: String, hp: int, maxHp: int, baseDamage: int, level: int, karma: int, backpack: Backpack)
+    }
+
+    class CharacterSelectionModel {
+        - characters: List<CharacterSelectionOption>
+        - selectedIndex: int
+        + CharacterSelectionModel(factory: PlayerFactory)
+        + getSelectedCharacter(): CharacterSelectionOption
+        + nextCharacter(): void
+        + previousCharacter(): void
+    }
+
+    class CharacterSelectionOption {
+        - id: String
+        - name: String
+        - description: String
+        - maxHp: int
+        - baseDamage: int
+        - maxHpGrowth: int
+        - damageGrowth: int
+        - abilityName: String
+        - abilityDescription: String
+        - traits: List<String>
+        + CharacterSelectionOption(...)
+    }
+
+    class GameSettings {
+        - masterVolume: float
+        - musicVolume: float
+        - sfxVolume: float
+        - keyBindings: Map<String, String>
+        + GameSettings()
+    }
+
+    class SettingsMenuModel {
+        - masterVolume: float
+        - musicVolume: float
+        - sfxVolume: float
+        - keyBindings: Map<String, String>
+        + SettingsMenuModel()
+        + toGameSettings(): GameSettings
+        + loadFrom(gs: GameSettings): void
+    }
+
+    class MainMenuModel {
+        + getAvailableActions(isRunning: boolean): MenuAction[]
+    }
+
+    class NewGameConfigModel {
+        - gameName: String
+        - gameMode: GameMode
+        - selectedCharacterPlayerOne: String
+        - selectedCharacterPlayerTwo: String
+        + NewGameConfigModel()
+        + isMultiplayer(): boolean
+    }
+
+    enum Direction {
+        UP
+        DOWN
+        LEFT
+        RIGHT
+    }
+
+    enum CharacterState {
+        IDLE
+        WALKING
+        ATTACKING
+        HIT
+        DEAD
+    }
+
+    enum NpcType {
+        ALLY
+        MERCHANT
+        QUEST_GIVER
+        AMBIGUOUS
+        CONDITIONAL_HOSTILE
+        NARRATOR
+    }
+
+    enum AbilitySlot {
+        BASE
+        ALTRUISTIC
+        EGOISTIC
+    }
+
+    enum EvolutionPath {
+        BALANCED
+        ALTRUISTIC
+        EGOISTIC
+    }
+
+    Character <|-- Player
+    Character <|-- Enemy
+    CharacterPrototype <|.. Enemy
+    Npc "1" --> "1" NpcType : classified as
+    Player "1" *-- "1" Backpack : contains
+    Player "1" *-- "1" PlayerEvolutionState : evolves through
+    PlayerEvolutionState "1" --> "1" AbilitySlot : selected
+    PlayerEvolutionState "1" --> "1" EvolutionPath : dominant path
+    Player "1" o-- "0..1" SpecialAbility : uses
+    Player "1" o-- "1..3" SpecialAbility : ability slots
+    Enemy "1" o-- "0..1" SpecialAbility : uses
+    Backpack "1" o-- "0..*" Collectible : contains
+    GameModel "1" *-- "1" GameState : maintains
+    GameModel "1" o-- "0..2" Player : has
+    GameState "1" *-- "0..2" PlayerSaveState : contains
+    CharacterSelectionModel "1" *-- "0..*" CharacterSelectionOption : contains
+}
+
+package io.github.iss_2025_2026.model.abilities {
+    interface AbilityStrategy {
+        + execute(context: AbilityContext): void
+    }
+    class DataDrivenAbility implements io.github.iss_2025_2026.model.SpecialAbility {
+        - id: String
+        - name: String
+        - description: String
+        - strategy: AbilityStrategy
+    }
+    class AbilityConfiguration {
+        - id: String
+        - name: String
+        - description: String
+        - strategyType: String
+        - parameters: Map<String, Object>
+    }
+    class AbilityContext {
+        - source: Character
+        - target: Character
+        - level: int
+        - parameters: Map<String, Object>
+        + AbilityContext(source: Character, target: Character, level: int, parameters: Map<String, Object>)
+    }
+    class AbilityFactory {
+        + {static} createAbility(config: AbilityConfiguration): SpecialAbility
+    }
+    class AbilityLoader {
+        + {static} loadAbilities(directoryPath: String): List<AbilityConfiguration>
+    }
+}
+
+package io.github.iss_2025_2026.model.abilities.strategies {
+    class DamageStrategy implements io.github.iss_2025_2026.model.abilities.AbilityStrategy {
+        + execute(context: AbilityContext): void
+    }
+    class HealStrategy implements io.github.iss_2025_2026.model.abilities.AbilityStrategy {
+        + execute(context: AbilityContext): void
+    }
+}
+
+package io.github.iss_2025_2026.model.collectibles {
+    interface CollectibleEffectStrategy {
+        + apply(context: CollectibleUseContext): void
+    }
+    class CollectibleUseContext {
+        - user: Character
+        - targets: List<Character>
+        - currentLevelId: int
+        + CollectibleUseContext(user: Character, targets: List<Character>)
+        + CollectibleUseContext(user: Character, targets: List<Character>, currentLevelId: int)
+        + getUser(): Character
+        + getCurrentLevelId(): int
+        + getTargets(aoe: boolean): List<Character>
+    }
+    class CollectibleEffectFactory {
+        + {static} getStrategy(effectType: String, parameters: Map<String, Object>): CollectibleEffectStrategy
+    }
+}
+
+package io.github.iss_2025_2026.model.collectibles.strategies {
+    class BuffCollectibleStrategy implements io.github.iss_2025_2026.model.collectibles.CollectibleEffectStrategy {
+        + apply(context: CollectibleUseContext): void
+    }
+    class DamageCollectibleStrategy implements io.github.iss_2025_2026.model.collectibles.CollectibleEffectStrategy {
+        + apply(context: CollectibleUseContext): void
+    }
+    class HealCollectibleStrategy implements io.github.iss_2025_2026.model.collectibles.CollectibleEffectStrategy {
+        + apply(context: CollectibleUseContext): void
+    }
+}
+
+package io.github.iss_2025_2026.model.combat {
+    class BattleModel {
+        - playerOne: Player
+        - playerTwo: Player
+        - enemies: List<Enemy>
+        - phase: BattlePhase
+        - itemUsedThisTurn: boolean
+        + BattleModel(p1: Player, p2: Player, enemies: List<Enemy>)
+        + executePlayerAttack(attacker: Player, target: Enemy): void
+        + executePlayerSpecialAbility(attacker: Player): void
+        + executeUseItem(user: Player, item: Collectible, target: Enemy): ItemUseResult
+        + canCurrentPlayerUseItem(): boolean
+    }
+    enum BattlePhase {
+        PLAYER_ONE_TURN
+        PLAYER_TWO_TURN
+        ENEMY_TURN
+        VICTORY
+        DEFEAT
+        FLED
+    }
+    enum ItemUseResult {
+        USED
+        INVALID_TURN
+        INVALID_ITEM
+        NOT_OWNED
+        ALREADY_USED
+    }
+}
+
+Collectible o-- CollectibleEffectStrategy : delegates to
+BattleModel --> ItemUseResult : returns
+BattleModel --> Collectible : uses without ending turn
+@enduml

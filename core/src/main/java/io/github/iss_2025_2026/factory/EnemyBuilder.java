@@ -1,56 +1,52 @@
 package io.github.iss_2025_2026.factory;
 
-import com.badlogic.gdx.Gdx;
 import io.github.iss_2025_2026.model.Enemy;
 import io.github.iss_2025_2026.model.SpecialAbility;
-import java.util.Map;
 
-public class EnemyBuilder {
-    private static final String TAG = "CharacterFactory";
-
+public final class EnemyBuilder implements CharacterBuilder {
     private String id;
-    private String name = "Unknown Enemy";
-    private int maxHp = 50;
-    private int baseDamage = 5;
-    private int xpReward = 15;
+    private String name;
+    private int maxHp;
+    private int baseDamage;
+    private int xpReward;
     private boolean boss;
     private SpecialAbility specialAbility;
 
-    static EnemyBuilder fromConfig(Map<String, Object> data, AbilityRegistry abilityRegistry) {
-        EnemyBuilder builder = new EnemyBuilder()
-                .id(getString(data, "id", null))
-                .name(getString(data, "name", "Unknown Enemy"))
-                .maxHp(getInt(data, "maxHp", 50))
-                .baseDamage(getInt(data, "baseDamage", 5))
-                .xpReward(getInt(data, "xpReward", 15))
-                .boss(getBoolean(data, "isBoss", false));
-
-        String abilityId = getString(data, "abilityId", null);
-        if (abilityId != null && !"NONE".equalsIgnoreCase(abilityId)) {
-            SpecialAbility ability = abilityRegistry.get(abilityId);
-            if (ability == null) {
-                Gdx.app.error(TAG, "WARNING: Ability '" + abilityId + "' not found for enemy '" + builder.id + "'");
-            }
-            builder.specialAbility(ability);
-        }
-        return builder;
+    public EnemyBuilder() {
+        reset();
     }
 
+    @Override
+    public EnemyBuilder reset() {
+        id = null;
+        name = "Unknown Enemy";
+        maxHp = 50;
+        baseDamage = 5;
+        xpReward = 15;
+        boss = false;
+        specialAbility = null;
+        return this;
+    }
+
+    @Override
     public EnemyBuilder id(String id) {
         this.id = id;
         return this;
     }
 
+    @Override
     public EnemyBuilder name(String name) {
         this.name = name;
         return this;
     }
 
+    @Override
     public EnemyBuilder maxHp(int maxHp) {
         this.maxHp = maxHp;
         return this;
     }
 
+    @Override
     public EnemyBuilder baseDamage(int baseDamage) {
         this.baseDamage = baseDamage;
         return this;
@@ -71,24 +67,11 @@ public class EnemyBuilder {
         return this;
     }
 
+    @Override
     public Enemy build() {
         Enemy enemy = new Enemy(name, id, maxHp, baseDamage, xpReward, boss);
         enemy.setSpecialAbility(specialAbility);
+        reset();
         return enemy;
-    }
-
-    private static String getString(Map<String, Object> data, String key, String fallback) {
-        Object value = data.get(key);
-        return value instanceof String ? (String) value : fallback;
-    }
-
-    private static int getInt(Map<String, Object> data, String key, int fallback) {
-        Object value = data.get(key);
-        return value instanceof Number ? ((Number) value).intValue() : fallback;
-    }
-
-    private static boolean getBoolean(Map<String, Object> data, String key, boolean fallback) {
-        Object value = data.get(key);
-        return value instanceof Boolean ? (Boolean) value : fallback;
     }
 }

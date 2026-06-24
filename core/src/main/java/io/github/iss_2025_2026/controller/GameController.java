@@ -14,42 +14,61 @@ import io.github.iss_2025_2026.service.GameProperties;
  * Coordina l'aggiornamento della logica di gioco.
  */
 public class GameController {
-    public static final float MAX_PLAYER_DISTANCE = 400f;
 
     private final GameModel model;
+    private final MultiplayerMovementConstraint multiplayerMovementConstraint;
 
     public GameController(GameModel model) {
         this.model = model;
+        this.multiplayerMovementConstraint = new MultiplayerMovementConstraint();
     }
 
     public void update(float delta) {
         if (model.isMultiplayerGame() && model.getPlayerTwo() != null) {
+            Player playerOne = model.getPlayerOne();
+            Player playerTwo = model.getPlayerTwo();
+
+            float maxDistance = computeMaxCameraDistance();
+
+            multiplayerMovementConstraint.normalizeInitialDistance(playerOne, playerTwo, maxDistance);
+            float previousPlayerOneX = playerOne.getX();
+            float previousPlayerOneY = playerOne.getY();
+            float previousPlayerTwoX = playerTwo.getX();
+            float previousPlayerTwoY = playerTwo.getY();
+
             handlePlayerMovement(
                     delta,
-                    model.getPlayerOne(),
+                    playerOne,
                     Gdx.input.isKeyPressed(Input.Keys.W),
                     Gdx.input.isKeyPressed(Input.Keys.S),
                     Gdx.input.isKeyPressed(Input.Keys.A),
-                    Gdx.input.isKeyPressed(Input.Keys.D),
-                    Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isKeyJustPressed(Input.Keys.Z));
+                    Gdx.input.isKeyPressed(Input.Keys.D));
 
             handlePlayerMovement(
                     delta,
-                    model.getPlayerTwo(),
+                    playerTwo,
                     Gdx.input.isKeyPressed(Input.Keys.UP),
                     Gdx.input.isKeyPressed(Input.Keys.DOWN),
                     Gdx.input.isKeyPressed(Input.Keys.LEFT),
-                    Gdx.input.isKeyPressed(Input.Keys.RIGHT),
-                    Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isKeyJustPressed(Input.Keys.NUMPAD_0));
+                    Gdx.input.isKeyPressed(Input.Keys.RIGHT));
 
-            // Applica il vincolo di distanza reciproca
-            float maxDist = GameProperties.getFloat(GameProperties.KEY_MAX_PLAYER_DISTANCE, MAX_PLAYER_DISTANCE);
-            clampPlayerDistance(model.getPlayerOne(), model.getPlayerTwo(), maxDist);
-            clampPlayerDistance(model.getPlayerTwo(), model.getPlayerOne(), maxDist);
+            multiplayerMovementConstraint.rollbackIfExceeded(
+                    playerOne, playerTwo,
+                    previousPlayerOneX, previousPlayerOneY,
+                    previousPlayerTwoX, previousPlayerTwoY,
+                    maxDistance);
         } else {
             handlePlayerMovement(delta, model.getPlayerOne());
         }
         model.update(delta);
+    }
+
+    private float computeMaxCameraDistance() {
+        float zoomMin = GameProperties.getFloat(GameProperties.KEY_CAMERA_ZOOM_MIN, 2.0f);
+        float playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
+        float padding = playerSize * 0.5f;
+        float viewportHeight = Gdx.graphics.getHeight();
+        return zoomMin * viewportHeight - playerSize * 2f - padding;
     }
 
     void handlePlayerMovement(float delta, Player player) {
@@ -59,37 +78,17 @@ public class GameController {
                 Gdx.input.isKeyPressed(Input.Keys.W),
                 Gdx.input.isKeyPressed(Input.Keys.S),
                 Gdx.input.isKeyPressed(Input.Keys.A),
-                Gdx.input.isKeyPressed(Input.Keys.D),
-                Gdx.input.isKeyJustPressed(Input.Keys.SPACE) || Gdx.input.isKeyJustPressed(Input.Keys.Z));
+                Gdx.input.isKeyPressed(Input.Keys.D));
     }
 
     void handlePlayerMovement(
             float delta, Player player, boolean upPressed, boolean downPressed, boolean leftPressed,
             boolean rightPressed) {
-        handlePlayerMovement(delta, player, upPressed, downPressed, leftPressed, rightPressed, false);
-    }
-
-    void handlePlayerMovement(
-            float delta, Player player, boolean upPressed, boolean downPressed, boolean leftPressed,
-            boolean rightPressed, boolean attackPressed) {
         if (player == null) {
             return;
         }
 
         player.updateStateTime(delta);
-
-        if (player.getState() == CharacterState.ATTACKING) {
-            if (player.getStateTime() >= player.getAttackDuration()) {
-                player.setState(CharacterState.IDLE);
-            } else {
-                return;
-            }
-        }
-
-        if (attackPressed) {
-            player.setState(CharacterState.ATTACKING);
-            return;
-        }
 
         float isoX = 0;
         float isoY = 0;
@@ -129,21 +128,4 @@ public class GameController {
         player.setState(CharacterState.IDLE);
     }
 
-    void clampPlayerDistance(Player firstPlayer, Player secondPlayer, float maxDistance) {
-        if (firstPlayer == null || secondPlayer == null) {
-            return;
-        }
-
-        float dx = firstPlayer.getX() - secondPlayer.getX();
-        float dy = firstPlayer.getY() - secondPlayer.getY();
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > maxDistance && distance > 0f) {
-            float directionX = dx / distance;
-            float directionY = dy / distance;
-
-            firstPlayer.setX(secondPlayer.getX() + directionX * maxDistance);
-            firstPlayer.setY(secondPlayer.getY() + directionY * maxDistance);
-        }
-    }
 }

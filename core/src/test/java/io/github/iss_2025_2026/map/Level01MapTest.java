@@ -23,7 +23,7 @@ public class Level01MapTest {
     public void manifestDefinesTheAvailableDevRuntimeLevel() throws Exception {
         LevelCatalog catalog = loadProjectCatalog();
 
-        assertEquals(1, catalog.getLevels().size());
+        assertTrue(catalog.getLevels().size() >= 1);
         assertEquals("map/levels/1/level.tmx", catalog.requireLevel(1).getMapPath());
     }
 
@@ -38,6 +38,8 @@ public class Level01MapTest {
         assertNotNull(layer(document, "terreno"));
         assertNotNull(objectGroup(document, TmxMapContract.LAYER_SPAWN));
         assertNotNull(objectGroup(document, TmxMapContract.LAYER_OBSTACLES));
+        assertNotNull(objectGroup(document, TmxMapContract.LAYER_NPCS));
+        assertNotNull(objectGroup(document, TmxMapContract.LAYER_COLLECTIBLES));
     }
 
     @Test
@@ -161,6 +163,7 @@ public class Level01MapTest {
                 "<map orientation=\"isometric\" width=\"1\" height=\"1\" tilewidth=\"256\" tileheight=\"128\">\n" +
                 "  <layer name=\"terreno\" width=\"1\" height=\"1\"><data encoding=\"csv\">0</data></layer>\n" +
                 "  <objectgroup name=\"Ostacoli\"/>\n" +
+                "  <objectgroup name=\"Object\"/>\n" +
                 "  <objectgroup name=\"Spawn\"><object name=\"Spawn\" x=\"0\" y=\"0\"><point/></object></objectgroup>\n"
                 +
                 "</map>\n").getBytes(StandardCharsets.UTF_8));
@@ -184,6 +187,7 @@ public class Level01MapTest {
                 "<map orientation=\"isometric\" width=\"1\" height=\"1\" tilewidth=\"256\" tileheight=\"128\">\n" +
                 "  <layer name=\"terreno\" width=\"1\" height=\"1\"><data encoding=\"csv\">0</data></layer>\n" +
                 "  <objectgroup name=\"Ostacoli\"/>\n" +
+                "  <objectgroup name=\"Object\"/>\n" +
                 "  <objectgroup name=\"Spawn\"><object name=\"Spawn\" x=\"0\" y=\"0\"><point/></object></objectgroup>\n" +
                 "  <objectgroup name=\"checkpoint\">" + checkpointObjectXml + "</objectgroup>\n" +
                 "</map>\n").getBytes(StandardCharsets.UTF_8));

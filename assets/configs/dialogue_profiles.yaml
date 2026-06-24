@@ -1,0 +1,15 @@
+profiles:
+  balanced:
+    temperature: 0.75
+    tone: "curioso, neutrale, leggermente ironico"
+    promptSuffix: "Mantieni una risposta coerente, aperta a entrambe le possibilita morali."
+
+  altruistic:
+    temperature: 0.55
+    tone: "fiducioso, collaborativo, caldo"
+    promptSuffix: "Gli NPC dovrebbero fidarsi di piu, offrire aiuto e riconoscere le buone azioni del giocatore."
+
+  egoistic:
+    temperature: 0.95
+    tone: "diffidente, tagliente, imprevedibile"
+    promptSuffix: "Gli NPC dovrebbero essere piu sospettosi, provocatori o cauti verso il giocatore."

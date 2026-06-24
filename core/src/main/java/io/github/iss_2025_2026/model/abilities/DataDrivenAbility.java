@@ -1,6 +1,6 @@
 package io.github.iss_2025_2026.model.abilities;
 
-import io.github.iss_2025_2026.model.Character;
+import io.github.iss_2025_2026.model.Characters;
 import io.github.iss_2025_2026.model.SpecialAbility;
 import java.util.Collections;
 import java.util.List;
@@ -46,12 +46,12 @@ public class DataDrivenAbility implements SpecialAbility {
     }
 
     @Override
-    public void perform(Character user, Character target, int userLevel) {
+    public void perform(Characters user, Characters target, int userLevel) {
         AbilityContext context = new AbilityContext(user, Collections.singletonList(target));
         strategy.execute(context, config);
     }
 
-    public void performOnTargets(Character user, List<Character> targets, int userLevel) {
+    public void performOnTargets(Characters user, List<? extends Characters> targets, int userLevel) {
         if (targets == null || targets.isEmpty()) {
             return;
         }

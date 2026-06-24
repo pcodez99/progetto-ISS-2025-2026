@@ -8,3 +8,21 @@ levels:
         objectName: checkpoint
         radius: 96
         autosave: true
+  - id: 2
+    name: Astronave
+    map: map/levels/2/MapLevel2.tmx
+    checkpoints:
+      - id: astronave_cp_2
+        layer: checkpoint
+        objectName: checkpoint
+        radius: 96
+        autosave: true
+  - id: 3
+    name: Pianeta Proxima Centauri
+    map: map/levels/3/MapLevel3.tmx
+    checkpoints:
+      - id: ProximaCentauri_cp_3
+        layer: checkpoint
+        objectName: checkpoint
+        radius: 96
+        autosave: true

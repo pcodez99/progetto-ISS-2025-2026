@@ -1,0 +1,7 @@
+id: "PAPA_HEAVY_HIT"
+name: "Colpo Testardo"
+description: "Attacco egoista piu pesante, pensato per chiudere lo scontro senza guardarsi troppo indietro."
+strategy: "DAMAGE"
+cooldown: 3
+aoe: true
+baseDamage: 34

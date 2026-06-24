@@ -8,6 +8,7 @@ import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.headless.HeadlessApplication;
 import io.github.iss_2025_2026.map.CheckpointDefinition;
 import io.github.iss_2025_2026.model.Backpack;
+import io.github.iss_2025_2026.model.AbilitySlot;
 import io.github.iss_2025_2026.model.Direction;
 import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.GameState;
@@ -61,6 +62,7 @@ class GameSaveServiceTest {
         assertEquals(321f, state.getPlayerOne().getX(), 0.001f);
         assertEquals(654f, state.getPlayerOne().getY(), 0.001f);
         assertEquals(Direction.RIGHT, state.getPlayerOne().getDirection());
+        assertTrue(state.getPlayerOne().getEvolutionState().isAbilitySlotUnlocked(AbilitySlot.BASE));
     }
 
     @Test
@@ -128,6 +130,8 @@ class GameSaveServiceTest {
     void manualSaveAndLoadRestorePlayerState() throws IOException {
         GameModel source = runningModel();
         source.getPlayerOne().takeDamage(25);
+        source.getPlayerOne().getEvolutionState().addAltruism(30);
+        source.getPlayerOne().unlockAbilitySlot(AbilitySlot.ALTRUISTIC);
         GameSaveService.saveManual(source);
 
         GameModel restored = new GameModel();
@@ -138,6 +142,8 @@ class GameSaveServiceTest {
         assertEquals(321f, restored.getPlayerOne().getX(), 0.001f);
         assertEquals(654f, restored.getPlayerOne().getY(), 0.001f);
         assertEquals(Direction.RIGHT, restored.getPlayerOne().getDirection());
+        assertEquals(30, restored.getPlayerOne().getEvolutionState().getAltruismScore());
+        assertTrue(restored.getPlayerOne().isAbilitySlotUnlocked(AbilitySlot.ALTRUISTIC));
     }
 
     @Test

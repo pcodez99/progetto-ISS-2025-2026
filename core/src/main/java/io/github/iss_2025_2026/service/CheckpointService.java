@@ -7,6 +7,7 @@ import io.github.iss_2025_2026.model.GameModel;
 import io.github.iss_2025_2026.model.Player;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,13 +16,20 @@ import java.util.Map;
 public final class CheckpointService {
     private final GameModel model;
     private final LevelRuntime levelRuntime;
-    private final Map<String, Vector2> checkpointPositions = new HashMap<>();
-    private final float playerSize;
+    private final Map<String, List<Vector2>> checkpointPolylines = new HashMap<>();
+    private final float playerInteractionOffsetX;
+    private final float playerInteractionOffsetY;
 
     public CheckpointService(GameModel model, LevelRuntime levelRuntime) {
+        this(model, levelRuntime, defaultPlayerSize() / 2f, defaultPlayerSize() * 0.48f);
+    }
+
+    public CheckpointService(GameModel model, LevelRuntime levelRuntime,
+            float playerInteractionOffsetX, float playerInteractionOffsetY) {
         this.model = model;
         this.levelRuntime = levelRuntime;
-        this.playerSize = GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
+        this.playerInteractionOffsetX = playerInteractionOffsetX;
+        this.playerInteractionOffsetY = playerInteractionOffsetY;
     }
 
     public SaveResult pollCheckpointReachedEvent() {
@@ -57,26 +65,64 @@ public final class CheckpointService {
     }
 
     private boolean isReached(CheckpointDefinition checkpoint) {
-        Vector2 checkpointPosition = checkpointPosition(checkpoint);
-        return hasReachedCheckpointLine(model.getPlayerOne(), checkpointPosition.x, playerSize)
-                || hasReachedCheckpointLine(model.getPlayerTwo(), checkpointPosition.x, playerSize);
+        List<Vector2> checkpointPolyline = checkpointPolyline(checkpoint);
+        return isPlayerNearPolyline(
+                    model.getPlayerOne(), checkpointPolyline, checkpoint.getRadius(),
+                    playerInteractionOffsetX, playerInteractionOffsetY)
+                || isPlayerNearPolyline(
+                    model.getPlayerTwo(), checkpointPolyline, checkpoint.getRadius(),
+                    playerInteractionOffsetX, playerInteractionOffsetY);
     }
 
-    private Vector2 checkpointPosition(CheckpointDefinition checkpoint) {
-        Vector2 position = checkpointPositions.get(checkpoint.getId());
-        if (position == null) {
-            position = levelRuntime.getLevel().checkpointWorldPosition(checkpoint);
-            checkpointPositions.put(checkpoint.getId(), position);
+    private List<Vector2> checkpointPolyline(CheckpointDefinition checkpoint) {
+        List<Vector2> vertices = checkpointPolylines.get(checkpoint.getId());
+        if (vertices == null) {
+            vertices = levelRuntime.getLevel().checkpointWorldPolyline(checkpoint);
+            checkpointPolylines.put(checkpoint.getId(), vertices);
         }
-        return position;
+        return vertices;
     }
 
-    static boolean hasReachedCheckpointLine(Player player, float checkpointX, float playerSize) {
-        if (player == null) {
+    static boolean isPlayerNearPolyline(Player player, List<Vector2> vertices, float radius,
+            float playerInteractionOffsetX, float playerInteractionOffsetY) {
+        if (player == null || vertices == null || vertices.size() < 2 || radius <= 0f) {
             return false;
         }
 
-        float playerCenterX = player.getX() + playerSize / 2f;
-        return playerCenterX >= checkpointX;
+        float playerCenterX = player.getX() + playerInteractionOffsetX;
+        float playerCenterY = player.getY() + playerInteractionOffsetY;
+        float radiusSquared = radius * radius;
+        for (int index = 0; index < vertices.size() - 1; index++) {
+            if (distanceSquaredToSegment(
+                    playerCenterX, playerCenterY, vertices.get(index), vertices.get(index + 1))
+                    <= radiusSquared) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static float distanceSquaredToSegment(float pointX, float pointY, Vector2 start, Vector2 end) {
+        float segmentX = end.x - start.x;
+        float segmentY = end.y - start.y;
+        float lengthSquared = segmentX * segmentX + segmentY * segmentY;
+        if (lengthSquared == 0f) {
+            float dx = pointX - start.x;
+            float dy = pointY - start.y;
+            return dx * dx + dy * dy;
+        }
+
+        float projection = ((pointX - start.x) * segmentX + (pointY - start.y) * segmentY)
+                / lengthSquared;
+        float clampedProjection = Math.max(0f, Math.min(1f, projection));
+        float closestX = start.x + clampedProjection * segmentX;
+        float closestY = start.y + clampedProjection * segmentY;
+        float dx = pointX - closestX;
+        float dy = pointY - closestY;
+        return dx * dx + dy * dy;
+    }
+
+    private static float defaultPlayerSize() {
+        return GameProperties.getFloat(GameProperties.KEY_PLAYER_SIZE, 160f);
     }
 }

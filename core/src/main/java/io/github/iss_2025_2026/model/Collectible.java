@@ -31,6 +31,22 @@ public class Collectible {
         CollectibleEffectFactory.getStrategy(effectType).apply(context, this);
     }
 
+    public boolean canBeUsedInLevel(int levelId) {
+        if (id == null) return true;
+        if (id.startsWith("level_")) {
+            try {
+                int underscoreIndex = id.indexOf('_', 6);
+                if (underscoreIndex != -1) {
+                    int reqLevel = Integer.parseInt(id.substring(6, underscoreIndex));
+                    return reqLevel == levelId;
+                }
+            } catch (NumberFormatException e) {
+                // Fallback to true if parsing fails
+            }
+        }
+        return true;
+    }
+
     public Collectible copy() {
         return new Collectible(id, name, description, effectType, aoe, effectValue);
     }

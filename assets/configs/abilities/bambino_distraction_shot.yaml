@@ -1,0 +1,7 @@
+id: "BAMBINO_DISTRACTION_SHOT"
+name: "Fiondata Distrattiva"
+description: "Attacco altruista rapido: aiuta la squadra creando spazio e pressione leggera."
+strategy: "DAMAGE"
+cooldown: 3
+aoe: true
+baseDamage: 18

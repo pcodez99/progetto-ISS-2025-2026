@@ -99,6 +99,12 @@ Durante i livelli il giocatore incontra NPC con cui può interagire. I dialoghi 
 - Gli NPC possono regalare oggetti.
 - Alcuni NPC possono proporre missioni secondarie o richiedere oggetti specifici.
 - Il giocatore può anche scegliere di **rubare** gli oggetti, con possibili conseguenze sulla barra del carattere.
+- Il catalogo NPC è data-driven in `assets/configs/npcs.yaml` e viene caricato tramite `NpcFactory`, così dialoghi, ricompense e conseguenze morali restano configurabili senza hardcodare i personaggi.
+- La scheda narrativa completa degli NPC è in `docs/npcs.md`; il catalogo runtime attuale include gli NPC già pronti per il livello 1.
+
+NPC configurati:
+
+- **Livello 1 - La Campagna:** Zio Toto, Zia Pina, Zyrko l'Ingegnere di Proxima, Turiddu.
 
 ### ❤️ Barra Carattere: Altruismo vs Egoismo
 
@@ -111,12 +117,22 @@ Il gioco include una barra `Carattere` che cambia colore in base al livello, ind
 - Se la barra `Carattere` sale **sopra i 50 punti**, diventa **blu**. Più il livello è alto, più il colore vira da un **blu scuro** verso un **celeste chiaro**
 - Le scelte dei giocatori (aiutare, cooperare, rubare, ecc.) influenzano direttamente il valore della barra.
 
+### Evoluzione dei personaggi e abilita
+
+Ogni personaggio ha tre slot abilita configurati in `assets/configs/characters.yaml`:
+
+- `base`: abilita disponibile dall'inizio.
+- `altruistic`: abilita sbloccata aiutando NPC, completando missioni e facendo scelte cooperative.
+- `egoistic`: abilita sbloccata rubando, mentendo, minacciando o scegliendo ricompense egoiste.
+
+Le soglie di sblocco sono in `assets/configs/evolution_rules.yaml`. Lo stato evolutivo e salvabile per ogni giocatore, quindi in multiplayer ogni personaggio puo crescere in modo diverso. I profili dialogo in `assets/configs/dialogue_profiles.yaml` cambiano tono e temperatura del modello in base al percorso dominante: bilanciato, altruista o egoista.
+
 ---
 
 ## 🎒 Oggetti trovabili
 
 Il sistema oggetti includerà consumabili, potenziamenti, equipaggiamenti e ricompense rare legate all'esplorazione e alle interazioni con NPC.
-La lista completa degli oggetti verrà definita nelle prossime milestone di progettazione.
+Le ricompense narrative già associate agli NPC includono Gasolio Benedetto, Cannolo Rinforzante, Cassata Mistica, Metallo Alieno Forgiato, Pagnotta Spaziale, Siero Anti-Proxima, Benedizione Viddana, Cristallo di Proxima, Seme della Terra e Stella Spezzata.
 
 ---
 
@@ -138,8 +154,52 @@ Il gioco utilizza un file di configurazione **`game.properties`** nella root del
 - `default_player_speed`: velocità base dei personaggi (default `200.0`).
 - `draw_physics_debug`: visualizzare o nascondere il debug Box2D (default `true`).
 - `music_volume` e `sfx_volume`: volumi audio (default `0.5`).
+- `ai_enabled`: abilita o disabilita i dialoghi generati con IA locale.
+- `ai_base_url`, `ai_chat_endpoint`, `ai_model`: configurano Ollama e il modello da usare.
+- `ai_connect_timeout_ms`, `ai_read_timeout_ms`: timeout REST per evitare blocchi lunghi.
+- `ai_default_temperature`, `ai_max_prompt_chars`, `ai_fallback_to_static_dialogue`: controllano creativita, dimensione prompt e fallback sui dialoghi statici degli NPC.
 
 Il file viene generato al primo avvio se non presente e può essere modificato a caldo; le modifiche vengono salvate automaticamente su disco. Per personalizzare il comportamento di gioco, editare `game.properties` e riavviare il gioco.
+
+### Servizio AI locale
+
+I dialoghi NPC possono passare da Ollama tramite `AiService`, un Singleton configurabile con:
+
+- `AiService.getAi()`
+- `AiService.setAi(...)`
+- `AiService.resetAi()`
+
+`NpcDialogueService` usa `DialogueProfileService` per costruire prompt e temperatura in base al percorso morale del giocatore, poi invia la richiesta a Ollama. Se il servizio non risponde e il fallback e attivo, viene usato `sampleDialogue` dell'NPC.
+
+### Voce NPC locale
+
+Le risposte testuali degli NPC possono essere sintetizzate da Voxtral 4B. Su
+macOS con 16 GB viene usata la conversione MLX 4-bit; su NVIDIA si puo usare il
+checkpoint BF16 originale tramite vLLM-Omni. Il gioco chiama
+`POST http://127.0.0.1:8000/v1/audio/speech` in background e continua a mostrare
+subito i sottotitoli; se il server non e disponibile, il dialogo resta testuale.
+
+Il launcher Docker e lo smoke test si trovano in `services/voxtral-tts/`.
+L'esecuzione richiede Linux o WSL2, una GPU NVIDIA con 16 GB di VRAM e Docker
+con NVIDIA Container Toolkit. Il compose usa un profilo a concorrenza singola
+pensato per rientrare nel vincolo di memoria del progetto.
+
+Il client TTS usa Factory Method per scegliere tra due prodotti concreti:
+
+- `LocalVoxtralTtsClient`, creato da `LocalVoxtralTtsClientCreator`;
+- `MistralApiTtsClient`, creato da `MistralApiTtsClientCreator`.
+
+Il provider si seleziona con `tts_provider` oppure con `TTS_PROVIDER`. Per usare
+direttamente l'API Mistral, la chiave viene letta esclusivamente dalla variabile
+d'ambiente `MISTRAL_API_KEY`; non esistono fallback verso properties o YAML.
+
+Per avviare caricando un `.env` locale ignorato da Git:
+
+```bash
+./scripts/run-with-env.sh
+```
+
+Se `.env` non esiste, lo script lo crea vuoto e chiede di compilare la chiave.
 
 
 ## 🛠️ Pipeline CI/CD

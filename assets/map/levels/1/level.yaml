@@ -1,9 +1,0 @@
-id: 1
-name: Campagna
-map: map/levels/1/level.tmx
-checkpoints:
-  - id: campagna_cp_1
-    layer: checkpoint
-    objectName: checkpoint
-    radius: 96
-    autosave: true

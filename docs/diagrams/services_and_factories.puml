@@ -1,0 +1,419 @@
+@startuml services_and_factories
+!pragma layout smetana
+!pragma layout smetana
+package io.github.iss_2025_2026.factory {
+
+    abstract class PlayerFactory <<Creator>> {
+        + create(id: String): Player
+        + getAbility(abilityId: String): SpecialAbility
+        + getCharacterData(): Map<String, Map<String, Object>>
+    }
+
+    class YamlPlayerFactory <<Concrete Creator>> {
+        - characterData: Map<String, Map<String, Object>>
+        - abilityRegistry: AbilityRegistry
+        - buildDirector: CharacterBuildDirector
+        + YamlPlayerFactory()
+        + create(id: String): Player
+        + getAbility(abilityId: String): SpecialAbility
+        + getCharacterData(): Map<String, Map<String, Object>>
+    }
+
+    abstract class EnemyFactory <<Creator>> {
+        + create(id: String): Enemy
+        + getEnemyData(): Map<String, Map<String, Object>>
+    }
+
+    class YamlEnemyFactory <<Concrete Creator>> {
+        - enemyData: Map<String, Map<String, Object>>
+        - prototypes: Map<String, Enemy>
+        - buildDirector: CharacterBuildDirector
+        + YamlEnemyFactory()
+        + create(id: String): Enemy
+        + getEnemyData(): Map<String, Map<String, Object>>
+    }
+
+    class AbilityRegistry {
+        - registry: Map<String, SpecialAbility>
+        + AbilityRegistry()
+        + getAbility(id: String): SpecialAbility
+    }
+
+    class CharacterConfigLoader {
+        + loadIndexedList(filepath: String, rootKey: String): Map<String, Map<String, Object>>
+    }
+
+    class CollectibleFactory {
+        + getAllCollectibles(): List<Collectible>
+        + createCollectible(id: String): Collectible
+    }
+
+    class NpcFactory {
+        - npcCatalog: Map<String, Npc>
+        + NpcFactory()
+        + getNpc(id: String): Npc
+        + findNpc(id: String): Optional<Npc>
+        + requireNpc(id: String): Npc
+        + getAllNpcs(): List<Npc>
+        + getNpcsForLevel(levelId: String): List<Npc>
+    }
+
+    class EvolutionRuleFactory {
+        - rulesByCharacterId: Map<String, CharacterEvolutionRules>
+        + EvolutionRuleFactory()
+        + getRulesForCharacter(characterId: String): CharacterEvolutionRules
+    }
+
+    class DialogueProfileFactory {
+        - profiles: Map<EvolutionPath, DialogueProfile>
+        + DialogueProfileFactory()
+        + getProfile(path: EvolutionPath): DialogueProfile
+    }
+
+    interface CharacterBuilder <<Builder>> {
+        + reset(): CharacterBuilder
+        + id(id: String): CharacterBuilder
+        + name(name: String): CharacterBuilder
+        + maxHp(maxHp: int): CharacterBuilder
+        + baseDamage(baseDamage: int): CharacterBuilder
+        + build(): Character
+    }
+
+    class CharacterBuildDirector <<Director>> {
+        + constructPlayer(builder: PlayerBuilder, data: Map, abilities: AbilityRegistry): Player
+        + constructEnemy(builder: EnemyBuilder, data: Map, abilities: AbilityRegistry): Enemy
+    }
+
+    class EnemyBuilder <<Concrete Builder>> {
+        - id: String
+        - name: String
+        - maxHp: int
+        - baseDamage: int
+        - xpReward: int
+        - boss: boolean
+        - specialAbility: SpecialAbility
+        + EnemyBuilder()
+        + build(): Enemy
+    }
+
+    class PlayerBuilder <<Concrete Builder>> {
+        - id: String
+        - name: String
+        - maxHp: int
+        - baseDamage: int
+        - maxHpGrowth: int
+        - damageGrowth: int
+        - level: int
+        - karma: int
+        - backpack: Backpack
+        - ability: SpecialAbility
+        + PlayerBuilder()
+        + build(): Player
+    }
+}
+
+package io.github.iss_2025_2026.map {
+    class TmxLevelLoader {
+        + loadLevel(levelId: int): TmxLevel
+    }
+
+    class TmxLevel {
+        - map: TiledMap
+        - geometry: IsoMapGeometry
+        + TmxLevel(map: TiledMap)
+        + getMap(): TiledMap
+        + getGeometry(): IsoMapGeometry
+    }
+
+    class CheckpointDefinition {
+        - id: String
+        - levelId: int
+        - bounds: Rectangle
+        + CheckpointDefinition(id: String, levelId: int, bounds: Rectangle)
+    }
+
+    class GameStartupValidator {
+        + {static} validateRuntimeAssets(): LevelValidationResult
+    }
+
+    class IsoMapGeometry {
+        - bounds: Rectangle
+        - obstacleLayers: List<MapLayer>
+        + IsoMapGeometry(map: TiledMap)
+    }
+
+    interface LevelAssetResolver {
+        + resolve(path: String): FileHandle
+    }
+
+    class LevelAssetResolvers {
+        + {static} defaultResolver(): LevelAssetResolver
+    }
+
+    class LevelAssetValidator {
+        + {static} validate(level: LevelDefinition): LevelValidationResult
+    }
+
+    class LevelCatalog {
+        - catalog: Map<Integer, LevelDefinition>
+        + LevelCatalog()
+        + getLevel(id: int): LevelDefinition
+    }
+
+    class LevelDefinition {
+        - id: int
+        - tmxPath: String
+        - name: String
+        + LevelDefinition(id: int, tmxPath: String, name: String)
+    }
+
+    class LevelManifest {
+        - levels: List<LevelDefinition>
+        + LevelManifest()
+    }
+
+    class LevelRuntime {
+        - level: TmxLevel
+        - levelId: int
+        + LevelRuntime(level: TmxLevel, levelId: int)
+    }
+
+    class LevelValidationResult {
+        - valid: boolean
+        - errors: List<String>
+        + LevelValidationResult(valid: boolean, errors: List<String>)
+        + isValid(): boolean
+        + toUserMessage(): String
+    }
+
+    class MapPhysicsBuilder {
+        + {static} buildMapPhysics(level: TmxLevel, world: World): void
+    }
+
+    class TmxMapContract {
+        + {static} OBSTACLES_LAYER: String
+    }
+}
+
+package io.github.iss_2025_2026.physics {
+    class PhysicsFacade {
+        - world: World
+        - bodies: Map<Character, Body>
+        + PhysicsFacade(level: TmxLevel, playerSize: float, playerYOffset: float)
+        + initPlayerBody(player: Player): void
+        + setPlayerVelocity(player: Player, delta: float): void
+        + setMultiplayerVelocities(first: Player, second: Player, delta: float): void
+        + step(delta: float): void
+        + syncPlayerPositions(): void
+        + drawDebug(cam: OrthographicCamera): void
+        + dispose(): void
+    }
+}
+
+package io.github.iss_2025_2026.persistence {
+    class SaveManager {
+        - saveDirectory: File
+        + SaveManager()
+        + saveGame(state: GameState, filename: String): void
+        + loadGame(filename: String): GameState
+        + listSaveFiles(): List<String>
+    }
+}
+
+package io.github.iss_2025_2026.service {
+    class EvolutionService {
+        - ruleFactory: EvolutionRuleFactory
+        + applyChoice(player: Player, event: PlayerChoiceEvent): EvolutionResult
+        + applyNpcChoice(player: Player, npc: Npc, type: ChoiceEventType): EvolutionResult
+    }
+
+    class DialogueProfileService {
+        - profileFactory: DialogueProfileFactory
+        + buildPrompt(player: Player, npc: Npc): DialoguePrompt
+    }
+
+    class NpcDialogueService {
+        - dialogueProfileService: DialogueProfileService
+        + getDialogues(player: Player, npc: Npc): List<String>
+        + getDialogues(player: Player, npc: Npc, history: List<String>): List<String>
+        + getOpeningDialogue(player: Player, npc: Npc): String
+        + getReactionDialogue(player: Player, npc: Npc, choiceType: ChoiceEventType): String
+    }
+
+    class CheckpointService {
+        - model: GameModel
+        - levelRuntime: LevelRuntime
+        + CheckpointService(model: GameModel, levelRuntime: LevelRuntime)
+        + pollCheckpointReachedEvent(): SaveResult
+    }
+
+    class EnemyEncounter {
+        - enemies: List<Enemy>
+        + EnemyEncounter(enemies: List<Enemy>)
+        + getEnemies(): List<Enemy>
+    }
+
+    class EnemyEncounterService {
+        - enemySpawnPoints: List<EnemySpawnPoint>
+        - factory: EnemyFactory
+        - geometry: IsoMapGeometry
+        - encounterRadius: float
+        + EnemyEncounterService(enemySpawnPoints: List<EnemySpawnPoint>, factory: EnemyFactory, geometry: IsoMapGeometry, encounterRadius: float)
+        + checkEncounter(player: Player): EnemyEncounter
+    }
+
+    class GameOverResult {
+        - status: Status
+        - message: String
+        + GameOverResult(status: Status, message: String)
+    }
+
+    class GameOverService {
+        - saveManager: SaveManager
+        + GameOverService(saveManager: SaveManager)
+        + restoreFromLastSave(model: GameModel): GameOverResult
+    }
+
+    class GameProperties {
+        - {static} properties: Properties
+        + {static} get(key: String, fallback: String): String
+        + {static} getInt(key: String, fallback: int): int
+        + {static} getFloat(key: String, fallback: float): float
+        + {static} getBoolean(key: String, fallback: boolean): boolean
+    }
+
+    class GameSaveService {
+        - saveManager: SaveManager
+        + GameSaveService(saveManager: SaveManager)
+        + save(model: GameModel, type: SaveType): SaveResult
+    }
+
+    class MenuMusicManager {
+        + {static} play(): void
+        + {static} pause(): void
+        + {static} stop(): void
+        + {static} setVolume(vol: float): void
+    }
+
+    class RunMusicManager {
+        + {static} play(): void
+        + {static} pause(): void
+        + {static} stop(): void
+        + {static} setVolume(vol: float): void
+    }
+
+    class SaveResult {
+        - status: Status
+        - message: String
+        + SaveResult(status: Status, message: String)
+        + shouldNotifyPlayer(): boolean
+    }
+
+    class SaveValidator {
+        + {static} validate(state: GameState): boolean
+    }
+
+    class CollectibleService {
+        - collectibleFactory: CollectibleFactory
+        - spawnInterval: float
+        - maxCollectibles: int
+        - activeCollectibles: List<CollectibleOnMap>
+        - spawnTimer: float
+        - pickupListener: PickupListener
+        + CollectibleService(collectibleFactory: CollectibleFactory, spawnInterval: float, maxCollectibles: int)
+        + CollectibleService(collectibleFactory: CollectibleFactory)
+        + setPickupListener(listener: PickupListener): void
+        + getActiveCollectibles(): List<CollectibleOnMap>
+        + update(delta: float, players: List<Player>, viewportBounds: Rectangle, levelId: int): void
+        + getClosestCollectible(player: Player, maxDistance: float): CollectibleOnMap
+        + pickUp(player: Player, item: CollectibleOnMap): boolean
+    }
+
+    class "CollectibleService.CollectibleOnMap" as CollectibleOnMap {
+        - collectible: Collectible
+        - x: float
+        - y: float
+        + CollectibleOnMap(collectible: Collectible, x: float, y: float)
+        + getCollectible(): Collectible
+        + getX(): float
+        + getY(): float
+    }
+
+    interface "CollectibleService.PickupListener" as PickupListener {
+        + onPickup(collectible: Collectible, player: Player): void
+    }
+
+    class SettingsManager {
+        - {static} SETTINGS_FILE: String
+        + {static} loadSettings(): GameSettings
+        + {static} saveSettings(settings: GameSettings): void
+    }
+}
+
+package io.github.iss_2025_2026.service.ai {
+    class AiService {
+        - {static} ai: AiService
+        - config: AiConfig
+        - client: AiClient
+        + {static} getAi(): AiService
+        + {static} setAi(replacement: AiService): void
+        + {static} resetAi(): void
+        + chat(request: AiRequest): AiResponse
+    }
+
+    class AiConfig {
+        - baseUrl: String
+        - model: String
+        - chatEndpoint: String
+        - defaultTemperature: float
+        + {static} fromGameProperties(): AiConfig
+        + getChatUrl(): String
+    }
+
+    interface AiClient {
+        + chat(request: AiRequest, config: AiConfig): AiResponse
+        + isAvailable(config: AiConfig): boolean
+    }
+
+    class OllamaAiClient implements AiClient {
+        + chat(request: AiRequest, config: AiConfig): AiResponse
+        + isAvailable(config: AiConfig): boolean
+    }
+
+    class AiRequest {
+        - model: String
+        - messages: List<AiMessage>
+        - temperature: Float
+        + withDefaults(config: AiConfig): AiRequest
+    }
+
+    class AiResponse {
+        - content: String
+        - model: String
+        - rawResponse: String
+    }
+}
+
+PlayerFactory <|-- YamlPlayerFactory
+EnemyFactory <|-- YamlEnemyFactory
+CharacterBuilder <|.. PlayerBuilder
+CharacterBuilder <|.. EnemyBuilder
+YamlPlayerFactory o-- AbilityRegistry : uses
+YamlPlayerFactory --> PlayerBuilder : creates
+YamlPlayerFactory --> CharacterBuildDirector : delegates
+YamlEnemyFactory o-- AbilityRegistry : uses
+YamlEnemyFactory --> EnemyBuilder : creates
+YamlEnemyFactory --> CharacterBuildDirector : delegates
+CharacterBuildDirector --> CharacterBuilder : orders steps
+EnemyEncounterService o-- io.github.iss_2025_2026.factory.EnemyFactory : uses
+CheckpointService o-- io.github.iss_2025_2026.model.GameModel : uses
+GameOverService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
+GameSaveService o-- io.github.iss_2025_2026.persistence.SaveManager : uses
+NpcDialogueService o-- DialogueProfileService : uses
+NpcDialogueService o-- io.github.iss_2025_2026.service.ai.AiService : uses
+AiService o-- io.github.iss_2025_2026.service.ai.AiClient : delegates to
+AiService o-- io.github.iss_2025_2026.service.ai.AiConfig : configured by
+CollectibleService o-- io.github.iss_2025_2026.factory.CollectibleFactory : uses
+CollectibleService +-- CollectibleOnMap : contains
+CollectibleService +-- PickupListener : defines
+@enduml

@@ -1,0 +1,31 @@
+@startuml 06-level-runtime
+!pragma layout smetana
+title Runtime livello - Facade
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class "map/levels.yaml" as LevelsYaml <<asset>>
+class "level.tmx" as LevelTmx <<asset>>
+class SceneController <<Facade>>
+class LevelCatalog <<Catalog>>
+class TmxLevelLoader <<Loader>>
+class LevelRuntime
+class LevelScreen <<Boundary>>
+class "Physics\nEnemy\nCheckpoint\nNPC\nCollectible" as RuntimeServices <<Services>>
+
+LevelsYaml --> LevelCatalog
+LevelTmx --> TmxLevelLoader
+SceneController --> LevelCatalog
+SceneController --> TmxLevelLoader
+SceneController --> LevelRuntime
+SceneController --> LevelScreen
+LevelScreen --> LevelRuntime
+LevelScreen --> RuntimeServices
+
+note bottom of SceneController
+Minimo: SceneController carica il livello e apre LevelScreen.
+end note
+@enduml

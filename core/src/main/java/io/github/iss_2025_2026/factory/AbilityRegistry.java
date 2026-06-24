@@ -11,12 +11,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 final class AbilityRegistry {
-    private static final String TAG = "CharacterFactory";
+    private static final String TAG = "AbilityRegistry";
     private static final String[] DEFAULT_ABILITIES = {
             "group_heal",
+            "mamma_purifying_care",
+            "mamma_slipper_stun",
             "viddano_throw",
+            "papa_guardian_throw",
+            "papa_heavy_hit",
             "stone_rain",
-            "wheelchair_jump"
+            "bambino_distraction_shot",
+            "bambino_critical_barrage",
+            "wheelchair_jump",
+            "nonno_guardian_stance",
+            "nonno_ramming_charge"
     };
 
     private final Map<String, SpecialAbility> abilities;

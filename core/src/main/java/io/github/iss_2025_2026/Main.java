@@ -4,8 +4,8 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 
-import io.github.iss_2025_2026.factory.CharacterFactory;
-import io.github.iss_2025_2026.factory.YamlCharacterFactory;
+import io.github.iss_2025_2026.factory.PlayerFactory;
+import io.github.iss_2025_2026.factory.YamlPlayerFactory;
 import io.github.iss_2025_2026.map.GameStartupValidator;
 import io.github.iss_2025_2026.map.LevelValidationResult;
 import io.github.iss_2025_2026.model.Player;
@@ -34,7 +34,7 @@ public class Main extends Game {
         if (!Gdx.files.internal(charactersPath).exists()
                 || !Gdx.files.internal(enemiesPath).exists()
                 || !Gdx.files.internal(abilitiesPath).exists()) {
-            Gdx.app.error("CharacterFactory", "CRITICAL: required character configs NOT FOUND at "
+            Gdx.app.error("CharacterConfig", "CRITICAL: required character configs NOT FOUND at "
                     + charactersPath + ", " + enemiesPath + " or " + abilitiesPath);
             // TO DO: AGGIUNGERE WARNING E CHIUDERE IL GIOCO SE MANCANO LE CONFIGS
             return;
@@ -53,8 +53,8 @@ public class Main extends Game {
             if ("mom".equals(mappedId)) mappedId = "mamma";
 
             // Create a player for the specified character and start directly in the runtime level scene.
-            CharacterFactory factory = new YamlCharacterFactory();
-            Player player = factory.createPlayer(mappedId);
+            PlayerFactory playerFactory = new YamlPlayerFactory();
+            Player player = playerFactory.create(mappedId);
             if (player != null) {
                 gameContext.getModel().startSinglePlayerGame("Campagna", player);
                 gameContext.getFlowController().startCurrentLevel();

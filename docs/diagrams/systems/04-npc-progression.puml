@@ -1,0 +1,30 @@
+@startuml 04-npc-progression
+!pragma layout smetana
+title NPC e progressione - Factory
+
+left to right direction
+skinparam classAttributeIconSize 0
+hide empty members
+hide circle
+
+class "npcs.yaml" as NpcYaml <<asset>>
+class "evolution_rules.yaml" as EvolutionYaml <<asset>>
+class NpcFactory <<Factory>>
+class Npc <<Prototype>>
+class NpcHelpRequestService <<Service>>
+class CollectibleFactory <<external>>
+class EvolutionService <<Service>>
+class EvolutionRuleFactory <<Factory>>
+
+NpcYaml --> NpcFactory
+NpcFactory o-- Npc : copie
+NpcHelpRequestService --> Npc
+NpcHelpRequestService --> CollectibleFactory : reward
+NpcHelpRequestService --> EvolutionService : scelta
+EvolutionYaml --> EvolutionRuleFactory
+EvolutionService --> EvolutionRuleFactory
+
+note bottom of NpcHelpRequestService
+Minimo: una scelta NPC aggiorna reward, karma ed evoluzione.
+end note
+@enduml

@@ -1,7 +1,7 @@
 package io.github.iss_2025_2026.model;
 
 /**
- * Interface defining the behavior of a special move
+ * Interface defining the behavior of a special move.
  */
 public interface SpecialAbility {
     String getName();
@@ -12,5 +12,5 @@ public interface SpecialAbility {
      * @param target The target character
      * @param userLevel The level of the user to calculate effects
      */
-    void perform(Character user, Character target, int userLevel);
+    void perform(Characters user, Characters target, int userLevel);
 }
