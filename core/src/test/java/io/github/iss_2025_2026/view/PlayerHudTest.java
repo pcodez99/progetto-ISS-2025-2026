@@ -98,9 +98,9 @@ public class PlayerHudTest {
         float karmaPercent = 0f; // -50 mappa a 0
         Color color = computeKarmaColorForTest(karmaPercent);
 
-        // A 0% dovrebbe essere azzurro chiaro
-        assertTrue(color.b > 0.8f, "Blu dovrebbe essere alto a karma minimo");
-        assertTrue(color.g > 0.7f, "Verde dovrebbe essere moderato");
+        // A 0% dovrebbe essere rosso
+        assertTrue(color.r > 0.8f, "Rosso dovrebbe essere alto a karma minimo");
+        assertTrue(color.b < 0.3f, "Blu dovrebbe essere basso a karma minimo");
     }
 
     @Test
@@ -109,8 +109,9 @@ public class PlayerHudTest {
         float karmaPercent = 1f; // 50 mappa a 1
         Color color = computeKarmaColorForTest(karmaPercent);
 
-        // A 100% dovrebbe essere azzurro scuro
-        assertTrue(color.b > 0.5f, "Blu dovrebbe essere presente a karma massimo");
+        // A 100% dovrebbe essere azzurro
+        assertTrue(color.b > 0.8f, "Blu dovrebbe essere alto a karma massimo");
+        assertTrue(color.r < 0.3f, "Rosso dovrebbe essere basso a karma massimo");
     }
 
     @Test
@@ -120,7 +121,8 @@ public class PlayerHudTest {
         Color color = computeKarmaColorForTest(karmaPercent);
 
         // A 50% dovrebbe essere una sfumatura intermedia
-        assertTrue(color.b > 0.3f, "Blu dovrebbe essere presente nel mezzo");
+        assertTrue(color.r > 0.4f, "Rosso dovrebbe essere presente nel mezzo");
+        assertTrue(color.b > 0.4f, "Blu dovrebbe essere presente nel mezzo");
     }
 
     // -------------------------------------------------------------------------
@@ -210,8 +212,8 @@ public class PlayerHudTest {
     }
 
     private Color computeKarmaColorForTest(float p) {
-        Color a = new Color(0.6f, 0.9f, 0.98f, 1f);
-        Color b = new Color(0.12f, 0.66f, 0.86f, 1f);
+        Color a = new Color(0.85f, 0.2f, 0.2f, 1f);   // Rosso (Egoismo)
+        Color b = new Color(0.12f, 0.66f, 0.86f, 1f); // Azzurro (Altruismo)
         return lerpColorForTest(a, b, p);
     }
 

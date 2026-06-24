@@ -129,10 +129,10 @@ public class PlayerHud implements Disposable {
         }
     }
 
-    // Karma: shades of cyan (light to darker)
+    // Karma: red (egoismo) to azzurro (altruismo)
     private Color computeKarmaColor(float p) {
-        Color a = new Color(0.6f, 0.9f, 0.98f, 1f);
-        Color b = new Color(0.12f, 0.66f, 0.86f, 1f);
+        Color a = new Color(0.85f, 0.2f, 0.2f, 1f);   // Rosso (Egoismo)
+        Color b = new Color(0.12f, 0.66f, 0.86f, 1f); // Azzurro (Altruismo)
         return lerpColor(a, b, p);
     }
 

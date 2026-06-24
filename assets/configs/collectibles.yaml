@@ -110,7 +110,7 @@
 
 # ID storici usati dalle ricompense NPC e dai salvataggi esistenti.
 - id: "SMALL_POTION"
-  name: "Pozione piccola"
+  name: "Cannolo Rinforzante"
   description: "Cura 20 HP a un alleato"
   effectType: "HEAL"
   aoe: false
