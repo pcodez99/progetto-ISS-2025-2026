@@ -390,10 +390,12 @@ public class LevelScreen implements Screen {
             return "characters/battle-sidescroller/boss-3";
         }
         if ("alieno_guardiano".equals(enemyType)) {
-            return "characters/enemy-alien-1";
+            return "characters/battle-sidescroller/enemy-3";
         }
-        // Default: alieno_sciame, alieno_base
-        return "characters/enemy-alien-2";
+        if ("alieno_base".equals(enemyType)) {
+            return "characters/battle-sidescroller/enemy-1";
+        }
+        return "characters/battle-sidescroller/enemy-2";
     }
 
     private void buildUI() {
