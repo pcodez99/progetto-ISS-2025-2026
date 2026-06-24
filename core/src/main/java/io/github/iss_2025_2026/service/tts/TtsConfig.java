@@ -15,7 +15,7 @@ public class TtsConfig {
     public static final String DEFAULT_RESPONSE_FORMAT = "wav";
     public static final float DEFAULT_SPEED = 1f;
     public static final float DEFAULT_VOLUME = 1f;
-    public static final float DEFAULT_GAIN = 3f;
+    public static final float DEFAULT_GAIN = 4f;
     public static final int DEFAULT_CONNECT_TIMEOUT_MS = 5000;
     public static final int DEFAULT_READ_TIMEOUT_MS = 120000;
 

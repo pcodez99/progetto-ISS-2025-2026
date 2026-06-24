@@ -22,7 +22,7 @@ public class TtsConfigTest {
         assertEquals("https://api.mistral.ai/v1/audio/voices", config.getMistral().getVoicesUrl());
         assertEquals("wav", config.getResponseFormat());
         assertEquals(1f, config.getVolume(), 0.001f);
-        assertEquals(3f, config.getGain(), 0.001f);
+        assertEquals(4f, config.getGain(), 0.001f);
         assertEquals(1, config.getConnectTimeoutMs());
         assertEquals(1, config.getReadTimeoutMs());
     }
@@ -37,7 +37,7 @@ public class TtsConfigTest {
         assertEquals("it_male", config.getLocal().getVoice());
         assertEquals("voxtral-mini-tts-2603", config.getMistral().getModel());
         assertEquals("wav", config.getResponseFormat());
-        assertEquals(3f, config.getGain(), 0.001f);
+        assertEquals(4f, config.getGain(), 0.001f);
     }
 
     @Test

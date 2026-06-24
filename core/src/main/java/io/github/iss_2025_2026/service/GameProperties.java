@@ -90,7 +90,7 @@ public class GameProperties {
         properties.setProperty(KEY_TTS_RESPONSE_FORMAT, "wav");
         properties.setProperty(KEY_TTS_SPEED, "1.0");
         properties.setProperty(KEY_TTS_VOLUME, "1.0");
-        properties.setProperty(KEY_TTS_GAIN, "3.0");
+        properties.setProperty(KEY_TTS_GAIN, "4.0");
         properties.setProperty(KEY_TTS_CONNECT_TIMEOUT_MS, "5000");
         properties.setProperty(KEY_TTS_READ_TIMEOUT_MS, "120000");
         properties.setProperty(KEY_TTS_MISTRAL_BASE_URL, "https://api.mistral.ai/v1");

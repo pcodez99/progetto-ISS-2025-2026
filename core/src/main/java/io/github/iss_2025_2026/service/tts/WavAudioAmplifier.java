@@ -3,14 +3,13 @@ package io.github.iss_2025_2026.service.tts;
 import java.util.Arrays;
 
 /**
- * Amplifica WAV PCM 16-bit senza superare il picco di sicurezza.
+ * Amplifica WAV PCM 16-bit applicando un limitatore morbido anti-clipping.
  */
 final class WavAudioAmplifier {
     private static final int RIFF_HEADER_SIZE = 12;
     private static final int CHUNK_HEADER_SIZE = 8;
     private static final int PCM_FORMAT = 1;
     private static final int BITS_PER_SAMPLE_16 = 16;
-    private static final float SAFE_PEAK = 0.98f;
 
     private WavAudioAmplifier() {
     }
@@ -25,22 +24,18 @@ final class WavAudioAmplifier {
             return audio;
         }
 
-        int peak = findPeak(audio, wave.dataOffset, wave.dataLength);
-        if (peak == 0) {
-            return audio;
-        }
-
-        float safeGain = (Short.MAX_VALUE * SAFE_PEAK) / peak;
-        float appliedGain = Math.min(requestedGain, safeGain);
-        if (appliedGain <= 1f) {
+        if (findPeak(audio, wave.dataOffset, wave.dataLength) == 0) {
             return audio;
         }
 
         byte[] amplified = Arrays.copyOf(audio, audio.length);
+        double limiterScale = Math.tanh(requestedGain);
         int dataEnd = wave.dataOffset + wave.dataLength;
         for (int offset = wave.dataOffset; offset + 1 < dataEnd; offset += 2) {
             int sample = readSigned16LittleEndian(audio, offset);
-            int boosted = Math.round(sample * appliedGain);
+            double normalized = sample / 32768.0;
+            double limited = Math.tanh(normalized * requestedGain) / limiterScale;
+            int boosted = (int) Math.round(limited * Short.MAX_VALUE);
             writeSigned16LittleEndian(amplified, offset, clampToSigned16(boosted));
         }
         return amplified;

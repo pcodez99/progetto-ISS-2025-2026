@@ -14,27 +14,27 @@ public class WavAudioAmplifierTest {
     private static final int PCM_DATA_OFFSET = 44;
 
     @Test
-    public void amplifiesPcm16SamplesByConfiguredGain() {
+    public void amplifiesQuietPcm16SamplesByConfiguredGain() {
         byte[] source = pcmWave((short) 1000, (short) -2000, (short) 3000);
 
         byte[] amplified = WavAudioAmplifier.amplify(source, 3f);
 
         assertNotSame(source, amplified);
-        assertEquals(3000, sampleAt(amplified, 0));
-        assertEquals(-6000, sampleAt(amplified, 1));
-        assertEquals(9000, sampleAt(amplified, 2));
+        assertTrue(sampleAt(amplified, 0) > 2900);
+        assertTrue(sampleAt(amplified, 1) < -5700);
+        assertTrue(sampleAt(amplified, 2) > 8400);
         assertEquals(1000, sampleAt(source, 0));
     }
 
     @Test
-    public void limitsGainBeforeSamplesCanClip() {
+    public void softlyCompressesLoudSamplesWithoutClipping() {
         byte[] source = pcmWave((short) 20000, (short) -20000);
 
         byte[] amplified = WavAudioAmplifier.amplify(source, 8f);
 
         assertTrue(sampleAt(amplified, 0) > 20000);
-        assertTrue(sampleAt(amplified, 0) <= Math.round(Short.MAX_VALUE * 0.98f));
-        assertEquals(-sampleAt(amplified, 0), sampleAt(amplified, 1));
+        assertTrue(sampleAt(amplified, 0) <= Short.MAX_VALUE);
+        assertTrue(Math.abs(sampleAt(amplified, 0) + sampleAt(amplified, 1)) <= 1);
     }
 
     @Test
