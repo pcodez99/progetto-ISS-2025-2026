@@ -14,7 +14,8 @@ public class TtsConfig {
     public static final String DEFAULT_MISTRAL_MODEL = "voxtral-mini-tts-2603";
     public static final String DEFAULT_RESPONSE_FORMAT = "wav";
     public static final float DEFAULT_SPEED = 1f;
-    public static final float DEFAULT_VOLUME = 0.85f;
+    public static final float DEFAULT_VOLUME = 1f;
+    public static final float DEFAULT_GAIN = 3f;
     public static final int DEFAULT_CONNECT_TIMEOUT_MS = 5000;
     public static final int DEFAULT_READ_TIMEOUT_MS = 120000;
 
@@ -22,6 +23,7 @@ public class TtsConfig {
     private final TtsProvider provider;
     private final String responseFormat;
     private final float volume;
+    private final float gain;
     private final int connectTimeoutMs;
     private final int readTimeoutMs;
     private final LocalTtsConfig local;
@@ -29,10 +31,17 @@ public class TtsConfig {
 
     public TtsConfig(boolean enabled, TtsProvider provider, String responseFormat, float volume,
             int connectTimeoutMs, int readTimeoutMs, LocalTtsConfig local, MistralTtsConfig mistral) {
+        this(enabled, provider, responseFormat, volume, DEFAULT_GAIN,
+                connectTimeoutMs, readTimeoutMs, local, mistral);
+    }
+
+    public TtsConfig(boolean enabled, TtsProvider provider, String responseFormat, float volume, float gain,
+            int connectTimeoutMs, int readTimeoutMs, LocalTtsConfig local, MistralTtsConfig mistral) {
         this.enabled = enabled;
         this.provider = provider != null ? provider : DEFAULT_PROVIDER;
         this.responseFormat = defaultIfBlank(responseFormat, DEFAULT_RESPONSE_FORMAT).toLowerCase();
         this.volume = Math.max(0f, Math.min(1f, volume));
+        this.gain = Math.max(1f, Math.min(8f, gain));
         this.connectTimeoutMs = Math.max(1, connectTimeoutMs);
         this.readTimeoutMs = Math.max(1, readTimeoutMs);
         this.local = local != null ? local : defaultLocal();
@@ -45,6 +54,7 @@ public class TtsConfig {
                 resolveProvider(),
                 GameProperties.getString(GameProperties.KEY_TTS_RESPONSE_FORMAT, DEFAULT_RESPONSE_FORMAT),
                 GameProperties.getFloat(GameProperties.KEY_TTS_VOLUME, DEFAULT_VOLUME),
+                GameProperties.getFloat(GameProperties.KEY_TTS_GAIN, DEFAULT_GAIN),
                 GameProperties.getInt(GameProperties.KEY_TTS_CONNECT_TIMEOUT_MS, DEFAULT_CONNECT_TIMEOUT_MS),
                 GameProperties.getInt(GameProperties.KEY_TTS_READ_TIMEOUT_MS, DEFAULT_READ_TIMEOUT_MS),
                 new LocalTtsConfig(
@@ -96,6 +106,10 @@ public class TtsConfig {
 
     public float getVolume() {
         return volume;
+    }
+
+    public float getGain() {
+        return gain;
     }
 
     public int getConnectTimeoutMs() {

@@ -4,7 +4,9 @@ import io.github.iss_2025_2026.factory.NpcFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -72,9 +74,26 @@ public class NpcFactoryTest {
 
         assertNotSame(first, second);
         first.setName("Nome modificato");
+        first.getVoice().setMistralVoiceId("00000000-0000-0000-0000-000000000000");
 
         assertEquals("Zia Pina a Cannolara", second.getName());
         assertEquals("Zia Pina a Cannolara", factory.getNpc("zia_pina").getName());
+        assertEquals("a4c6929a-d0e2-4deb-a3ab-ea6583f6492f",
+                factory.getNpc("zia_pina").getVoice().getMistralVoiceId());
+    }
+
+    @Test
+    public void testOgniNpcHaLaVoceMistralConfigurata() {
+        assertVoice("zio_toto", "d58ca7f1-e6a6-4917-9746-df7d49ee8366");
+        assertVoice("turiddu_spaventapasseri", "987b1901-4393-43e8-bb79-42f6201ee6f0");
+        assertVoice("zyrko_ingegnere_alieno", "4e19d8ab-3e49-47eb-bd9d-f50d18d8e275");
+        assertVoice("zia_pina", "a4c6929a-d0e2-4deb-a3ab-ea6583f6492f");
+
+        Set<String> voiceIds = new HashSet<>();
+        for (Npc npc : factory.getAllNpcs()) {
+            assertNotNull(npc.getVoice());
+            assertTrue(voiceIds.add(npc.getVoice().getMistralVoiceId()));
+        }
     }
 
     @Test
@@ -90,5 +109,12 @@ public class NpcFactoryTest {
             }
         }
         return false;
+    }
+
+    private void assertVoice(String npcId, String expectedVoiceId) {
+        Npc npc = factory.getNpc(npcId);
+        assertNotNull(npc);
+        assertNotNull(npc.getVoice());
+        assertEquals(expectedVoiceId, npc.getVoice().getMistralVoiceId());
     }
 }

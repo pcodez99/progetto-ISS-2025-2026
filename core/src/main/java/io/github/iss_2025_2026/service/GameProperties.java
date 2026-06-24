@@ -49,6 +49,7 @@ public class GameProperties {
     public static final String KEY_TTS_RESPONSE_FORMAT = "tts_response_format";
     public static final String KEY_TTS_SPEED = "tts_speed";
     public static final String KEY_TTS_VOLUME = "tts_volume";
+    public static final String KEY_TTS_GAIN = "tts_gain";
     public static final String KEY_TTS_CONNECT_TIMEOUT_MS = "tts_connect_timeout_ms";
     public static final String KEY_TTS_READ_TIMEOUT_MS = "tts_read_timeout_ms";
     public static final String KEY_TTS_MISTRAL_BASE_URL = "tts_mistral_base_url";
@@ -88,7 +89,8 @@ public class GameProperties {
         properties.setProperty(KEY_TTS_VOICE, "it_male");
         properties.setProperty(KEY_TTS_RESPONSE_FORMAT, "wav");
         properties.setProperty(KEY_TTS_SPEED, "1.0");
-        properties.setProperty(KEY_TTS_VOLUME, "0.85");
+        properties.setProperty(KEY_TTS_VOLUME, "1.0");
+        properties.setProperty(KEY_TTS_GAIN, "3.0");
         properties.setProperty(KEY_TTS_CONNECT_TIMEOUT_MS, "5000");
         properties.setProperty(KEY_TTS_READ_TIMEOUT_MS, "120000");
         properties.setProperty(KEY_TTS_MISTRAL_BASE_URL, "https://api.mistral.ai/v1");

@@ -23,6 +23,7 @@ public class Npc {
     private String negativeConsequence;
     private String sampleDialogue;
     private String dialoguePrompt;
+    private NpcVoiceConfig voice;
     private NpcHelpRequest helpRequest;
     private List<String> interactionOptions = new ArrayList<>();
     private List<String> traits = new ArrayList<>();
@@ -49,6 +50,7 @@ public class Npc {
         this.negativeConsequence = source.negativeConsequence;
         this.sampleDialogue = source.sampleDialogue;
         this.dialoguePrompt = source.dialoguePrompt;
+        this.voice = source.voice != null ? source.voice.copy() : null;
         this.helpRequest = source.helpRequest != null ? source.helpRequest.copy() : null;
         this.interactionOptions = new ArrayList<>(source.getInteractionOptions());
         this.traits = new ArrayList<>(source.getTraits());
@@ -204,6 +206,14 @@ public class Npc {
 
     public void setDialoguePrompt(String dialoguePrompt) {
         this.dialoguePrompt = dialoguePrompt;
+    }
+
+    public NpcVoiceConfig getVoice() {
+        return voice != null ? voice.copy() : null;
+    }
+
+    public void setVoice(NpcVoiceConfig voice) {
+        this.voice = voice != null ? voice.copy() : null;
     }
 
     public NpcHelpRequest getHelpRequest() {

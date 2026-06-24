@@ -1,5 +1,7 @@
 package io.github.iss_2025_2026.service.tts;
 
+import io.github.iss_2025_2026.model.NpcVoiceConfig;
+
 public class TtsRequest {
     private final String text;
     private final String voice;
@@ -12,10 +14,24 @@ public class TtsRequest {
     }
 
     public static TtsRequest of(String text, TtsConfig config) {
+        return of(text, config, null);
+    }
+
+    public static TtsRequest of(String text, TtsConfig config, NpcVoiceConfig npcVoice) {
         if (config.getProvider() == TtsProvider.MISTRAL) {
-            return new TtsRequest(text, config.getMistral().getVoiceId(), 1f);
+            String voiceId = firstNonBlank(
+                    npcVoice != null ? npcVoice.getMistralVoiceId() : null,
+                    config.getMistral().getVoiceId());
+            return new TtsRequest(text, voiceId, 1f);
         }
-        return new TtsRequest(text, config.getLocal().getVoice(), config.getLocal().getSpeed());
+        String localVoice = firstNonBlank(
+                npcVoice != null ? npcVoice.getLocalVoice() : null,
+                config.getLocal().getVoice());
+        return new TtsRequest(text, localVoice, config.getLocal().getSpeed());
+    }
+
+    private static String firstNonBlank(String preferred, String fallback) {
+        return preferred == null || preferred.trim().isEmpty() ? fallback : preferred.trim();
     }
 
     public String getText() {

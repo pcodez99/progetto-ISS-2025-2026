@@ -2,6 +2,8 @@ package io.github.iss_2025_2026.service.tts;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import io.github.iss_2025_2026.model.Npc;
+import io.github.iss_2025_2026.model.NpcVoiceConfig;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
@@ -43,12 +45,17 @@ public class NpcSpeechService implements AutoCloseable {
     }
 
     public void speak(String text) {
+        speak(null, text);
+    }
+
+    public void speak(Npc npc, String text) {
         if (closed || !config.isEnabled() || text == null || text.trim().isEmpty()) {
             return;
         }
 
         final long requestGeneration = generation.incrementAndGet();
-        executor.submit(() -> synthesizeAndSchedulePlayback(requestGeneration, text));
+        final NpcVoiceConfig voice = npc != null ? npc.getVoice() : null;
+        executor.submit(() -> synthesizeAndSchedulePlayback(requestGeneration, text, voice));
     }
 
     public boolean isAvailable() {
@@ -72,16 +79,17 @@ public class NpcSpeechService implements AutoCloseable {
         disposeCurrentPlayback();
     }
 
-    private void synthesizeAndSchedulePlayback(long requestGeneration, String text) {
+    private void synthesizeAndSchedulePlayback(long requestGeneration, String text, NpcVoiceConfig voice) {
         File audioFile = null;
         try {
-            TtsResult result = client.synthesize(TtsRequest.of(text, config));
+            TtsResult result = client.synthesize(TtsRequest.of(text, config, voice));
             if (closed || requestGeneration != generation.get()) {
                 return;
             }
 
+            byte[] amplifiedAudio = WavAudioAmplifier.amplify(result.getAudioData(), config.getGain());
             audioFile = File.createTempFile("viddani-voxtral-", "." + config.getResponseFormat());
-            Files.write(audioFile.toPath(), result.getAudioData());
+            Files.write(audioFile.toPath(), amplifiedAudio);
             final File readyFile = audioFile;
             audioFile = null;
 

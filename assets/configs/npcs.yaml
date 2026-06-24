@@ -16,6 +16,8 @@ npcs:
   negativeConsequence: Se il giocatore ruba, Zio Toto non aiutera piu nei livelli successivi e parlera male del giocatore agli altri NPC.
   sampleDialogue: Picciotti, sti cosi verdi m'hannu scassatu u tratturi! Ma chi sunnu, marziani o meccanici abusivi?
   dialoguePrompt: Sei Zio Toto u Tratturista, un contadino siciliano anziano e burbero ma buono. Ti lamenti degli alieni perche hanno distrutto il raccolto e rubato pezzi del trattore. Parli con battute secche, dialetto leggero e tono pratico. Premi il giocatore se aiuta e diventi diffidente se prova a rubare, ogni tanto parli in siciliano.
+  voice:
+    mistralVoiceId: d58ca7f1-e6a6-4917-9746-df7d49ee8366
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Mi aiuti a recuperare i pezzi del trattore prima che gli alieni li smontino del tutto?"
@@ -48,6 +50,8 @@ npcs:
   negativeConsequence: Se il giocatore ruba, i cannoli rubati possono essere scaduti e causare un piccolo effetto negativo temporaneo.
   sampleDialogue: Prima salvati i gallini e poi ti dugnu i cannola. Cca nuddu mangia gratis, mancu contra l'alieni!
   dialoguePrompt: Sei Zia Pina, una contadina siciliana anziana, affettuosa ma severa. Parli con tono ironico, usi qualche espressione dialettale siciliana leggera e comprensibile. Offri cibo e cure al giocatore, ma pretendi rispetto e aiuto. Se il giocatore e gentile, lo tratti come un nipote. Se prova a rubare, ti arrabbi e lo rimproveri duramente.
+  voice:
+    mistralVoiceId: a4c6929a-d0e2-4deb-a3ab-ea6583f6492f
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Mi aiuti a riportare al sicuro le galline prima che finiscano sulla navicella?"
@@ -79,6 +83,8 @@ npcs:
   negativeConsequence: Se il giocatore prova a rubare il cristallo o a minacciarlo, Zyrko fugge e lascia un upgrade instabile che puo malfunzionare durante il combattimento.
   sampleDialogue: Io non invadere! Io riparare! Vostra zappa molto primitiva... ma con cristallo Proxima diventa bellissima arma spaziale!
   dialoguePrompt: Sei Zyrko l'Ingegnere di Proxima, un alieno tecnico pacifico, curioso e un po' impacciato. Sei contrario all'invasione della Terra e vuoi aiutare i Viddani migliorando le loro armi con tecnologia aliena. Parli in italiano semplice, con qualche errore grammaticale leggero e tono gentile. Sei affascinato dagli oggetti terrestri come zappe, fionde, ciabatte e trattori. Se il giocatore e altruista, offri upgrade migliori. Se prova a rubare o minacciare, ti spaventi e lasci tecnologia instabile.
+  voice:
+    mistralVoiceId: 4e19d8ab-3e49-47eb-bd9d-f50d18d8e275
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Tu aiutare me a trovare metallo alieno e oggetto terrestre per esperimento pacifico?"
@@ -112,6 +118,8 @@ npcs:
   negativeConsequence: Se viene spaventato, urla cosi forte da attirare un gruppo di alieni minori.
   sampleDialogue: L'hai vistu puru tu? Chiddu non era un picciuni... era un picciuni cu l'antenna!
   dialoguePrompt: Sei Turiddu, un uomo vestito da spaventapasseri che vede alieni ovunque. Sei comico, ansioso e facilmente suggestionabile. Dai informazioni utili solo se il giocatore ti calma; se viene deriso o spaventato, reagisci urlando e peggiorando la situazione.
+  voice:
+    mistralVoiceId: 987b1901-4393-43e8-bb79-42f6201ee6f0
   helpRequest:
     triggerAfterNpcReplies: 1
     text: "Mi aiuti a controllare il campo e a dimostrare che quel piccione ha davvero l'antenna?"

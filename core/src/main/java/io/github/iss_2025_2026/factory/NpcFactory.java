@@ -6,13 +6,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.github.iss_2025_2026.model.Npc;
 import io.github.iss_2025_2026.model.NpcHelpRequest;
+import io.github.iss_2025_2026.model.NpcVoiceConfig;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,8 +48,9 @@ public class NpcFactory {
 
             NpcCatalog catalog = mapper.readValue(inputStream, NpcCatalog.class);
             List<Npc> npcs = catalog.getNpcs();
+            Set<String> mistralVoiceIds = new HashSet<>();
             for (Npc npc : npcs) {
-                if (isValidNpc(npc)) {
+                if (isValidNpc(npc) && hasUniqueMistralVoice(npc, mistralVoiceIds)) {
                     npcCatalog.put(npc.getId(), npc.copy());
                 }
             }
@@ -140,7 +145,33 @@ public class NpcFactory {
             LOGGER.warning("NPC ignorato: ricompensa o delta karma non validi per ID " + npc.getId());
             return false;
         }
+        NpcVoiceConfig voice = npc.getVoice();
+        if (voice == null || !isValidUuid(voice.getMistralVoiceId())) {
+            LOGGER.warning("NPC ignorato: mistralVoiceId mancante o non valido per ID " + npc.getId());
+            return false;
+        }
         return true;
+    }
+
+    private boolean hasUniqueMistralVoice(Npc npc, Set<String> usedVoiceIds) {
+        String voiceId = npc.getVoice().getMistralVoiceId().trim().toLowerCase();
+        if (!usedVoiceIds.add(voiceId)) {
+            LOGGER.warning("NPC ignorato: mistralVoiceId duplicato per ID " + npc.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isValidUuid(String value) {
+        if (isBlank(value)) {
+            return false;
+        }
+        String normalized = value.trim().toLowerCase();
+        try {
+            return UUID.fromString(normalized).toString().equals(normalized);
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
     }
 
     private boolean isBlank(String value) {

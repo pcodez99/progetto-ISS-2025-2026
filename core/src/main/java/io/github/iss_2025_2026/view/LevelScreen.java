@@ -1162,7 +1162,7 @@ public class LevelScreen implements Screen {
             speech.append(turn.getText().trim());
         }
         if (speech.length() > 0) {
-            npcSpeechService.speak(speech.toString());
+            npcSpeechService.speak(session.getNpc(), speech.toString());
         }
     }
 
@@ -1208,7 +1208,7 @@ public class LevelScreen implements Screen {
                 + ", karmaDelta=" + result.getKarmaDelta()
                 + ", reward=" + result.getRewardId());
         if (npcSpeechService != null) {
-            npcSpeechService.speak(result.getNpcReply());
+            npcSpeechService.speak(session.getNpc(), result.getNpcReply());
         }
         refreshDialogueSessionPanel(result.getFeedback());
         if (dialogueController.isEnded()) {
