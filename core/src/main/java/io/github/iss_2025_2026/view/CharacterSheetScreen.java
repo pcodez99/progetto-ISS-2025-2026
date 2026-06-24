@@ -3,6 +3,7 @@ package io.github.iss_2025_2026.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -198,7 +199,10 @@ public class CharacterSheetScreen implements Screen {
                 managedTextures.add(texture);
                 TextureRegion region;
                 if (assetPath.contains("spritesheet")) {
-                    int frameSize = texture.getHeight();
+                    int frameSize = 256;
+                    if (texture.getHeight() < frameSize) {
+                        frameSize = texture.getHeight();
+                    }
                     TextureRegion[][] tmp = TextureRegion.split(texture, frameSize, frameSize);
                     region = tmp[0][0];
                 } else {
@@ -272,7 +276,7 @@ public class CharacterSheetScreen implements Screen {
 
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(new InputAdapter() {
+        InputAdapter keyProcessor = new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
                 if (keycode == Input.Keys.I || keycode == Input.Keys.O || keycode == Input.Keys.ESCAPE) {
@@ -281,7 +285,12 @@ public class CharacterSheetScreen implements Screen {
                 }
                 return false;
             }
-        });
+        };
+
+        InputMultiplexer multiplexer = new InputMultiplexer();
+        multiplexer.addProcessor(keyProcessor);
+        multiplexer.addProcessor(stage);
+        Gdx.input.setInputProcessor(multiplexer);
     }
 
     @Override
