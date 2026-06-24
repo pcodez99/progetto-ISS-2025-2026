@@ -1,7 +1,0 @@
-id: "NONNO_RAMMING_CHARGE"
-name: "Carica Senza Freni"
-description: "Carica egoista e brutale del Nonno: impatto massimo contro il gruppo nemico."
-strategy: "DAMAGE"
-cooldown: 4
-aoe: true
-baseDamage: 38

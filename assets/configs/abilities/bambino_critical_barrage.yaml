@@ -1,7 +1,0 @@
-id: "BAMBINO_CRITICAL_BARRAGE"
-name: "Raffica Monella"
-description: "Raffica egoista e instabile: tanti danni, poca pazienza."
-strategy: "DAMAGE"
-cooldown: 4
-aoe: true
-baseDamage: 32

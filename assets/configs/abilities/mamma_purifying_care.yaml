@@ -1,7 +1,0 @@
-id: "MAMMA_PURIFYING_CARE"
-name: "Cura Protettiva"
-description: "Una cura altruista piu intensa che rimette in piedi il gruppo nei momenti peggiori."
-strategy: "HEAL"
-cooldown: 4
-aoe: true
-baseHealing: 30

@@ -1,7 +1,0 @@
-id: "MAMMA_SLIPPER_STUN"
-name: "Ciabattata Punitiva"
-description: "Colpo egoista e secco contro i nemici: meno supporto, piu pressione offensiva."
-strategy: "DAMAGE"
-cooldown: 3
-aoe: true
-baseDamage: 24
