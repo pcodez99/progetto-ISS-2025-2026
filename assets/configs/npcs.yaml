@@ -64,7 +64,7 @@ npcs:
   - Mercante livello 1
 - id: zyrko_ingegnere_alieno
   name: Zyrko l'Ingegnere di Proxima
-  levelId: level_1_campaign
+  levelId: level_2_campaign
   type: QUEST_GIVER
   role: NPC alieno tecnico / upgrade armi
   setting: Officina improvvisata accanto a un rottame di navicella caduto nei campi
@@ -97,7 +97,7 @@ npcs:
   - Scelta morale
 - id: turiddu_spaventapasseri
   name: Turiddu u Spaventapasseri Vivente
-  levelId: level_1_campaign
+  levelId: level_2_campaign
   type: AMBIGUOUS
   role: NPC ambiguo / comic relief
   setting: Campo di grano

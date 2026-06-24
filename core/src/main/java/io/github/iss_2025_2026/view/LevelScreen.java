@@ -380,12 +380,19 @@ public class LevelScreen implements Screen {
      * corrispondente.
      */
     private static String resolveOverworldEnemyPath(String enemyType) {
-        if ("alieno_guardiano".equals(enemyType)
-                || "boss_livello_1".equals(enemyType)
-                || "boss_livello_2".equals(enemyType)) {
+        if ("boss_livello_1".equals(enemyType)) {
+            return "characters/battle-sidescroller/boss-1";
+        }
+        if ("boss_livello_2".equals(enemyType)) {
+            return "characters/battle-sidescroller/boss-2";
+        }
+        if ("boss_livello_3".equals(enemyType)) {
+            return "characters/battle-sidescroller/boss-3";
+        }
+        if ("alieno_guardiano".equals(enemyType)) {
             return "characters/enemy-alien-1";
         }
-        // Default: alieno_sciame, alieno_base, boss_livello_3, ecc.
+        // Default: alieno_sciame, alieno_base
         return "characters/enemy-alien-2";
     }
 
