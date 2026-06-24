@@ -28,9 +28,6 @@ public class Collectible {
         if (context == null) {
             throw new IllegalArgumentException("Il contesto d'uso del collectible non puo essere nullo.");
         }
-        if (!canBeUsedInLevel(context.getCurrentLevelId())) {
-            throw new IllegalStateException("Questo oggetto non puo essere usato in questo livello.");
-        }
         CollectibleEffectFactory.getStrategy(effectType).apply(context, this);
     }
 

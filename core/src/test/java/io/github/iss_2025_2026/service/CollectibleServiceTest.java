@@ -45,12 +45,12 @@ public class CollectibleServiceTest {
         // Utilizzo nel livello 1
         CollectibleUseContext contextLevel1 = new CollectibleUseContext(player, Collections.singletonList(player), 1);
         assertDoesNotThrow(() -> l1Potion.use(contextLevel1));
-        assertThrows(IllegalStateException.class, () -> l2Potion.use(contextLevel1));
+        assertDoesNotThrow(() -> l2Potion.use(contextLevel1));
 
         // Utilizzo nel livello 2
         CollectibleUseContext contextLevel2 = new CollectibleUseContext(player, Collections.singletonList(player), 2);
         assertDoesNotThrow(() -> l2Potion.use(contextLevel2));
-        assertThrows(IllegalStateException.class, () -> l1Potion.use(contextLevel2));
+        assertDoesNotThrow(() -> l1Potion.use(contextLevel2));
     }
 
     @Test
